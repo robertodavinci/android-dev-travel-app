@@ -16,10 +16,12 @@ import androidx.compose.ui.unit.sp
 import com.apps.travel_app.ui.theme.primaryColor
 import com.apps.travel_app.ui.theme.textHeading
 import com.apps.travel_app.ui.theme.textLightColor
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 
 
 @Composable
 fun ExploreScreen() {
+
     Column(
         modifier = Modifier
             .fillMaxSize()

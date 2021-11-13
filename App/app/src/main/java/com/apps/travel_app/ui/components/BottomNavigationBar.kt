@@ -1,5 +1,8 @@
 package com.apps.travel_app.ui.components
 
+import android.view.Window
+import android.view.WindowManager
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.Icon
@@ -9,11 +12,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.apps.travel_app.ui.theme.cardElevation
 import com.apps.travel_app.ui.theme.iconLightColor
 import com.apps.travel_app.ui.theme.primaryColor
+import com.apps.travel_app.ui.theme.textLightColor
 import com.guru.fontawesomecomposelib.FaIcon
 
 @Composable
@@ -36,13 +41,13 @@ fun BottomNavigationBar(navController: NavController) {
         val currentRoute = navBackStackEntry?.destination?.route
         items.forEach { item ->
             BottomNavigationItem(
-                icon = { FaIcon(item.icon, tint = iconLightColor) },
+                icon = { FaIcon(item.icon, tint = if (currentRoute == item.route) textLightColor else iconLightColor) },
                 selectedContentColor = primaryColor,
                 unselectedContentColor = iconLightColor,
                 alwaysShowLabel = false,
                 modifier = Modifier.then(
                       Modifier.scale(
-                          if(currentRoute == item.route) 1.25f
+                          if(currentRoute == item.route) 1.35f
                             else 1f
                       )
                   ),

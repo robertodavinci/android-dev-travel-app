@@ -1,5 +1,7 @@
 package com.apps.travel_app.ui.pages
 
+import android.view.Window
+import android.view.WindowManager
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,13 +14,18 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.sp
-import com.apps.travel_app.ui.theme.primaryColor
 import com.apps.travel_app.ui.theme.textHeading
 import com.apps.travel_app.ui.theme.textLightColor
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 
 @Composable
 fun HomeScreen() {
+
+    val systemUiController = rememberSystemUiController()
+    systemUiController.setSystemBarsColor(
+        color = Color.White
+    )
+
     Column(
         modifier = Modifier
             .fillMaxSize()
