@@ -20,24 +20,26 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
-import com.apps.travel_app.R
 import com.apps.travel_app.ui.theme.*
+import com.apps.travel_app.ui.utils.getBitmapFromURL
 import com.apps.travel_app.ui.utils.rememberMapViewWithLifecycle
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.google.android.libraries.maps.CameraUpdateFactory
 import com.google.android.libraries.maps.GoogleMap
 import com.google.android.libraries.maps.model.*
+//import com.google.maps.android.PolyUtil
 import com.google.maps.android.ktx.awaitMap
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlin.math.pow
-import kotlin.math.roundToInt
-import kotlin.math.sqrt
+import kotlin.math.*
 
 
 @Composable
 fun MapScreen(context: Context) {
+
+    /*val customMarkerImage =
+        getBitmapFromURL("https://www.veneto.info/wp-content/uploads/sites/114/verona.jpg")*/
 
     val systemUiController = rememberSystemUiController()
     systemUiController.setSystemBarsColor(
@@ -63,37 +65,72 @@ fun MapScreen(context: Context) {
                                 map!!.clear()
                                 polygonOpt = PolygonOptions()
                                 polygonOpt.add(screenCoordinatesToLatLng(position, map))
-                                polygonOpt.strokeColor(Color.BLUE)
+                                polygonOpt
+                                    .strokeColor(Color.parseColor("#FF808ea7"))
+                                    .fillColor(Color.parseColor("#88808ea7"))
                                 map!!.addPolygon(polygonOpt)
                             }
                         },
                         onDrag = { event, _ -> mapDrag(map, event, polygonOpt) },
                         onDragEnd = {
-                            if (map != null) {
+                            /*if (map != null) {
+                                for (i in 1..5) {
+                                    var location: com.google.android.gms.maps.model.LatLng
+                                    do {
+                                        location = com.google.android.gms.maps.model.LatLng(
+                                            -37.813,
+                                            144.962
+                                        )
+                                        map!!.addMarker(
+                                            MarkerOptions()
+                                                .position(
+                                                    LatLng(
+                                                        location.latitude,
+                                                        location.longitude
+                                                    )
+                                                )
+                                                .title("Melbourne")
+                                                .snippet("Population: 4,137,400")
+                                                .icon(
+                                                    BitmapDescriptorFactory.fromBitmap(
+                                                        customMarkerImage
+                                                    )
+                                                )
+                                        )
+                                    } while (PolyUtil.containsLocation(
+                                            location,
+                                            polygonOpt.points.map { marker ->
+                                                com.google.android.gms.maps.model.LatLng(
+                                                    marker.latitude,
+                                                    marker.longitude
+                                                )
+                                            },
+                                            true
+                                        )
+                                    )
+                                }
+                            }
+                            if (map == null) {
                                 val points = polygonOpt.points
                                 var x = 0.0
                                 var y = 0.0
-                                val pointCount: Int = points.size
-                                for (i in 0 until pointCount - 1) {
-                                    val point = points[i]
+                                for (point in points) {
                                     x += point.latitude
                                     y += point.longitude
                                 }
-                                x /= pointCount
-                                y /= pointCount
+                                x /= points.size
+                                y /= points.size
+                                val circleCenter = LatLng(x, y)
                                 val circle = CircleOptions()
-                                circle.strokeColor(Color.BLUE)
-                                circle.center(center)
+                                    .strokeColor(Color.parseColor("#FF808ea7"))
+                                    .fillColor(Color.parseColor("#88808ea7"))
+                                circle.center(circleCenter)
                                 circle.radius(
-                                    sqrt(
-                                        (points[0].latitude - x).pow(2.0) + (points[0].longitude - y).pow(
-                                            2.0
-                                        )
-                                    )
+                                    getDistanceFromLatLonInKm(circleCenter, points[0])
                                 )
                                 map!!.clear()
                                 map!!.addCircle(circle)
-                            }
+                            }*/
                         }
                     )
                 },
@@ -109,18 +146,30 @@ fun MapScreen(context: Context) {
                     completeMap.setMapStyle(
                         MapStyleOptions.loadRawResourceStyle(
                             context,
-                            R.raw.mapstyle
+                            com.apps.travel_app.R.raw.style
                         )
                     )
 
-                    completeMap.uiSettings.isMapToolbarEnabled = false;
+                    completeMap.uiSettings.isMapToolbarEnabled = false
 
                     completeMap.moveCamera(CameraUpdateFactory.newLatLngZoom(center, 6f))
 
-                    val markerOptionscenter = MarkerOptions()
-                        .title("Restaurant Hubert")
-                        .position(center)
-                    completeMap.addMarker(markerOptionscenter)
+                    completeMap.addMarker(
+                        MarkerOptions()
+                            .position(
+                                LatLng(
+                                    45.0,
+                                    10.0
+                                )
+                            )
+                            .title("Verona")
+                            .snippet("Qualcosa")
+                            /*.icon(
+                                BitmapDescriptorFactory.fromBitmap(
+                                    customMarkerImage
+                                )
+                            )*/
+                    )
 
                 }
 
@@ -156,6 +205,24 @@ fun MapScreen(context: Context) {
                 .padding(cardPadding)
         )
     }
+}
+
+fun getDistanceFromLatLonInKm(point1: LatLng, point2: LatLng): Double {
+    val R = 6371 // Radius of the earth in km
+    val dLat = deg2rad(point2.latitude - point1.latitude)  // deg2rad below
+    val dLon = deg2rad(point2.longitude - point1.longitude)
+    val a =
+        sin(dLat / 2) * sin(dLat / 2) +
+                cos(deg2rad(point1.latitude)) * cos(deg2rad(point2.latitude)) *
+                sin(dLon / 2) * sin(dLon / 2)
+
+    val c = 2 * atan2(sqrt(a), sqrt(1 - a))
+    val d = R * c // Distance in km
+    return d
+}
+
+fun deg2rad(deg: Double): Double {
+    return deg * (Math.PI / 180)
 }
 
 fun screenCoordinatesToLatLng(position: Offset, map: GoogleMap?): LatLng? {
