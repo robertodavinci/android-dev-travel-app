@@ -2,6 +2,7 @@ package com.apps.travel_app.ui.pages
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.Point
 import android.util.Log
@@ -17,12 +18,16 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color.Companion.Transparent
 import androidx.compose.ui.graphics.Color.Companion.White
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import com.apps.travel_app.models.Destination
+import com.apps.travel_app.ui.components.DestinationCard
 import com.apps.travel_app.ui.theme.*
 import com.apps.travel_app.ui.utils.*
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
@@ -30,34 +35,34 @@ import com.google.android.libraries.maps.CameraUpdateFactory
 import com.google.android.libraries.maps.GoogleMap
 import com.google.android.libraries.maps.model.*
 import com.google.maps.android.PolyUtil
-//import com.google.maps.android.PolyUtil
 import com.google.maps.android.ktx.awaitMap
 import com.guru.fontawesomecomposelib.FaIcon
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.lang.Math.random
-import kotlin.math.*
 
 val center = LatLng(44.0, 10.0)
 var polygonOpt = PolygonOptions()
 var customMarkerImage: Bitmap? = null
+var baseImage: Bitmap? = null
 var drawing = false
 var map: GoogleMap? = null
+var destinationSelected: MutableState<Boolean> = mutableStateOf(false)
+var currentDestination: Destination = Destination()
+var drawingEnabled: MutableState<Boolean> = mutableStateOf(false)
 
 @Composable
 fun MapScreen(context: Context) {
-
-    val drawingObserver = remember { mutableStateOf(false) }
+    destinationSelected = remember { destinationSelected }
+    drawingEnabled = remember { drawingEnabled }
 
     Thread {
+
+        baseImage =
+            cropToSquare(getBitmapFromURL("https://www.veneto.info/wp-content/uploads/sites/114/verona.jpg")!!)
         customMarkerImage =
-            getCroppedBitmap(
-                getBitmapFromURL("https://www.veneto.info/wp-content/uploads/sites/114/verona.jpg")!!,
-                100,
-                100,
-                5f
-            )
+            getCroppedBitmap(baseImage!!, 100, 100, 5f)
 
     }.start()
 
@@ -101,7 +106,7 @@ fun MapScreen(context: Context) {
         )
 
         Text(
-            text = "Spin & pin",
+            text = "\uD83C\uDF0D Spin & pin",
             color = White,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center,
@@ -111,7 +116,7 @@ fun MapScreen(context: Context) {
                 .align(Alignment.TopCenter)
                 .padding(cardPadding)
         )
-        if (drawingObserver.value) {
+        if (drawingEnabled.value) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -133,7 +138,6 @@ fun MapScreen(context: Context) {
                                 if (map != null) {
                                     populateMapDrawing(map!!)
                                     toggleDrawing()
-                                    drawingObserver.value = drawing
                                 }
                             }
                         )
@@ -141,35 +145,57 @@ fun MapScreen(context: Context) {
             )
         }
 
-        IconButton(
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(vertical = 70.dp, horizontal = cardPadding)
-                .width(30.dp)
-                .height(30.dp),
-            onClick = {
-                toggleDrawing()
-                drawingObserver.value = drawing
-            }) {
-            FaIcon(
-                faIcon = FaIcons.HandPointUpRegular,
-                tint = if (drawingObserver.value) textLightColor else iconLightColor
-            )
-        }
-
-        IconButton(
+        Column(
             modifier = Modifier
                 .align(Alignment.BottomStart)
-                .padding(vertical = 70.dp, horizontal = cardPadding)
-                .width(30.dp)
-                .height(30.dp),
-            onClick = {
+                .padding(vertical = 70.dp)
+                .fillMaxWidth()
+        ) {
 
-            }) {
-            FaIcon(
-                faIcon = FaIcons.BuildingRegular,
-                tint = iconLightColor
-            )
+            Box(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+
+                IconButton(
+                    modifier = Modifier
+                        .align(Alignment.CenterStart)
+                        .padding(cardPadding)
+                        .width(30.dp)
+                        .height(30.dp),
+                    onClick = {
+                        toggleDrawing()
+                    }) {
+                    FaIcon(
+                        faIcon = FaIcons.HandPointUpRegular,
+                        tint = if (drawingEnabled.value) textLightColor else iconLightColor
+                    )
+                }
+
+                IconButton(
+                    modifier = Modifier
+                        .align(Alignment.CenterEnd)
+                        .padding(cardPadding)
+                        .width(30.dp)
+                        .height(30.dp),
+                    onClick = {
+
+                    }) {
+                    FaIcon(
+                        faIcon = FaIcons.BuildingRegular,
+                        tint = iconLightColor
+                    )
+                }
+            }
+
+            if (destinationSelected.value) {
+                DestinationCard(
+                    destination = currentDestination, modifier = Modifier
+                        .fillMaxWidth()
+                        .align(
+                            Alignment.CenterHorizontally
+                        ).heightIn(0.dp,80.dp), true
+                )
+            }
         }
     }
 }
@@ -177,30 +203,41 @@ fun MapScreen(context: Context) {
 fun toggleDrawing() {
     if (map == null)
         return
-    drawing = !drawing
+    drawingEnabled.value = !drawingEnabled.value
     map!!.uiSettings.isScrollGesturesEnabled = !drawing
 }
 
 fun populateMapDrawing(map: GoogleMap) {
-    val point = polygonOpt.points[0]
+    val points = noiseReduction(polygonOpt.points,5)
+    val polygonOpt2 = PolygonOptions()
+        .strokeColor(Color.parseColor("#FF808ea7"))
+        .fillColor(Color.parseColor("#88808ea7"))
+        for (point in points) {
+            map.clear()
+            polygonOpt2.add(point)
+            map.addPolygon(polygonOpt2)
+        }
+
+
+    val point = points[0]
+    val mapPoints = points.map { m ->
+        com.google.android.gms.maps.model.LatLng(
+            m.latitude,
+            m.longitude
+        )
+    }
     for (i in 1..5) {
         var location: com.google.android.gms.maps.model.LatLng
         do {
+            Log.d("skip","skip")
             location = com.google.android.gms.maps.model.LatLng(
                 point.latitude + random() * 5 - 2.5f,
                 point.longitude + random() * 5 - 2.5f
             )
         } while (!PolyUtil.containsLocation(
                 location,
-                polygonOpt.points.map { m ->
-                    com.google.android.gms.maps.model.LatLng(
-                        m.latitude,
-                        m.longitude
-                    )
-                },
-                false
-            )
-        )
+                mapPoints,
+                true))
         val marker = map.addMarker(
             MarkerOptions()
                 .position(
@@ -223,7 +260,6 @@ fun populateMapDrawing(map: GoogleMap) {
 }
 
 fun mapDrawingReset(map: GoogleMap, position: Offset) {
-    Log.d("c", "prova")
     map.clear()
     polygonOpt = PolygonOptions()
     polygonOpt.add(screenCoordinatesToLatLng(position, map))
@@ -246,6 +282,8 @@ fun mapInit(map: GoogleMap, context: Context) {
     map.uiSettings.isMapToolbarEnabled = false
 
     map.moveCamera(CameraUpdateFactory.newLatLngZoom(center, 6f))
+
+    map.setOnMarkerClickListener { marker -> markerClick(marker) }
 }
 
 fun mapDrawing(map: GoogleMap?, motionEvent: PointerInputChange, polygonOpt: PolygonOptions) {
@@ -261,4 +299,42 @@ fun mapDrawing(map: GoogleMap?, motionEvent: PointerInputChange, polygonOpt: Pol
     polygonOpt.add(latLng)
 
     map.addPolygon(polygonOpt)
+}
+
+fun markerClick(marker: Marker): Boolean {
+    currentDestination = Destination()
+    currentDestination.latitude = marker.position.latitude
+    currentDestination.latitude = marker.position.longitude
+    currentDestination.name = marker.title
+    currentDestination.thumbnail = baseImage?.asImageBitmap()
+    destinationSelected.value = true
+    return true
+}
+
+fun noiseReduction(src: List<LatLng>, severity: Int = 1): List<LatLng>
+{
+    val newList = ArrayList<LatLng>()
+    for (point in src) {
+        newList.add(point)
+    }
+    for (i in src.indices)
+    {
+        val start = i - severity;
+        val end = i + severity;
+
+        var sumLat = 0.0;
+        var sumLng = 0.0;
+
+        for (j in start until end)
+        {
+            sumLat += newList[Math.floorMod(j,src.size)].latitude;
+            sumLng += newList[Math.floorMod(j,src.size)].longitude;
+        }
+
+        val avgLat = sumLat / (end - start);
+        val avgLng = sumLng / (end - start);
+
+        newList[i] = LatLng(avgLat,avgLng)
+    }
+    return newList
 }

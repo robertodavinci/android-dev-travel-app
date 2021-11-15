@@ -9,6 +9,6 @@ val cardElevation = 20.dp
 val cardPadding = 15.dp
 
 // text
-val textSmall = 12.dp
-val textNormal = 16.dp
+val textSmall = 12.sp
+val textNormal = 16.sp
 val textHeading = 20.sp
