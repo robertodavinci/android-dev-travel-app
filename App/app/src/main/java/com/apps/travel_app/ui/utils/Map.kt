@@ -99,7 +99,7 @@ fun markerPopUp(marker: Marker): Boolean {
             )
 
             marker.alpha = 1 - t
-            marker.setAnchor(0.5f, 3 * t)
+            marker.setAnchor(0.5f,1 + 3 * t)
             if (t > 0.0) {
                 handler.postDelayed(this, 16)
             }
