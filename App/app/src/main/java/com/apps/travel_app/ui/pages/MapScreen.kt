@@ -21,7 +21,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.apps.travel_app.ui.theme.*
-import com.apps.travel_app.ui.utils.getBitmapFromURL
 import com.apps.travel_app.ui.utils.rememberMapViewWithLifecycle
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.google.android.libraries.maps.CameraUpdateFactory
@@ -143,12 +142,12 @@ fun MapScreen(context: Context) {
                     completeMap.uiSettings.isScrollGesturesEnabled = false
                     completeMap.uiSettings.isZoomControlsEnabled = false
 
-                    completeMap.setMapStyle(
+                    /*completeMap.setMapStyle(
                         MapStyleOptions.loadRawResourceStyle(
                             context,
-                            com.apps.travel_app.R.raw.style
+                            //com.apps.travel_app.R.raw.style
                         )
-                    )
+                    )*/
 
                     completeMap.uiSettings.isMapToolbarEnabled = false
 
