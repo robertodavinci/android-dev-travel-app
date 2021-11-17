@@ -1,5 +1,6 @@
 package com.apps.travel_app.ui.pages
 
+import android.app.Activity
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -33,7 +34,10 @@ import com.apps.travel_app.ui.utils.*
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.google.android.libraries.maps.CameraUpdateFactory
 import com.google.android.libraries.maps.GoogleMap
+import com.google.android.libraries.maps.MapView
 import com.google.android.libraries.maps.model.*
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import com.google.maps.android.PolyUtil
 import com.google.maps.android.ktx.awaitMap
 import com.guru.fontawesomecomposelib.FaIcon
@@ -44,34 +48,26 @@ import java.lang.Math.random
 
 val center = LatLng(44.0, 10.0)
 var polygonOpt = PolygonOptions()
-var customMarkerImage: Bitmap? = null
-var baseImage: Bitmap? = null
 var drawing = false
 var map: GoogleMap? = null
 var destinationSelected: MutableState<Boolean> = mutableStateOf(false)
-var currentDestination: Destination = Destination()
+var currentDestination: MutableState<Destination> = mutableStateOf(Destination())
 var drawingEnabled: MutableState<Boolean> = mutableStateOf(false)
+var destinations = HashMap<Int, Destination>()
 
 @Composable
-fun MapScreen(context: Context) {
+fun MapScreen(context: Context, activity: Activity) {
     destinationSelected = remember { destinationSelected }
     drawingEnabled = remember { drawingEnabled }
-
-    Thread {
-
-        baseImage =
-            cropToSquare(getBitmapFromURL("https://www.veneto.info/wp-content/uploads/sites/114/verona.jpg")!!)
-        customMarkerImage =
-            getCroppedBitmap(baseImage!!, 100, 100, 5f)
-
-    }.start()
 
     val systemUiController = rememberSystemUiController()
     systemUiController.setSystemBarsColor(
         color = textLightColor
     )
 
-    val mapView = rememberMapViewWithLifecycle()
+
+        val mapView = rememberMapViewWithLifecycle()
+
 
     Box(modifier = Modifier.fillMaxSize()) {
 
@@ -83,8 +79,12 @@ fun MapScreen(context: Context) {
         ) {
             AndroidView({ mapView }) { mapView ->
                 CoroutineScope(Dispatchers.Main).launch {
-                    map = mapView.awaitMap()
-                    mapInit(map!!, context)
+                   if (map == null) {
+                        mapView.getMapAsync { mMap ->
+                            map = mMap
+                            mapInit(map!!, context)
+                        }
+                    }
                 }
             }
 
@@ -136,7 +136,7 @@ fun MapScreen(context: Context) {
                             },
                             onDragEnd = {
                                 if (map != null) {
-                                    populateMapDrawing(map!!)
+                                    populateMapDrawing(map!!, activity)
                                     toggleDrawing()
                                 }
                             }
@@ -187,15 +187,10 @@ fun MapScreen(context: Context) {
                 }
             }
 
-            if (destinationSelected.value) {
-                DestinationCard(
-                    destination = currentDestination, modifier = Modifier
-                        .fillMaxWidth()
-                        .align(
-                            Alignment.CenterHorizontally
-                        ).heightIn(0.dp,80.dp), true
-                )
-            }
+            DestinationCard(
+                destination = currentDestination.value,
+                destinationSelected.value && !drawingEnabled.value
+            )
         }
     }
 }
@@ -203,64 +198,75 @@ fun MapScreen(context: Context) {
 fun toggleDrawing() {
     if (map == null)
         return
+    destinationSelected.value = false
     drawingEnabled.value = !drawingEnabled.value
     map!!.uiSettings.isScrollGesturesEnabled = !drawing
 }
 
-fun populateMapDrawing(map: GoogleMap) {
-    val points = noiseReduction(polygonOpt.points,5)
+fun populateMapDrawing(map: GoogleMap, activity: Activity) {
+    if (polygonOpt.points.size <= 0)
+        return
+
+    val points = line(polygonOpt.points)
     val polygonOpt2 = PolygonOptions()
         .strokeColor(Color.parseColor("#FF808ea7"))
         .fillColor(Color.parseColor("#88808ea7"))
-        for (point in points) {
-            map.clear()
-            polygonOpt2.add(point)
-            map.addPolygon(polygonOpt2)
-        }
-
-
-    val point = points[0]
-    val mapPoints = points.map { m ->
-        com.google.android.gms.maps.model.LatLng(
-            m.latitude,
-            m.longitude
-        )
+    for (point in points) {
+        map.clear()
+        polygonOpt2.add(point)
+        map.addPolygon(polygonOpt2)
     }
-    for (i in 1..5) {
-        var location: com.google.android.gms.maps.model.LatLng
-        do {
-            Log.d("skip","skip")
-            location = com.google.android.gms.maps.model.LatLng(
-                point.latitude + random() * 5 - 2.5f,
-                point.longitude + random() * 5 - 2.5f
-            )
-        } while (!PolyUtil.containsLocation(
-                location,
-                mapPoints,
-                true))
-        val marker = map.addMarker(
-            MarkerOptions()
+
+    points.add(points[0])
+    val request = points.joinToString(",", "[", "]") { e ->
+        "[${e.latitude},${e.longitude}]"
+    }
+
+    Thread {
+        val citiesText = sendPostRequest(request)
+        val gson = Gson()
+        val itemType = object : TypeToken<List<Destination>>() {}.type
+        val cities: List<Destination> = gson.fromJson(citiesText, itemType)
+        for (city in cities) {
+
+            val downloadedImage = getBitmapFromURL(city.thumbnailUrl)
+            var thumbnail: Bitmap? = null
+            if (downloadedImage != null) {
+                val baseImage =
+                    cropToSquare(downloadedImage)
+                thumbnail =
+                    getCroppedBitmap(baseImage, 100, 100, 5f)
+
+                city.thumbnail = baseImage.asImageBitmap()
+            }
+            val markerOptions = MarkerOptions()
                 .position(
                     LatLng(
-                        location.latitude,
-                        location.longitude
+                        city.latitude,
+                        city.longitude
                     )
                 )
-                .icon(
-                    BitmapDescriptorFactory.fromBitmap(
-                        customMarkerImage
-                    )
-                )
-                .title("Verona")
-                .snippet("Figo!")
+                .title(city.name)
                 .zIndex(5f)
-        )
-        markerPopUp(marker)
-    }
+            if (thumbnail != null)
+                markerOptions.icon(
+                    BitmapDescriptorFactory.fromBitmap(
+                        thumbnail
+                    )
+                )
+            activity.runOnUiThread {
+                val marker = map.addMarker(markerOptions)
+                destinations[marker.hashCode()] = city
+                markerPopUp(marker)
+            }
+        }
+    }.start()
+
 }
 
 fun mapDrawingReset(map: GoogleMap, position: Offset) {
     map.clear()
+    destinations.clear()
     polygonOpt = PolygonOptions()
     polygonOpt.add(screenCoordinatesToLatLng(position, map))
     polygonOpt
@@ -302,39 +308,12 @@ fun mapDrawing(map: GoogleMap?, motionEvent: PointerInputChange, polygonOpt: Pol
 }
 
 fun markerClick(marker: Marker): Boolean {
-    currentDestination = Destination()
-    currentDestination.latitude = marker.position.latitude
-    currentDestination.latitude = marker.position.longitude
-    currentDestination.name = marker.title
-    currentDestination.thumbnail = baseImage?.asImageBitmap()
-    destinationSelected.value = true
-    return true
-}
-
-fun noiseReduction(src: List<LatLng>, severity: Int = 1): List<LatLng>
-{
-    val newList = ArrayList<LatLng>()
-    for (point in src) {
-        newList.add(point)
+    val destination = destinations[marker.hashCode()]
+    if (destination != null) {
+        currentDestination.value = destination
+        destinationSelected.value = true
+        return true
     }
-    for (i in src.indices)
-    {
-        val start = i - severity;
-        val end = i + severity;
-
-        var sumLat = 0.0;
-        var sumLng = 0.0;
-
-        for (j in start until end)
-        {
-            sumLat += newList[Math.floorMod(j,src.size)].latitude;
-            sumLng += newList[Math.floorMod(j,src.size)].longitude;
-        }
-
-        val avgLat = sumLat / (end - start);
-        val avgLng = sumLng / (end - start);
-
-        newList[i] = LatLng(avgLat,avgLng)
-    }
-    return newList
+    destinationSelected.value = false
+    return false
 }

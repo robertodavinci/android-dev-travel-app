@@ -10,7 +10,7 @@ class Destination {
     var country: Country = Country()
     var thumbnail: ImageBitmap? = null
     var name: String = ""
-
+    var thumbnailUrl: String = ""
 }
 
 class Country {

@@ -1,51 +1,53 @@
 package com.apps.travel_app.ui.components
 
-import android.os.Handler
-import android.os.SystemClock
-import android.view.animation.AccelerateDecelerateInterpolator
-import android.view.animation.BounceInterpolator
+import android.graphics.BitmapFactory
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
+import androidx.compose.material.IconButton
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.BitmapPainter
+import androidx.compose.ui.layout.AlignmentLine
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import com.apps.travel_app.R
 import com.apps.travel_app.models.Destination
+import com.apps.travel_app.ui.pages.drawingEnabled
 import com.apps.travel_app.ui.theme.*
-import kotlin.math.max
+import com.guru.fontawesomecomposelib.FaIcon
 
-val handler = Handler()
-val start = SystemClock.uptimeMillis()
-const val duration: Long = 1000
-val interpolator = AccelerateDecelerateInterpolator()
-var animTime = mutableStateOf(0f)
 
 @Composable
-fun DestinationCard(destination: Destination, modifier: Modifier?, animation: Boolean = false) {
+fun DestinationCard(destination: Destination, open: Boolean = false, maxHeightValue: Float = 130f) {
 
-    animTime = remember { mutableStateOf(0f) }
+    val maxHeight: Float by animateFloatAsState(
+        if (open) maxHeightValue else 0f, animationSpec = tween(
+            durationMillis = 1000,
+            easing = LinearOutSlowInEasing
+        )
+    )
 
     Card(
         elevation = cardElevation,
         backgroundColor = Color.White,
         shape = RoundedCornerShape(cardRadius),
         modifier = Modifier
-            .fillMaxWidth(if (animation) animTime.value else 1f)
+            .heightIn(0.dp, maxHeight.dp)
             .wrapContentSize()
             .padding(cardPadding)
     ) {
         Row(
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             if (destination.thumbnail != null) {
                 Image(
@@ -53,6 +55,7 @@ fun DestinationCard(destination: Destination, modifier: Modifier?, animation: Bo
                     contentDescription = "",
                     modifier = Modifier
                         .fillMaxWidth(0.3f)
+                        .fillMaxHeight()
                         .align(Alignment.CenterVertically)
                 )
             }
@@ -81,29 +84,6 @@ fun DestinationCard(destination: Destination, modifier: Modifier?, animation: Bo
             }
         }
     }
-
-    animation()
-}
-
-fun animation() {
-    if (animTime.value < 0.99) {
-        handler.post(object : Runnable {
-            override fun run() {
-                val elapsed = SystemClock.uptimeMillis() - start
-                val t = max(
-                    1 - interpolator.getInterpolation(
-                        elapsed.toFloat()
-                                / duration
-                    ), 0f
-                )
-
-                animTime.value = t
-                if (t > 0.0 && t < 0.95) {
-                    handler.postDelayed(this, 16)
-                }
-            }
-        })
-    }
 }
 
 @Preview
@@ -112,8 +92,7 @@ fun DestinationCardPreview() {
     val destination = Destination()
     destination.name = "Prova"
     DestinationCard(
-        destination = destination, modifier = Modifier
-            .fillMaxWidth(),
-        false
+        destination = destination,
+        true
     )
 }

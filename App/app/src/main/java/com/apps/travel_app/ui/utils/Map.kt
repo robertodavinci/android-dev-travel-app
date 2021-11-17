@@ -1,6 +1,5 @@
 package com.apps.travel_app.ui.utils
 
-import android.graphics.Interpolator
 import android.graphics.Point
 import android.os.Bundle
 import android.os.Handler
@@ -18,6 +17,7 @@ import com.google.android.libraries.maps.GoogleMap
 import com.google.android.libraries.maps.MapView
 import com.google.android.libraries.maps.model.LatLng
 import com.google.android.libraries.maps.model.Marker
+
 import kotlin.math.*
 
 
@@ -107,4 +107,71 @@ fun markerPopUp(marker: Marker): Boolean {
     })
 
     return false
+}
+
+
+fun noiseReduction(src: List<LatLng>, severity: Int = 1): ArrayList<LatLng>
+{
+    val newList = ArrayList<LatLng>()
+    for (point in src) {
+        newList.add(point)
+    }
+    for (i in src.indices)
+    {
+        val start = i - severity;
+        val end = i + severity;
+
+        var sumLat = 0.0;
+        var sumLng = 0.0;
+
+        for (j in start until end)
+        {
+            sumLat += newList[Math.floorMod(j,src.size)].latitude;
+            sumLng += newList[Math.floorMod(j,src.size)].longitude;
+        }
+
+        val avgLat = sumLat / (end - start);
+        val avgLng = sumLng / (end - start);
+
+        newList[i] = LatLng(avgLat,avgLng)
+    }
+    return newList
+}
+
+
+/**
+ * @param lineSegments A list of line segments representing a line
+ * @return A list line segments representing the smoothed line
+ */
+fun line(points: List<LatLng>): ArrayList<LatLng> {
+//    if (lineSegments.size < 4) return lineSegments
+    val smoothedLine = ArrayList<LatLng>()
+    smoothedLine.add(points[0])
+    var newPoint = points[1]
+    for (i in 2 until points.size - 2) {
+        newPoint = smoothPoint(points.subList(i - 2, i + 3))
+        smoothedLine.add(LatLng(newPoint.latitude,newPoint.longitude))
+    }
+    return smoothedLine
+}
+
+/**
+ * Find the new point for a smoothed line segment
+ * @param points The five points needed
+ * @return The new point for the smoothed line segment
+ */
+fun smoothPoint(points: List<LatLng>): LatLng {
+    var avgX = 0.0
+    var avgY = 0.0
+    for (point in points) {
+        avgX += point.latitude
+        avgY += point.longitude
+    }
+    avgX /= points.size
+    avgY /= points.size
+    val newPoint = LatLng(avgX, avgY)
+    val oldPoint = points[points.size / 2]
+    val newX = (5 * newPoint.latitude + oldPoint.latitude) / 6
+    val newY = (5 * newPoint.longitude + oldPoint.longitude) / 6
+    return LatLng(newX, newY)
 }

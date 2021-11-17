@@ -1,5 +1,6 @@
 package com.apps.travel_app
 
+import android.app.Activity
 import android.content.Context
 import android.os.Bundle
 import android.view.Window
@@ -11,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
+import androidx.navigation.activity
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -25,30 +27,30 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             Travel_AppTheme {
-                MainScreen(this)
+                MainScreen(this,this)
             }
         }
     }
 }
 
 @Composable
-fun MainScreen(context: Context) {
+fun MainScreen(context: Context, activity: MainActivity) {
     val navController = rememberNavController()
     Scaffold(
         bottomBar = { BottomNavigationBar(navController) }
     ) {
-        Navigation(navController,context)
+        Navigation(navController,context, activity)
     }
 }
 
 @Composable
-fun Navigation(navController: NavHostController, context: Context) {
+fun Navigation(navController: NavHostController, context: Context, activity: Activity) {
     NavHost(navController, startDestination = BottomBarItem.Home.route) {
         composable(BottomBarItem.Home.route) {
             HomeScreen()
         }
         composable(BottomBarItem.Map.route) {
-            MapScreen(context)
+            MapScreen(context, activity)
         }
         composable(BottomBarItem.Trips.route) {
             TripsScreen()
