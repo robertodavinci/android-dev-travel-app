@@ -11,6 +11,15 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Travel_App">
+        <activity
+            android:name=".ui.components.login.CustomLoginButton"
+            android:exported="false"
+            android:label="@string/title_activity_custom_login_button"
+            android:theme="@style/Theme.Travel_App.NoActionBar" />
+        <activity
+            android:name=".ui.components.login.FacebookLoginActivity"
+            android:exported="false" />
+
         <meta-data
             android:name="com.facebook.sdk.ApplicationId"
             android:value="@string/facebook_app_id" />
@@ -35,7 +44,7 @@
             android:name=".ui.components.login.FirebaseUIActivity"
             android:exported="true"
             android:label="@string/title_activity_main"
-            android:theme="@style/Theme.Travel_App.NoActionBar"></activity>
+            android:theme="@style/Theme.Travel_App.NoActionBar" />
         <activity
             android:name=".ui.components.login.LoginActivity"
             android:exported="true"

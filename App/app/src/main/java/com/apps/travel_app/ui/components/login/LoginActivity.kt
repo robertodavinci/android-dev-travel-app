@@ -1,10 +1,15 @@
 package com.apps.travel_app.ui.components.login
 
+import android.content.Context
+import android.content.pm.PackageInfo
+import android.content.pm.PackageManager
 import android.os.Bundle
+import android.util.Base64
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.foundation.Image
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
@@ -39,10 +44,23 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.composable
 import com.apps.travel_app.R
+import com.apps.travel_app.ui.components.BottomBarItem
+import com.facebook.CallbackManager
 import com.google.firebase.auth.FirebaseUser
 import com.facebook.FacebookSdk;
 import com.facebook.appevents.AppEventsLogger;
-
+import com.facebook.login.LoginManager
+import java.security.MessageDigest
+import java.security.NoSuchAlgorithmException
+import androidx.activity.compose.setContent
+import androidx.activity.viewModels
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.Surface
+import androidx.compose.material.Text
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 
 class LoginActivity : ComponentActivity() {
 
@@ -52,16 +70,37 @@ class LoginActivity : ComponentActivity() {
 
     private lateinit var auth: FirebaseAuth
 
+    val items = listOf(
+        BottomBarItem.Email,
+        BottomBarItem.Google,
+        BottomBarItem.Facebook
+    )
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val viewModel: LoginViewModel by viewModels()
         auth = Firebase.auth
         setContent {
             Travel_AppTheme {
                 Surface(color = MaterialTheme.colors.background) {
-                    //LoginAndRegistrationUI()
+                printHashKey(LocalContext.current)
+                    val profileViewState by viewModel.profileViewState.observeAsState(ProfileViewState())
+
+                    SampleView(profileViewState, login, logout)
+                //LoginAndRegistrationUI()
                 }
             }
         }
+    }
+
+
+    private val login = {
+        LoginManager.getInstance().logIn(this, CallbackManager.Factory.create(), listOf("email"))
+    }
+
+    private val logout = {
+        LoginManager.getInstance().logOut()
     }
 
     public override fun onStart() {
@@ -383,8 +422,15 @@ class LoginActivity : ComponentActivity() {
                 colors = ButtonDefaults.buttonColors(backgroundColor = Color.Blue)
             )
             Spacer(Modifier.size(16.dp))
-            Row(modifier = Modifier.fillMaxWidth(0.9f).height(80.dp), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
+            Row(modifier = Modifier
+                .fillMaxWidth(0.9f)
+                .height(80.dp), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
+                //Icon(FaIcons.Facebook, "AA")
+                //Icon.Face
+            }
 
+
+            /*
                 Image(
                     modifier = Modifier.width(80.dp).height(80.dp),
                     painter = painterResource(id = R.drawable.facebook_icon),
@@ -401,7 +447,7 @@ class LoginActivity : ComponentActivity() {
                     painter = painterResource(id = R.drawable.google_icon),
                     contentDescription = null // decorative element
                 )
-
+*/
 
             }
         }
@@ -418,9 +464,49 @@ class LoginActivity : ComponentActivity() {
             Greeting("Android")
         }
     }
+
+
+@Composable
+fun SampleView(profileViewState: ProfileViewState, login: () -> Unit, logout: () -> Unit) {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        CustomLoginButton(
+            profile = profileViewState.profile,
+            login = { login() },
+            logout = { logout() }
+        )
+
+        Spacer(modifier = Modifier.height(15.dp))
+
+        WrappedLoginButton()
+
+        Spacer(modifier = Modifier.height(15.dp))
+
+        Text(
+            text = profileViewState.profile?.name ?: "Logged Out"
+        )
     }
+}
 
-
+fun printHashKey(context: Context) {
+    try {
+        val info: PackageInfo = context.packageManager
+            .getPackageInfo(context.packageName, PackageManager.GET_SIGNATURES)
+        for (signature in info.signatures) {
+            val md: MessageDigest = MessageDigest.getInstance("SHA")
+            md.update(signature.toByteArray())
+            val hashKey: String = String(Base64.encode(md.digest(), 0))
+            Log.d("hashkey", "Hash Key: $hashKey")
+        }
+    } catch (e: NoSuchAlgorithmException) {
+        Log.e("Error", "${e.localizedMessage}")
+    } catch (e: Exception) {
+        Log.e("Exception", "${e.localizedMessage}")
+    }
+}
 
 
     /*public override fun onStart() {
