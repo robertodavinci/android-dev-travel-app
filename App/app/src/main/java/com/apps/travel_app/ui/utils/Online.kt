@@ -23,13 +23,12 @@ fun getBitmapFromURL(src: String?): Bitmap? {
     }
 }
 
-fun sendPostRequest(body: String, url: String = API): String? {
-    val mURL = URL(url)
+fun sendPostRequest(body: String, url: String = API, action: String = ""): String? {
+    val mURL = URL("${url}?action=${action}")
 
     var responseBody: String?
 
     with(mURL.openConnection() as HttpURLConnection) {
-        // optional default is GET
         requestMethod = "POST"
 
         val wr = OutputStreamWriter(outputStream)
@@ -39,16 +38,20 @@ fun sendPostRequest(body: String, url: String = API): String? {
         println("URL : $url")
         println("Response Code : $responseCode")
 
-        BufferedReader(InputStreamReader(inputStream)).use {
-            val response = StringBuffer()
+        try {
+            BufferedReader(InputStreamReader(inputStream)).use {
+                val response = StringBuffer()
 
-            var inputLine = it.readLine()
-            while (inputLine != null) {
-                response.append(inputLine)
-                inputLine = it.readLine()
+                var inputLine = it.readLine()
+                while (inputLine != null) {
+                    response.append(inputLine)
+                    inputLine = it.readLine()
+                }
+                println("Response : $response")
+                responseBody = response.toString()
             }
-            println("Response : $response")
-            responseBody = response.toString()
+        } catch (e: Exception) {
+            responseBody = ""
         }
     }
     return responseBody

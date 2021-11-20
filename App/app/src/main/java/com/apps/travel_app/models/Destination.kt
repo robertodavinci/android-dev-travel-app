@@ -11,6 +11,7 @@ class Destination {
     var thumbnail: ImageBitmap? = null
     var name: String = ""
     var thumbnailUrl: String = ""
+    var rating: Float = 0f
 }
 
 class Country {

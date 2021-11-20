@@ -71,3 +71,10 @@ fun getResizedBitmap(bm: Bitmap, newWidth: Int, newHeight: Int): Bitmap? {
     bm.recycle()
     return resizedBitmap
 }
+
+fun getDominantColor(bitmap: Bitmap?): Int {
+    val newBitmap = Bitmap.createScaledBitmap(bitmap!!, 1, 1, true)
+    val color = newBitmap.getPixel(0, 0)
+    newBitmap.recycle()
+    return color
+}

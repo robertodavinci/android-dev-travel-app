@@ -1,12 +1,10 @@
 package com.apps.travel_app.ui.pages
 
+import FaIcons
 import android.app.Activity
 import android.content.Context
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.graphics.Color
-import android.graphics.Point
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.*
@@ -19,7 +17,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color.Companion.Transparent
 import androidx.compose.ui.graphics.Color.Companion.White
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.pointerInput
@@ -27,8 +24,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import com.apps.travel_app.MainActivity
 import com.apps.travel_app.models.Destination
 import com.apps.travel_app.ui.components.DestinationCard
+import com.apps.travel_app.ui.components.ToastType
 import com.apps.travel_app.ui.theme.*
 import com.apps.travel_app.ui.utils.*
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
@@ -38,56 +37,64 @@ import com.google.android.libraries.maps.MapView
 import com.google.android.libraries.maps.model.*
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import com.google.maps.android.PolyUtil
-import com.google.maps.android.ktx.awaitMap
 import com.guru.fontawesomecomposelib.FaIcon
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.lang.Math.random
 
 val center = LatLng(44.0, 10.0)
 var polygonOpt = PolygonOptions()
 var drawing = false
-var map: GoogleMap? = null
-var destinationSelected: MutableState<Boolean> = mutableStateOf(false)
-var currentDestination: MutableState<Destination> = mutableStateOf(Destination())
-var drawingEnabled: MutableState<Boolean> = mutableStateOf(false)
+lateinit var destinationSelected: MutableState<Boolean>
+lateinit var currentDestination: MutableState<Destination?>
+lateinit var drawingEnabled: MutableState<Boolean>
+lateinit var map: MutableState<GoogleMap?>
+lateinit var mapLoaded: MutableState<Boolean>
 var destinations = HashMap<Int, Destination>()
 
 @Composable
-fun MapScreen(context: Context, activity: Activity) {
-    destinationSelected = remember { destinationSelected }
-    drawingEnabled = remember { drawingEnabled }
+fun MapScreen(context: Context, activity: MainActivity) {
+
+    currentDestination = remember { mutableStateOf(null) }
+    map = remember { mutableStateOf(null) }
+    mapLoaded = remember { mutableStateOf(false) }
+    destinationSelected = remember { mutableStateOf(false) }
+    drawingEnabled = remember { mutableStateOf(false) }
+    val loadingScreen = remember { mutableStateOf(0) }
 
     val systemUiController = rememberSystemUiController()
     systemUiController.setSystemBarsColor(
         color = textLightColor
     )
 
-
-        val mapView = rememberMapViewWithLifecycle()
-
+    var mapView: MapView? = null
+    if (loadingScreen.value > 5)
+        mapView = rememberMapViewWithLifecycle()
 
     Box(modifier = Modifier.fillMaxSize()) {
 
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(White)
-                .wrapContentSize(Alignment.Center)
-        ) {
-            AndroidView({ mapView }) { mapView ->
-                CoroutineScope(Dispatchers.Main).launch {
-                   if (map == null) {
-                        mapView.getMapAsync { mMap ->
-                            map = mMap
-                            mapInit(map!!, context)
+        if (mapView != null) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(White)
+                    .wrapContentSize(Alignment.Center)
+            ) {
+                AndroidView({ mapView }) { mapView ->
+                    CoroutineScope(Dispatchers.Main).launch {
+                        if (!mapLoaded.value) {
+                            mapView.getMapAsync { mMap ->
+                                if (!mapLoaded.value) {
+                                    map.value = mMap
+                                    mapInit(context)
+                                    mapLoaded.value = true
+                                }
+                            }
                         }
                     }
                 }
-            }
 
+            }
         }
 
         Box(
@@ -124,21 +131,17 @@ fun MapScreen(context: Context, activity: Activity) {
                     .pointerInput(Unit) {
                         detectDragGestures(
                             onDragStart = { position ->
-                                if (map != null)
-                                    mapDrawingReset(map!!, position)
+                                mapDrawingReset(position)
                             },
                             onDrag = { event, _ ->
                                 mapDrawing(
-                                    map,
                                     event,
                                     polygonOpt
                                 )
                             },
                             onDragEnd = {
-                                if (map != null) {
-                                    populateMapDrawing(map!!, activity)
-                                    toggleDrawing()
-                                }
+                                populateMapDrawing(activity)
+                                toggleDrawing()
                             }
                         )
                     }
@@ -178,7 +181,7 @@ fun MapScreen(context: Context, activity: Activity) {
                         .width(30.dp)
                         .height(30.dp),
                     onClick = {
-
+                        switchTo3D()
                     }) {
                     FaIcon(
                         faIcon = FaIcons.BuildingRegular,
@@ -191,30 +194,63 @@ fun MapScreen(context: Context, activity: Activity) {
                 destination = currentDestination.value,
                 destinationSelected.value && !drawingEnabled.value
             )
+
+        }
+
+        if (!mapLoaded.value) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(White)
+                    .wrapContentSize(Alignment.Center)
+            ) {
+                Text(
+                    text = "Loading...",
+                    fontWeight = FontWeight.Bold,
+                    color = textLightColor,
+                    modifier = Modifier.align(Alignment.CenterHorizontally),
+                    textAlign = TextAlign.Center,
+                    fontSize = textHeading
+                )
+                loadingScreen.value++
+            }
         }
     }
 }
 
-fun toggleDrawing() {
-    if (map == null)
-        return
-    destinationSelected.value = false
-    drawingEnabled.value = !drawingEnabled.value
-    map!!.uiSettings.isScrollGesturesEnabled = !drawing
+fun switchTo3D() {
+    if (map.value != null) {
+        val cameraPosition: CameraPosition = CameraPosition.Builder()
+            .target(map.value!!.cameraPosition.target)
+            .tilt(if (map.value!!.cameraPosition.tilt > 0f) 30f else 0f)
+            .build()
+        map.value?.animateCamera(
+            CameraUpdateFactory.newCameraPosition(
+                cameraPosition
+            )
+        )
+    }
 }
 
-fun populateMapDrawing(map: GoogleMap, activity: Activity) {
+fun toggleDrawing() {
+    destinationSelected.value = false
+    drawingEnabled.value = !drawingEnabled.value
+    map.value?.uiSettings?.isScrollGesturesEnabled = !drawing
+}
+
+fun populateMapDrawing(activity: MainActivity) {
     if (polygonOpt.points.size <= 0)
         return
+
 
     val points = line(polygonOpt.points)
     val polygonOpt2 = PolygonOptions()
         .strokeColor(Color.parseColor("#FF808ea7"))
         .fillColor(Color.parseColor("#88808ea7"))
     for (point in points) {
-        map.clear()
+        map.value?.clear()
         polygonOpt2.add(point)
-        map.addPolygon(polygonOpt2)
+        map.value?.addPolygon(polygonOpt2)
     }
 
     points.add(points[0])
@@ -223,7 +259,7 @@ fun populateMapDrawing(map: GoogleMap, activity: Activity) {
     }
 
     Thread {
-        val citiesText = sendPostRequest(request)
+        val citiesText = sendPostRequest(request,action = "polygonCities")
         val gson = Gson()
         val itemType = object : TypeToken<List<Destination>>() {}.type
         val cities: List<Destination> = gson.fromJson(citiesText, itemType)
@@ -255,7 +291,7 @@ fun populateMapDrawing(map: GoogleMap, activity: Activity) {
                     )
                 )
             activity.runOnUiThread {
-                val marker = map.addMarker(markerOptions)
+                val marker = map.value!!.addMarker(markerOptions)
                 destinations[marker.hashCode()] = city
                 markerPopUp(marker)
             }
@@ -264,47 +300,45 @@ fun populateMapDrawing(map: GoogleMap, activity: Activity) {
 
 }
 
-fun mapDrawingReset(map: GoogleMap, position: Offset) {
-    map.clear()
+fun mapDrawingReset(position: Offset) {
+    map.value?.clear()
     destinations.clear()
     polygonOpt = PolygonOptions()
-    polygonOpt.add(screenCoordinatesToLatLng(position, map))
+    polygonOpt.add(screenCoordinatesToLatLng(position, map.value))
     polygonOpt
         .strokeColor(Color.parseColor("#FF808ea7"))
         .fillColor(Color.parseColor("#88808ea7"))
-    map.addPolygon(polygonOpt)
+    map.value?.addPolygon(polygonOpt)
 }
 
-fun mapInit(map: GoogleMap, context: Context) {
-    map.uiSettings.isZoomControlsEnabled = false
+fun mapInit(context: Context) {
+    map.value!!.uiSettings.isZoomControlsEnabled = false
 
-    map.setMapStyle(
+    map.value?.setMapStyle(
         MapStyleOptions.loadRawResourceStyle(
             context,
             com.apps.travel_app.R.raw.style
         )
     )
 
-    map.uiSettings.isMapToolbarEnabled = false
+    map.value!!.uiSettings.isMapToolbarEnabled = false
 
-    map.moveCamera(CameraUpdateFactory.newLatLngZoom(center, 6f))
+    map.value?.moveCamera(CameraUpdateFactory.newLatLngZoom(center, 6f))
 
-    map.setOnMarkerClickListener { marker -> markerClick(marker) }
+    map.value?.setOnMarkerClickListener { marker -> markerClick(marker) }
 }
 
-fun mapDrawing(map: GoogleMap?, motionEvent: PointerInputChange, polygonOpt: PolygonOptions) {
-    if (map == null)
-        return
+fun mapDrawing(motionEvent: PointerInputChange, polygonOpt: PolygonOptions) {
 
-    val latLng = screenCoordinatesToLatLng(motionEvent.position, map) ?: return
+    val latLng = screenCoordinatesToLatLng(motionEvent.position, map.value) ?: return
 
     if (!polygonOpt.points.none { point -> point.equals(latLng) })
         return
 
-    map.clear()
+    map.value?.clear()
     polygonOpt.add(latLng)
 
-    map.addPolygon(polygonOpt)
+    map.value?.addPolygon(polygonOpt)
 }
 
 fun markerClick(marker: Marker): Boolean {
