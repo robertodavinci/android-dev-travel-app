@@ -40,7 +40,8 @@ fun MainCard(
     shadow: Dp = cardElevation,
     mainActivity: MainActivity,
     radius: Dp = cardRadius,
-    icon: FaIconType? = null
+    icon: FaIconType? = null,
+    imageMaxHeight: Float = Float.POSITIVE_INFINITY
 ) {
     Card(
         modifier = Modifier
@@ -60,14 +61,12 @@ fun MainCard(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .wrapContentHeight()
             ) {
-                val modifier = Modifier.fillMaxWidth()
+                val modifier = Modifier.fillMaxWidth().heightIn(0.dp,imageMaxHeight.dp)
                 if (squaredImage)
                     modifier.aspectRatio(1f)
                 GlideImage(
                     imageModel = destination.thumbnailUrl ?: destination.thumbnail,
-                    contentDescription = "",
                     modifier = modifier,
                     contentScale = if (squaredImage) ContentScale.Fit else ContentScale.Crop,
                     circularReveal = CircularReveal(duration = 700),
@@ -145,7 +144,9 @@ fun MainCard(
                         }
                     }
                 }
+
             }
+
             if (badges.isNotEmpty()) {
                 Row(
                     modifier = Modifier

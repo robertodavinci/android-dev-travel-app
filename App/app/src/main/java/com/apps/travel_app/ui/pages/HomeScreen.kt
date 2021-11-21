@@ -97,9 +97,7 @@ fun HomeScreen(navController: NavController, mainActivity: MainActivity) {
             }
         }
 
-        Box(
-            modifier = Modifier.heightIn(0.dp, 250.dp)
-        ) {
+        Box {
             val destination = Destination()
             destination.name = "Milan"
             destination.thumbnailUrl = "https://www.welcometoitalia.com/wp-content/uploads/2020/10/galleria_Milan.jpg"
@@ -108,7 +106,8 @@ fun HomeScreen(navController: NavController, mainActivity: MainActivity) {
                 rating = 3.5f,
                 badges = arrayListOf("Cultural", "Youth"),
                 views = 206,
-                mainActivity = mainActivity
+                mainActivity = mainActivity,
+                imageMaxHeight = 200f
             )
         }
 
