@@ -1,7 +1,6 @@
 package com.apps.travel_app.ui.pages
 
 import FaIcons
-import android.app.Activity
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Color
@@ -10,7 +9,10 @@ import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.IconButton
 import androidx.compose.material.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -27,8 +29,10 @@ import androidx.compose.ui.viewinterop.AndroidView
 import com.apps.travel_app.MainActivity
 import com.apps.travel_app.models.Destination
 import com.apps.travel_app.ui.components.DestinationCard
-import com.apps.travel_app.ui.components.ToastType
-import com.apps.travel_app.ui.theme.*
+import com.apps.travel_app.ui.theme.cardPadding
+import com.apps.travel_app.ui.theme.iconLightColor
+import com.apps.travel_app.ui.theme.textHeading
+import com.apps.travel_app.ui.theme.textLightColor
 import com.apps.travel_app.ui.utils.*
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.google.android.libraries.maps.CameraUpdateFactory

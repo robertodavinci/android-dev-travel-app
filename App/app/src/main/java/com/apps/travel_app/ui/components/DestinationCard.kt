@@ -18,7 +18,6 @@ import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.apps.travel_app.models.Destination
 import com.apps.travel_app.ui.theme.*
@@ -86,15 +85,4 @@ fun DestinationCard(destination: Destination?, open: Boolean = false, maxHeightV
             }
         }
     }
-}
-
-@Preview
-@Composable
-fun DestinationCardPreview() {
-    val destination = Destination()
-    destination.name = "Prova"
-    DestinationCard(
-        destination = destination,
-        true
-    )
 }

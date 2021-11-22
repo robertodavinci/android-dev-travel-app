@@ -73,7 +73,7 @@ class MainActivity : ComponentActivity() {
                 TripsScreen()
             }
             composable(BottomBarItem.Explore.route) {
-                ExploreScreen()
+                ExploreScreen(navController, activity)
             }
             composable(BottomBarItem.Profile.route) {
                 ProfileScreen()

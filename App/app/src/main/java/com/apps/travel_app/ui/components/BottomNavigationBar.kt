@@ -1,7 +1,5 @@
 package com.apps.travel_app.ui.components
 
-import android.view.Window
-import android.view.WindowManager
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -10,7 +8,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
-import androidx.compose.material.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -18,16 +15,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
-import com.apps.travel_app.ui.theme.*
+import com.apps.travel_app.ui.theme.cardElevation
+import com.apps.travel_app.ui.theme.iconLightColor
+import com.apps.travel_app.ui.theme.primaryColor
+import com.apps.travel_app.ui.theme.textLightColor
 import com.guru.fontawesomecomposelib.FaIcon
 
 @Composable
 fun BottomNavigationBar(navController: NavController) {
-    var currentTab = BottomBarItem.Home.route
     val items = listOf(
         BottomBarItem.Home,
         BottomBarItem.Map,

@@ -11,7 +11,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import com.apps.travel_app.ui.theme.textHeading
 import com.apps.travel_app.ui.theme.textLightColor
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
@@ -40,10 +39,4 @@ fun ProfileScreen() {
             fontSize = textHeading
         )
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun ProfileScreenPreview() {
-    ProfileScreen()
 }
