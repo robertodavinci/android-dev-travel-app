@@ -61,6 +61,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import com.apps.travel_app.ui.components.login.ui.theme.FacebookIntegrationTheme
 
 class LoginActivity : ComponentActivity() {
 
@@ -75,20 +76,23 @@ class LoginActivity : ComponentActivity() {
         BottomBarItem.Google,
         BottomBarItem.Facebook
     )
+    val viewModel: LoginViewModel by viewModels()
+    var fbLogin = false
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val viewModel: LoginViewModel by viewModels()
+        //val viewModel: LoginViewModel by viewModels()
         auth = Firebase.auth
         setContent {
-            Travel_AppTheme {
+            FacebookIntegrationTheme {
                 Surface(color = MaterialTheme.colors.background) {
                 printHashKey(LocalContext.current)
                     val profileViewState by viewModel.profileViewState.observeAsState(ProfileViewState())
-
-                    SampleView(profileViewState, login, logout)
-                //LoginAndRegistrationUI()
+                    if (profileViewState != null) {fbLogin = true}
+                    Log.i("NO LOGG", "LOGGED IN ALREADYY")
+                    //SampleView(profileViewState, login, logout)
+                    LoginAndRegistrationUI()
                 }
             }
         }
@@ -107,13 +111,22 @@ class LoginActivity : ComponentActivity() {
         super.onStart()
         // Check if user is signed in (non-null) and update UI accordingly.
         val currentUser = auth.currentUser
+        Log.i("NO LOGG", "LOGGED IN ALREADYY")
+            if (currentUser != null || fbLogin != null) {
+                setContent {
+                    FacebookIntegrationTheme {
+                        Log.i("LOGG", "LOGGED IN ALREADYY")
+                        updateUI(currentUser)
+                    }
+                    }
+                }
         //if(currentUser == null){
-            setContent {
+          /*  setContent {
                 Travel_AppTheme {
-                    LoginAndRegistrationUI()
+                   // LoginAndRegistrationUI()
                 }
 
-            }
+            }*/
         //}
        /* else Toast.makeText(
             baseContext, "Already logged in!",
@@ -148,27 +161,48 @@ class LoginActivity : ComponentActivity() {
 
         @Composable
         private fun updateUI(user: FirebaseUser?) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.Center,
+            ) {
+                Text(text = buildAnnotatedString {
+                    withStyle(style = SpanStyle(color = Color.Red)) {
+                        append("You are logged in " + user.toString())
+                    }
+                }, fontSize = 30.sp)
+                Button(onClick = {logout; auth.signOut(); setContent {
+                    FacebookIntegrationTheme {LoginAndRegistrationUI()}}}, content = {
+                    Text(text = "Logout", color = Color.White)
+                })
+                }
 
-        }
+            }
 
     @Composable
     fun LoginAndRegistrationUI(){
         val navigationController = rememberNavController()
+        val profileViewState by viewModel.profileViewState.observeAsState(ProfileViewState())
         NavHost(navController=navigationController, startDestination="loginScreen", builder=
         {
-            composable("loginScreen", content = { LoginScreen(navigationController=navigationController)})
+            composable("loginScreen", content = { LoginScreen(navigationController=navigationController, profileViewState = profileViewState,
+                login = login, logout = logout)})
             composable("registrationScreen", content = { RegistrationScreen(navigationController=navigationController)})
+            composable("facebookScreen", content = { SampleView(
+                profileViewState = profileViewState,
+                login = login, logout = logout)})
             //composable("registerScreen")
         })
 
     }
     @Composable
-    fun LoginScreen(navigationController:NavController){
+    fun LoginScreen(navigationController:NavController, profileViewState: ProfileViewState, login: () -> Unit, logout: () -> Unit) {
         val context = LocalContext.current
-        val email = remember {mutableStateOf(TextFieldValue())}
-        val emailErrorState = remember {mutableStateOf(false)}
-        val passwordErrorState = remember {mutableStateOf(false)}
-        val password = remember {mutableStateOf(TextFieldValue())}
+        val email = remember { mutableStateOf(TextFieldValue()) }
+        val emailErrorState = remember { mutableStateOf(false) }
+        val passwordErrorState = remember { mutableStateOf(false) }
+        val password = remember { mutableStateOf(TextFieldValue()) }
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -216,7 +250,7 @@ class LoginActivity : ComponentActivity() {
                 label = {
                     Text(text = "Enter Password*")
                 },
-               /* trailingIcon = {
+                /* trailingIcon = {
                     IconButton(onClick = {
                         passwordVisibility.value = !passwordVisibility.value
                     }) {
@@ -264,12 +298,12 @@ class LoginActivity : ComponentActivity() {
             Button(
                 onClick = {
 
-                            Toast.makeText(
-                                context,
-                                "Registration screen",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                    navigationController.navigate("registrationScreen"){
+                    Toast.makeText(
+                        context,
+                        "Registration screen",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    navigationController.navigate("registrationScreen") {
                         popUpTo(navigationController.graph.startDestinationId)
                         launchSingleTop = true
                     }
@@ -281,21 +315,25 @@ class LoginActivity : ComponentActivity() {
                 colors = ButtonDefaults.buttonColors(backgroundColor = Color.Blue)
             )
             Spacer(Modifier.size(16.dp))
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
-                Icon(
-                    painter = painterResource(id = R.drawable.facebook_icon_background),
-                    contentDescription = null // decorative element
-                )
-                Icon(
-                    painter = painterResource(id = R.drawable.gmail_icon_background),
-                    contentDescription = null // decorative element
-                )
-                Icon(
-                    painter = painterResource(id = R.drawable.google_icon_background),
-                    contentDescription = null // decorative element
-                )
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                /*CustomLoginButton(
+                    profile = profileViewState.profile,
+                    login = { login() },
+                    logout = { logout() }
+                )*/
+                Spacer(modifier = Modifier.height(15.dp))
 
+                WrappedLoginButton()
 
+                Spacer(modifier = Modifier.height(15.dp))
+
+                Text(
+                    text = profileViewState.profile?.name ?: "Logged Out"
+                )
             }
         }
     }
@@ -422,12 +460,6 @@ class LoginActivity : ComponentActivity() {
                 colors = ButtonDefaults.buttonColors(backgroundColor = Color.Blue)
             )
             Spacer(Modifier.size(16.dp))
-            Row(modifier = Modifier
-                .fillMaxWidth(0.9f)
-                .height(80.dp), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
-                //Icon(FaIcons.Facebook, "AA")
-                //Icon.Face
-            }
 
 
             /*
@@ -447,11 +479,12 @@ class LoginActivity : ComponentActivity() {
                     painter = painterResource(id = R.drawable.google_icon),
                     contentDescription = null // decorative element
                 )
-*/
+*
 
+             */
+        }
             }
         }
-    }
     @Composable
     fun Greeting(name: String) {
         Text(text = "Hello $name!")
@@ -473,11 +506,11 @@ fun SampleView(profileViewState: ProfileViewState, login: () -> Unit, logout: ()
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        CustomLoginButton(
+        /*CustomLoginButton(
             profile = profileViewState.profile,
             login = { login() },
             logout = { logout() }
-        )
+        )*/
 
         Spacer(modifier = Modifier.height(15.dp))
 
