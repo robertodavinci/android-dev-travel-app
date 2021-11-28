@@ -31,14 +31,15 @@ fun sendPostRequest(body: String, url: String = API, action: String = ""): Strin
     with(mURL.openConnection() as HttpURLConnection) {
         requestMethod = "POST"
 
-        val wr = OutputStreamWriter(outputStream)
-        wr.write(body)
-        wr.flush()
 
-        println("URL : $url")
-        println("Response Code : $responseCode")
 
         try {
+            val wr = OutputStreamWriter(outputStream)
+            wr.write(body)
+            wr.flush()
+
+            println("URL : $url")
+            println("Response Code : $responseCode")
             BufferedReader(InputStreamReader(inputStream)).use {
                 val response = StringBuffer()
 

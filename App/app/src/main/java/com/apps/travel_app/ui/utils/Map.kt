@@ -1,6 +1,6 @@
 package com.apps.travel_app.ui.utils
 
-import android.graphics.Point
+import android.graphics.*
 import android.os.Bundle
 import android.os.Handler
 import android.os.SystemClock
@@ -9,15 +9,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import com.apps.travel_app.ui.theme.primaryColor
 import com.google.android.libraries.maps.GoogleMap
 import com.google.android.libraries.maps.MapView
-import com.google.android.libraries.maps.model.LatLng
-import com.google.android.libraries.maps.model.Marker
-
+import com.google.android.libraries.maps.model.*
 import kotlin.math.*
 
 
@@ -144,7 +144,6 @@ fun noiseReduction(src: List<LatLng>, severity: Int = 1): ArrayList<LatLng>
  * @return A list line segments representing the smoothed line
  */
 fun line(points: List<LatLng>): ArrayList<LatLng> {
-//    if (lineSegments.size < 4) return lineSegments
     val smoothedLine = ArrayList<LatLng>()
     smoothedLine.add(points[0])
     var newPoint = points[1]
@@ -174,4 +173,32 @@ fun smoothPoint(points: List<LatLng>): LatLng {
     val newX = (5 * newPoint.latitude + oldPoint.latitude) / 6
     val newY = (5 * newPoint.longitude + oldPoint.longitude) / 6
     return LatLng(newX, newY)
+}
+
+fun numberedMarker(number: Int): BitmapDescriptor {
+    val conf = Bitmap.Config.ARGB_8888
+    val bmp = Bitmap.createBitmap(80, 80, conf)
+    val canvas = Canvas(bmp)
+
+    val paint = Paint(Paint.ANTI_ALIAS_FLAG)
+    paint.color = Color.WHITE
+    paint.textAlign = Paint.Align.CENTER
+    paint.textSize = 35f
+
+    val xPos = canvas.width / 2
+    val yPos = (canvas.height / 2 - (paint.descent() + paint.ascent()) / 2)
+    val paintCircle = Paint(Paint.ANTI_ALIAS_FLAG)
+    paintCircle.color = primaryColor.toArgb()
+
+    canvas.drawCircle(40f, 40f, 40f, paintCircle)
+
+    val paintStroke = Paint(Paint.ANTI_ALIAS_FLAG)
+    paintStroke.style = Paint.Style.STROKE
+    paintStroke.strokeWidth = 5f
+    paintStroke.color = Color.WHITE
+
+    canvas.drawCircle(40f, 40f, 40f, paintStroke)
+    canvas.drawText(number.toString(), xPos.toFloat(), yPos, paint)
+
+    return BitmapDescriptorFactory.fromBitmap(bmp)
 }

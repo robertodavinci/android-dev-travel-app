@@ -1,5 +1,6 @@
 package com.apps.travel_app.ui.components
 
+import androidx.compose.material.MaterialTheme
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -42,7 +43,7 @@ fun RatingCard(rating: Rating) {
         shape = RoundedCornerShape(cardRadius / 2)
     ) {
         Row(
-            modifier = Modifier.background(lightBackground),
+            modifier = Modifier.background(MaterialTheme.colors.background),
             verticalAlignment = Alignment.CenterVertically
         ) {
             GlideImage(
@@ -68,14 +69,14 @@ fun RatingCard(rating: Rating) {
                 Text(
                     text = rating.message,
                     fontSize = textNormal,
-                    color = textLightColor,
+                    color = MaterialTheme.colors.surface,
                     modifier = Modifier
                         .fillMaxWidth()
                         .heightIn(0.dp, maxHeight.dp)
                 )
                 Text(
                     text = rating.username,
-                    color = textLightColor,
+                    color = MaterialTheme.colors.surface,
                     fontSize = textNormal,
                     fontWeight = FontWeight.Bold
                 )

@@ -1,43 +1,52 @@
 package com.apps.travel_app.ui.pages
 
+import FaIcons
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
-import androidx.core.graphics.ColorUtils
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation.NavController
-import androidx.vectordrawable.graphics.drawable.ArgbEvaluator
 import com.apps.travel_app.MainActivity
 import com.apps.travel_app.models.Destination
 import com.apps.travel_app.models.Rating
+import com.apps.travel_app.models.Trip
 import com.apps.travel_app.ui.components.*
-import com.apps.travel_app.ui.theme.*
-import com.apps.travel_app.ui.utils.*
-import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import com.apps.travel_app.ui.theme.cardPadding
+import com.apps.travel_app.ui.theme.cardRadius
+import com.apps.travel_app.ui.theme.mapStyle
+import com.apps.travel_app.ui.utils.rememberMapViewWithLifecycle
+import com.apps.travel_app.ui.utils.sendPostRequest
+import com.google.android.libraries.maps.CameraUpdateFactory
+import com.google.android.libraries.maps.GoogleMap
+import com.google.android.libraries.maps.MapView
+import com.google.android.libraries.maps.model.LatLng
+import com.google.android.libraries.maps.model.MapStyleOptions
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import com.guru.fontawesomecomposelib.FaIcon
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.lang.Math.random
 
-
-lateinit var ratings: MutableState<ArrayList<Rating>>
-var loaded: MutableState<Boolean> = mutableStateOf(false)
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -47,6 +56,94 @@ fun LocationScreen(
     mainActivity: MainActivity
 ) {
 
+    val loaded: MutableState<Boolean> = remember { mutableStateOf(false) }
+    val ratings: MutableState<ArrayList<Rating>> = remember { mutableStateOf(ArrayList()) }
+    val facilities: MutableState<ArrayList<Destination>> = remember { mutableStateOf(ArrayList()) }
+    val trips: MutableState<ArrayList<Trip>> = remember { mutableStateOf(ArrayList()) }
+    val loadingScreen = remember { mutableStateOf(0) }
+    val map: MutableState<GoogleMap?> = remember { mutableStateOf(null) }
+    val mapLoaded = remember { mutableStateOf(false) }
+    val openMap = remember { mutableStateOf(false) }
+
+    fun mapInit() {
+        map.value!!.uiSettings.isZoomControlsEnabled = false
+
+        map.value?.setMapStyle(
+            MapStyleOptions.loadRawResourceStyle(
+                mainActivity,
+                mapStyle
+            )
+        )
+
+        map.value!!.uiSettings.isMapToolbarEnabled = false
+
+        map.value?.moveCamera(
+            CameraUpdateFactory.newLatLngZoom(
+                LatLng(
+                    destination.latitude,
+                    destination.longitude
+                ), 12f
+            )
+        )
+
+        //map.value?.setOnMarkerClickListener { marker -> markerClick(marker) }
+    }
+
+    fun getRatings(destionation: Destination) {
+        loaded.value = true
+
+        if (ratings.value.size <= 0) {
+            Thread {
+
+                val result = ArrayList<Rating>()
+
+                val request = "${destionation.latitude},${destionation.longitude}"
+                val ratingsText = sendPostRequest(request, action = "ratings")
+                val gson = Gson()
+                val itemType = object : TypeToken<List<Rating>>() {}.type
+                val _ratings: List<Rating> = gson.fromJson(ratingsText, itemType)
+                for (rating in _ratings) {
+                    rating.rating = random().toFloat() * 5f
+                    result.add(rating)
+                }
+                ratings.value = result
+            }.start()
+        }
+    }
+
+    fun getFacilities(destionation: Destination) {
+        loaded.value = true
+
+        if (facilities.value.size <= 0) {
+            Thread {
+
+                val request =
+                    "{\"lat\":${destionation.latitude},\"lng\":${destionation.longitude},\"type\":\"restaurant\"}"
+                val results = sendPostRequest(request, action = "nearby")
+                val gson = Gson()
+                val itemType = object : TypeToken<List<Destination>>() {}.type
+                val result: ArrayList<Destination> = gson.fromJson(results, itemType)
+                facilities.value = result
+            }.start()
+        }
+    }
+
+    fun getTrips(destionation: Destination) {
+        loaded.value = true
+
+        if (trips.value.size <= 0) {
+            Thread {
+                val request =
+                    "[[${destionation.latitude - 1},${destionation.longitude - 1}],[${destionation.latitude - 1},${destionation.longitude + 1}],[${destionation.latitude + 1},${destionation.longitude + 1}],[${destionation.latitude + 1},${destionation.longitude - 1}]]"
+                val results = sendPostRequest(request, action = "polygonTrips")
+                val gson = Gson()
+                val itemType = object : TypeToken<List<Trip>>() {}.type
+                val result: ArrayList<Trip> = gson.fromJson(results, itemType)
+                trips.value = result
+            }.start()
+        }
+    }
+
     val activities = arrayListOf(
         "What to do",
         "Where to stay",
@@ -55,11 +152,13 @@ fun LocationScreen(
         "1-day trip",
         "Nearby"
     ).toList()
-    loaded = remember { mutableStateOf(false) }
-    ratings = remember { mutableStateOf(ArrayList()) }
 
-    if (!loaded.value)
+
+    if (!loaded.value) {
         getRatings(destination)
+        getFacilities(destination)
+        getTrips(destination)
+    }
 
 
     val scrollState = rememberScrollState()
@@ -67,10 +166,14 @@ fun LocationScreen(
     var percentage = scrollState.value.toFloat() / maxScroll
     percentage = if (percentage > 1) 1f else percentage
 
+    var mapView: MapView? = null
+    if (loadingScreen.value > 5)
+        mapView = rememberMapViewWithLifecycle()
+
     BoxWithConstraints {
         Box(
             modifier = Modifier
-                .background(lightBackground)
+                .background(MaterialTheme.colors.background)
                 .fillMaxSize()
                 .verticalScroll(scrollState)
         ) {
@@ -90,6 +193,7 @@ fun LocationScreen(
                     )
                 }
 
+
                 FlexibleRow(
                     alignment = Alignment.CenterHorizontally,
                     modifier = Modifier
@@ -101,6 +205,12 @@ fun LocationScreen(
                             Text(activity)
                         }
                     }
+                    Button(onClick = { openMap.value = true },modifier = Modifier.padding(5.dp)) {
+                        FaIcon(
+                            FaIcons.LocationArrow,
+                            tint = MaterialTheme.colors.surface
+                        )
+                    }
                 }
 
                 Heading(
@@ -110,21 +220,18 @@ fun LocationScreen(
                 LazyRow(
                     modifier = Modifier.padding(cardPadding)
                 ) {
-                    items(3) {
-                        val trip = Destination()
-                        trip.thumbnailUrl =
-                            "https://cdn.britannica.com/q:60/50/161650-050-FAEF5CAC/Group-Waltshire-cows-England.jpg"
-                        trip.name = "Roadtrip among cows"
+                    items(trips.value.size) { i ->
+                        val trip = trips.value[i]
                         Box(
                             modifier = Modifier
                                 .weight(1f)
                         ) {
-                            MainCard(
-                                destination = trip,
+                            TripCard(
+                                trip = trip,
                                 rating = 4.5f,
                                 padding = 5.dp,
                                 shadow = 10.dp,
-                                badges = arrayListOf("Youth", "Nature","Crowd-less"),
+                                badges = arrayListOf("Youth", "Nature", "Crowd-less"),
                                 mainActivity = mainActivity,
                                 infoScale = 0.8f,
                                 imageMaxHeight = 130f
@@ -134,41 +241,30 @@ fun LocationScreen(
                 }
 
                 Heading(
-                    "Description"
-                )
-
-                Text(
-                    text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum",
-                    fontSize = textSmall,
-                    color = textLightColor,
-                    modifier = Modifier.padding(cardPadding).fillMaxWidth()
-                )
-
-                Heading(
                     "Facilities"
                 )
 
                 LazyRow(
                     modifier = Modifier.padding(cardPadding)
                 ) {
-                    items(3) { i ->
-                        val trip = Destination()
-                        trip.thumbnailUrl =
-                            "https://media-cdn.tripadvisor.com/media/photo-s/04/07/f9/d0/da-nino.jpg"
-                        trip.name = "Da Nino"
+                    items(facilities.value.size) { i ->
+
+                        val facility = facilities.value[i]
+                        val badges = arrayListOf("€".repeat(facility.priceLevel.toInt() + 1))
                         Box(
                             modifier = Modifier
                                 .weight(1f)
-                                .heightIn(0.dp, 120.dp)
                         ) {
                             MainCard(
-                                destination = trip,
-                                rating = 4.8f,
+                                destination = facility,
+                                rating = facility.rating,
                                 padding = 5.dp,
                                 shadow = 10.dp,
+                                imageMaxHeight = 100f,
                                 mainActivity = mainActivity,
                                 infoScale = 0.8f,
-                                icon = if (i % 2 == 0) FaIcons.Google else FaIcons.Tripadvisor
+                                icon = FaIcons.Google,
+                                badges = badges
                             )
                         }
                     }
@@ -179,7 +275,7 @@ fun LocationScreen(
                 )
 
                 Box(
-                    modifier = Modifier.padding(bottom = 40.dp)
+                    modifier = Modifier.padding(bottom = 60.dp)
                 ) {
                     if (ratings.value.size <= 0) {
                         Box(
@@ -213,7 +309,7 @@ fun LocationScreen(
                             .background(
                                 brush = Brush.verticalGradient(
                                     colors = listOf(
-                                        lightBackground,
+                                        MaterialTheme.colors.background,
                                         Color.Transparent
                                     )
                                 )
@@ -224,29 +320,70 @@ fun LocationScreen(
         }
 
     }
-}
+    val scale: Float by animateFloatAsState(
+        if (openMap.value) 1f else 0f, animationSpec = tween(
+            durationMillis = 500,
+            easing = LinearOutSlowInEasing
+        )
+    )
+    if (openMap.value) {
+        androidx.compose.ui.window.Dialog(
+            onDismissRequest = {
+                openMap.value = false
+            },
 
-fun getRatings(destionation: Destination) {
-    loaded.value = true
+            ) {
+            Column(
+                modifier = Modifier
+                    .scale(scale)
+                    .height(200.dp)
+                    .padding(0.dp)
+                    .graphicsLayer {
+                        shape = RoundedCornerShape(cardRadius)
+                        clip = true
+                    }
+                    .background(MaterialTheme.colors.background)
+                    .fillMaxWidth()
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                ) {
+                    if (mapView != null) {
+                        AndroidView({ mapView }) { mapView ->
+                            CoroutineScope(Dispatchers.Main).launch {
+                                if (!mapLoaded.value) {
+                                    mapView.getMapAsync { mMap ->
+                                        if (!mapLoaded.value) {
+                                            map.value = mMap
+                                            mapInit()
+                                            mapLoaded.value = true
+                                        }
+                                    }
+                                }
+                            }
+                        }
 
-    if (ratings.value.size <= 0) {
-        Thread {
-
-            val result = ArrayList<Rating>()
-
-            val request = "${destionation.latitude},${destionation.longitude}"
-            val ratingsText = sendPostRequest(request, action = "ratings")
-            val gson = Gson()
-            val itemType = object : TypeToken<List<Rating>>() {}.type
-            val _ratings: List<Rating> = gson.fromJson(ratingsText, itemType)
-            for (rating in _ratings) {
-                rating.rating = random().toFloat() * 5f
-                result.add(rating)
+                    } else {
+                        Text(
+                            "Loading...",
+                            color = MaterialTheme.colors.surface,
+                            modifier = Modifier.padding(
+                                cardPadding
+                            )
+                        )
+                        loadingScreen.value++
+                    }
+                }
             }
-            ratings.value = result
-        }.start()
+        }
     }
+
+
 }
+
+
+
 
 
 

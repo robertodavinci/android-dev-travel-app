@@ -11,7 +11,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -20,7 +19,10 @@ import androidx.navigation.NavController
 import com.apps.travel_app.MainActivity
 import com.apps.travel_app.models.Destination
 import com.apps.travel_app.ui.components.MainCard
-import com.apps.travel_app.ui.theme.*
+import com.apps.travel_app.ui.theme.cardPadding
+import com.apps.travel_app.ui.theme.cardRadius
+import com.apps.travel_app.ui.theme.iconLightColor
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.guru.fontawesomecomposelib.FaIcon
 import java.lang.Math.random
 import kotlin.math.roundToInt
@@ -29,42 +31,51 @@ import kotlin.math.roundToInt
 @Composable
 fun ExploreScreen(navController: NavController, mainActivity: MainActivity) {
 
+    val systemUiController = rememberSystemUiController()
+    systemUiController.setSystemBarsColor(
+        color = MaterialTheme.colors.background
+    )
+
     var searchTerm by remember { mutableStateOf("") }
 
     Column(
         modifier = Modifier
-            .fillMaxSize()
-            .background(Color.White)
+            .fillMaxSize(),
+        verticalArrangement = Arrangement.SpaceBetween
     ) {
         Row(
             modifier = Modifier
-                .padding(cardPadding)
-                .fillMaxWidth(),
+                .fillMaxWidth()
+                .background(MaterialTheme.colors.background)
+                .padding(cardPadding),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             TextField(
                 value = searchTerm, onValueChange = { searchTerm = it },
                 shape = RoundedCornerShape(cardRadius),
                 modifier = Modifier
-                    .shadow(cardElevation)
+                    //.shadow(cardElevation)
                     .fillMaxWidth()
                     .weight(1f),
                 colors = TextFieldDefaults.textFieldColors(
                     focusedIndicatorColor = Color.Transparent,
                     disabledIndicatorColor = Color.Transparent,
                     unfocusedIndicatorColor = Color.Transparent,
-                    backgroundColor = lightBackground,
+                    backgroundColor = MaterialTheme.colors.background,
                 ),
                 placeholder = {
                     Text(
                         "Search",
-                        color = textLightColor,
+                        color = MaterialTheme.colors.surface,
                         modifier = Modifier.alpha(0.5f)
                     )
                 },
                 trailingIcon = { FaIcon(FaIcons.Search, tint = iconLightColor) },
                 singleLine = true,
-                textStyle = TextStyle(color = textLightColor, fontWeight = FontWeight.Bold),
+                textStyle = TextStyle(
+                    color = MaterialTheme.colors.surface,
+                    fontWeight = FontWeight.Bold
+                ),
             )
             IconButton(onClick = {
                 navController.navigate("map") {
@@ -77,10 +88,11 @@ fun ExploreScreen(navController: NavController, mainActivity: MainActivity) {
                     restoreState = true
                 }
             }) {
-                FaIcon(FaIcons.GlobeEurope, tint = iconLightColor)
+                FaIcon(FaIcons.GlobeEurope, tint = MaterialTheme.colors.surface)
             }
         }
         Grid(10, mainActivity)
+
     }
 }
 
@@ -93,9 +105,9 @@ fun Grid(n: Int, mainActivity: MainActivity) {
         "https://www.welcometoitalia.com/wp-content/uploads/2020/10/galleria_Milan.jpg"
     LazyColumn(
         modifier = Modifier
-            .rotate(3.5f)
+            .rotate(-3.5f)
             .scale(1.1f)
-            .padding(top = cardPadding)
+            .padding(top = cardPadding * 3)
     ) {
         item {
             while (i < n) {
@@ -111,7 +123,7 @@ fun Grid(n: Int, mainActivity: MainActivity) {
                     ) {
                         NullCard()
                     }
-                    for(x in 1..howMany) {
+                    for (x in 1..howMany) {
                         Box(
                             modifier = Modifier
                                 .weight(weight.toFloat(), true)
@@ -151,7 +163,7 @@ fun NullCard() {
     ) {
         Column(
             modifier = Modifier
-                .background(Color(0xFFD9D9E9))
+                .background(MaterialTheme.colors.onBackground)
                 .fillMaxWidth()
         ) {}
     }

@@ -11,7 +11,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.apps.travel_app.R
 import com.apps.travel_app.ui.theme.cardPadding
-import com.apps.travel_app.ui.theme.textLightColor
+import androidx.compose.material.MaterialTheme
 import com.apps.travel_app.ui.theme.textNormal
 import com.skydoves.landscapist.glide.GlideImage
 
@@ -43,7 +43,7 @@ fun Loader() {
             text = "Loading" + ".".repeat(dots),
             fontSize = textNormal,
             fontWeight = FontWeight.Bold,
-            color = textLightColor,
+            color = MaterialTheme.colors.surface,
             modifier = Modifier.padding(cardPadding)
         )
     }

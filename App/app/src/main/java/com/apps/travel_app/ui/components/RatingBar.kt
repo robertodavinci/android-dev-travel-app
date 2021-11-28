@@ -4,6 +4,7 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.GenericShape
+import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -23,7 +24,7 @@ fun RatingBar(
     rating: Float,
     modifier: Modifier = Modifier,
     color: Color = yellow,
-    emptyColor: Color = iconLightColor
+    emptyColor: Color = MaterialTheme.colors.surface
 ) {
     Row(modifier = modifier.wrapContentSize()) {
         (1..5).forEach { step ->

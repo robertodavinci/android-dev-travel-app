@@ -1,5 +1,6 @@
 package com.apps.travel_app.ui.pages
 
+import androidx.compose.material.MaterialTheme
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -25,9 +26,7 @@ import com.apps.travel_app.ui.components.Heading
 import com.apps.travel_app.ui.components.Loader
 import com.apps.travel_app.ui.components.MainCard
 import com.apps.travel_app.ui.theme.cardPadding
-import com.apps.travel_app.ui.theme.lightBackground
 import com.apps.travel_app.ui.theme.textHeading
-import com.apps.travel_app.ui.theme.textLightColor
 import com.apps.travel_app.ui.utils.sendPostRequest
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.google.android.libraries.maps.model.LatLng
@@ -42,22 +41,22 @@ var images: MutableState<Boolean> = mutableStateOf(false)
 @Composable
 fun HomeScreen(navController: NavController, mainActivity: MainActivity) {
 
+
+    val systemUiController = rememberSystemUiController()
+    systemUiController.setSystemBarsColor(
+        color = MaterialTheme.colors.background
+    )
+
     images = remember { mutableStateOf(false) }
     trips = remember { mutableStateOf(ArrayList()) }
 
     if (!images.value)
         getImages()
 
-
-    val systemUiController = rememberSystemUiController()
-    systemUiController.setSystemBarsColor(
-        color = Color.White
-    )
-
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.White)
+            .background(MaterialTheme.colors.background)
     ) {
         Row(
             modifier = Modifier
@@ -69,7 +68,7 @@ fun HomeScreen(navController: NavController, mainActivity: MainActivity) {
                 text = "Hi motherfucker",
                 fontSize = textHeading,
                 fontWeight = FontWeight.Bold,
-                color = textLightColor
+                color = MaterialTheme.colors.surface
             )
             IconButton(onClick = {
                 navController.navigate("profile") {
@@ -182,7 +181,7 @@ fun HomeScreen(navController: NavController, mainActivity: MainActivity) {
                     .background(
                         brush = Brush.verticalGradient(
                             colors = listOf(
-                                lightBackground,
+                                MaterialTheme.colors.background,
                                 Color.Transparent
                             )
                         )
@@ -210,15 +209,17 @@ fun getImages() {
                 "[${e.latitude},${e.longitude}]"
             }
             val citiesText = sendPostRequest(request, action = "polygonCities")
-            val gson = Gson()
-            val itemType = object : TypeToken<List<Destination>>() {}.type
-            val cities: List<Destination> = gson.fromJson(citiesText, itemType)
-            for (city in cities) {
+            if (!citiesText.isNullOrEmpty()) {
+                val gson = Gson()
+                val itemType = object : TypeToken<List<Destination>>() {}.type
+                val cities: List<Destination> = gson.fromJson(citiesText, itemType)
+                for (city in cities) {
 
-                city.rating = random().toFloat() * 5f
-                result.add(city)
+                    city.rating = random().toFloat() * 5f
+                    result.add(city)
+                }
+                trips.value = result
             }
-            trips.value = result
         }.start()
     }
 }

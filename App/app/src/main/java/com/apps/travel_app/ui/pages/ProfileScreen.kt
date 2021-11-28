@@ -12,28 +12,23 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import com.apps.travel_app.ui.theme.textHeading
-import com.apps.travel_app.ui.theme.textLightColor
+import androidx.compose.material.MaterialTheme
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 
 
 @Composable
 fun ProfileScreen() {
 
-    val systemUiController = rememberSystemUiController()
-    systemUiController.setSystemBarsColor(
-        color = Color.White
-    )
-
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.White)
+            .background(MaterialTheme.colors.background)
             .wrapContentSize(Alignment.Center)
     ) {
         Text(
             text = "Profile",
             fontWeight = FontWeight.Bold,
-            color = textLightColor,
+            color = MaterialTheme.colors.surface,
             modifier = Modifier.align(Alignment.CenterHorizontally),
             textAlign = TextAlign.Center,
             fontSize = textHeading

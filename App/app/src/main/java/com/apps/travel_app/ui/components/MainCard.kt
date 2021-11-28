@@ -1,10 +1,12 @@
 package com.apps.travel_app.ui.components
 
+import androidx.compose.material.MaterialTheme
 import FaIcons
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -20,9 +22,12 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -50,26 +55,36 @@ fun MainCard(
     imageMaxHeight: Float = Float.POSITIVE_INFINITY
 ) {
 
+
     val openDialog = remember { mutableStateOf(false) }
+    val haptic = LocalHapticFeedback.current
 
     Card(
         modifier = Modifier
             .padding(padding)
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .widthIn(0.dp, 200.dp),
         elevation = shadow,
         shape = RoundedCornerShape(radius)
     ) {
         Column(
             modifier = Modifier
-                .background(lightBackground)
+                .background(MaterialTheme.colors.onBackground)
                 .fillMaxWidth()
         ) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .clickable {
+                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                    }
                     .pointerInput(Unit) {
                         detectTapGestures(
-                            onLongPress = { openDialog.value = true },
+                            onLongPress = {
+                                openDialog.value = true; haptic.performHapticFeedback(
+                                HapticFeedbackType.LongPress
+                            )
+                            },
                             onTap = {
                                 mainActivity.setDestination(destination, true)
                             }
@@ -82,7 +97,7 @@ fun MainCard(
                 if (squaredImage)
                     modifier.aspectRatio(1f)
                 GlideImage(
-                    imageModel = destination.thumbnailUrl ?: destination.thumbnail,
+                    imageModel = destination.thumbnailUrl,
                     modifier = modifier,
                     contentScale = if (squaredImage) ContentScale.Fit else ContentScale.Crop,
                     circularReveal = CircularReveal(duration = 700),
@@ -92,7 +107,6 @@ fun MainCard(
                 Column(
                     modifier = Modifier
                         .align(Alignment.BottomStart)
-                        .fillMaxWidth()
                         .background(
                             brush = Brush.verticalGradient(
                                 colors = listOf(
@@ -102,6 +116,7 @@ fun MainCard(
                             )
 
                         )
+                        .fillMaxWidth()
                 ) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -124,12 +139,15 @@ fun MainCard(
                                 .fillMaxWidth(),
                             color = Color.White,
                             fontSize = textHeading * infoScale,
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.Bold,
+                            overflow = TextOverflow.Ellipsis,
+                            maxLines = 1
                         )
-                        if (views > 0) {
-                            Row(
-                                modifier = Modifier.padding(5.dp)
-                            ) {
+
+                        Row(
+                            modifier = Modifier.padding(5.dp)
+                        ) {
+                            if (views > 0) {
                                 FaIcon(FaIcons.EyeRegular, tint = Color.White)
                                 Text(
                                     text = views.toString(),
@@ -140,6 +158,7 @@ fun MainCard(
                                 )
                             }
                         }
+
                     }
                     if (rating > 0) {
                         Row(
@@ -151,10 +170,7 @@ fun MainCard(
                             RatingBar(
                                 rating = rating,
                                 modifier = Modifier
-                                    .height(15.dp * infoScale)
-                                    .graphicsLayer {
-                                        shadowElevation = 3f
-                                    },
+                                    .height(15.dp * infoScale),
                                 emptyColor = Color(0x88FFFFFF)
                             )
                         }
@@ -171,6 +187,7 @@ fun MainCard(
                         .padding(cardPadding)
                 ) {
                     badges.forEach { badge ->
+                        println(badge)
                         Badge(
                             text = badge
                         )
@@ -202,7 +219,7 @@ fun MainCard(
                         shape = RoundedCornerShape(cardRadius)
                         clip = true
                     }
-                    .background(lightBackground)
+                    .background(MaterialTheme.colors.background)
                     .fillMaxWidth()
             ) {
                 Box(
@@ -212,7 +229,8 @@ fun MainCard(
                     GlideImage(
                         imageModel = destination.thumbnailUrl ?: destination.thumbnail,
                         modifier = Modifier
-                            .fillMaxWidth().height(200.dp),
+                            .fillMaxWidth()
+                            .height(200.dp),
                         circularReveal = CircularReveal(duration = 700),
 
                         )
@@ -225,7 +243,7 @@ fun MainCard(
                                 brush = Brush.verticalGradient(
                                     colors = listOf(
                                         Color.Transparent,
-                                        if (destination.name.isNotEmpty()) textLightColor else Color.Transparent
+                                        if (destination.name.isNotEmpty()) MaterialTheme.colors.surface else Color.Transparent
                                     )
                                 )
 

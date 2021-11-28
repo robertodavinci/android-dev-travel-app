@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
+import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -21,7 +22,6 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import com.apps.travel_app.ui.theme.cardElevation
 import com.apps.travel_app.ui.theme.iconLightColor
 import com.apps.travel_app.ui.theme.primaryColor
-import com.apps.travel_app.ui.theme.textLightColor
 import com.guru.fontawesomecomposelib.FaIcon
 
 @Composable
@@ -35,8 +35,8 @@ fun BottomNavigationBar(navController: NavController) {
     )
 
     BottomNavigation(
-        backgroundColor = Color.White,
-        contentColor = iconLightColor,
+        backgroundColor = MaterialTheme.colors.onBackground,
+        contentColor = MaterialTheme.colors.surface,
         modifier = Modifier
             .padding(10.dp)
             .height(60.dp)
@@ -77,7 +77,7 @@ fun BottomNavigationBar(navController: NavController) {
                     } else {
                         FaIcon(
                             item.icon,
-                            tint = if (currentRoute == item.route) textLightColor else iconLightColor,
+                            tint = if (currentRoute == item.route) MaterialTheme.colors.surface else iconLightColor,
                         )
                     }
                 },

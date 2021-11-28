@@ -21,6 +21,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.apps.travel_app.models.Destination
 import com.apps.travel_app.ui.theme.*
+import androidx.compose.material.MaterialTheme
+import com.skydoves.landscapist.glide.GlideImage
 
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -36,7 +38,7 @@ fun DestinationCard(destination: Destination?, open: Boolean = false, maxHeightV
 
     Card(
         elevation = cardElevation,
-        backgroundColor = Color.White,
+        backgroundColor = MaterialTheme.colors.onBackground,
         shape = RoundedCornerShape(cardRadius),
         modifier = Modifier
             .heightIn(0.dp, maxHeight.dp)
@@ -51,12 +53,13 @@ fun DestinationCard(destination: Destination?, open: Boolean = false, maxHeightV
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             if (destination?.thumbnail != null) {
-                Image(
-                    painter = BitmapPainter(destination.thumbnail!!),
+                GlideImage(
+                    imageModel = destination.thumbnailUrl,
                     contentDescription = "",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
                         .fillMaxHeight()
+                        .widthIn(0.dp, maxHeightValue.dp)
                         .align(Alignment.CenterVertically)
                 )
             }
@@ -65,7 +68,7 @@ fun DestinationCard(destination: Destination?, open: Boolean = false, maxHeightV
             ) {
                 Text(
                     text = destination?.name ?: "",
-                    color = textLightColor,
+                    color = MaterialTheme.colors.surface,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Start,
                     fontSize = textNormal,
@@ -75,7 +78,7 @@ fun DestinationCard(destination: Destination?, open: Boolean = false, maxHeightV
                 )
                 Text(
                     text = "Second Level",
-                    color = textLightColor,
+                    color = MaterialTheme.colors.surface,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Start,
                     fontSize = textSmall,
