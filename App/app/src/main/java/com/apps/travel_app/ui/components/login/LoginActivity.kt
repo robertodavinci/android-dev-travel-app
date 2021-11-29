@@ -1,8 +1,12 @@
 package com.apps.travel_app.ui.components.login
 
+import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
+// import android.graphics.drawable.shapes.Shape
+import androidx.compose.ui.graphics.Shape
 import android.os.Bundle
 import android.util.Base64
 import android.util.Log
@@ -26,6 +30,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.*
 import androidx.compose.material.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -45,23 +50,48 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.composable
 import com.apps.travel_app.R
 import com.apps.travel_app.ui.components.BottomBarItem
-import com.facebook.CallbackManager
 import com.google.firebase.auth.FirebaseUser
-import com.facebook.FacebookSdk;
 import com.facebook.appevents.AppEventsLogger;
 import com.facebook.login.LoginManager
 import java.security.MessageDigest
 import java.security.NoSuchAlgorithmException
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.viewModels
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.ContentAlpha.medium
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
 import com.apps.travel_app.ui.components.login.ui.theme.FacebookIntegrationTheme
+import com.facebook.*
+import com.facebook.login.LoginResult
+import com.facebook.login.widget.LoginButton
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.tasks.Task
+import com.google.firebase.auth.FacebookAuthProvider
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
+import com.apps.travel_app.ui.theme.Shapes
 
 class LoginActivity : ComponentActivity() {
 
@@ -70,6 +100,12 @@ class LoginActivity : ComponentActivity() {
     }
 
     private lateinit var auth: FirebaseAuth
+    private lateinit var googleSignInClient: GoogleSignInClient
+    //private lateinit var buttonFacebookLogin: LoginButton
+    //private lateinit var callbackManager: CallbackManager
+
+    var logScreen = true
+    var regScreen = false
 
     val items = listOf(
         BottomBarItem.Email,
@@ -77,27 +113,36 @@ class LoginActivity : ComponentActivity() {
         BottomBarItem.Facebook
     )
     val viewModel: LoginViewModel by viewModels()
-    var fbLogin = false
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         //val viewModel: LoginViewModel by viewModels()
         auth = Firebase.auth
+
+        // Google sign in setup
+
+
+
         setContent {
             FacebookIntegrationTheme {
                 Surface(color = MaterialTheme.colors.background) {
-                printHashKey(LocalContext.current)
+                //printHashKey(LocalContext.current)
                     val profileViewState by viewModel.profileViewState.observeAsState(ProfileViewState())
-                    if (profileViewState != null) {fbLogin = true}
-                    Log.i("NO LOGG", "LOGGED IN ALREADYY")
-                    //SampleView(profileViewState, login, logout)
                     LoginAndRegistrationUI()
                 }
             }
         }
     }
 
+    fun getGoogleSignInClient(context: Context): GoogleSignInClient {
+        val signInOptions = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+//         Request id token if you intend to verify google user from your backend server
+//        .requestIdToken(context.getString(R.string.backend_client_id))
+            .requestEmail()
+            .build()
+
+        return GoogleSignIn.getClient(context, signInOptions)
+    }
 
     private val login = {
         LoginManager.getInstance().logIn(this, CallbackManager.Factory.create(), listOf("email"))
@@ -111,8 +156,7 @@ class LoginActivity : ComponentActivity() {
         super.onStart()
         // Check if user is signed in (non-null) and update UI accordingly.
         val currentUser = auth.currentUser
-        Log.i("NO LOGG", "LOGGED IN ALREADYY")
-            if (currentUser != null || fbLogin != null) {
+            if (currentUser != null) {
                 setContent {
                     FacebookIntegrationTheme {
                         Log.i("LOGG", "LOGGED IN ALREADYY")
@@ -120,6 +164,11 @@ class LoginActivity : ComponentActivity() {
                     }
                     }
                 }
+        else {
+            setContent {
+                LoginAndRegistrationUI()
+            }
+        }
         //if(currentUser == null){
           /*  setContent {
                 Travel_AppTheme {
@@ -142,21 +191,46 @@ class LoginActivity : ComponentActivity() {
                     // Sign in success, update UI with the signed-in user's information
                     Log.d("Registration info", "createUserWithEmail:success")
                     val user = auth.currentUser
+
                     Toast.makeText(
-                        baseContext, "Authentication failed.",
+                        baseContext, "Account creation successful.",
                         Toast.LENGTH_SHORT
                     ).show()
-                    //updateUI(user)
+                    setContent{
+                        updateUI(user)
+                    }
                 } else {
                     // If sign in fails, display a message to the user.
                     Log.w("Registration info", "createUserWithEmail:failure", task.exception)
                     Toast.makeText(
-                        baseContext, "Authentication failed.",
+                        baseContext, "Account creation failed failed.",
                         Toast.LENGTH_SHORT
                     ).show()
                     //updateUI(null)
                 }
             }
+        }
+
+    private fun signIn(email: String, password: String) {
+        // [START sign_in_with_email]
+        auth.signInWithEmailAndPassword(email, password)
+            .addOnCompleteListener(this) { task ->
+                if (task.isSuccessful) {
+                    // Sign in success, update UI with the signed-in user's information
+                    Log.d("SignIn info", "signInWithEmail:success")
+                    val user = auth.currentUser
+                    setContent{
+                        updateUI(user)
+                    }
+
+                } else {
+                    // If sign in fails, display a message to the user.
+                    Log.w("SignIn Info", "signInWithEmail:failure", task.exception)
+                    Toast.makeText(baseContext, "Authentication failed.",
+                        Toast.LENGTH_SHORT).show()
+                }
+            }
+        // [END sign_in_with_email]
     }
 
         @Composable
@@ -172,10 +246,13 @@ class LoginActivity : ComponentActivity() {
                         append("You are logged in " + user.toString())
                     }
                 }, fontSize = 30.sp)
-                Button(onClick = {logout; auth.signOut(); setContent {
-                    FacebookIntegrationTheme {LoginAndRegistrationUI()}}}, content = {
-                    Text(text = "Logout", color = Color.White)
-                })
+                Button(onClick = {
+                    logout;
+                    auth.signOut();
+                    setContent {
+                        FacebookIntegrationTheme {LoginAndRegistrationUI()}}}, content = {
+                        Text(text = "Back to the login screen", color = Color.White)
+                    })
                 }
 
             }
@@ -186,87 +263,115 @@ class LoginActivity : ComponentActivity() {
         val profileViewState by viewModel.profileViewState.observeAsState(ProfileViewState())
         NavHost(navController=navigationController, startDestination="loginScreen", builder=
         {
-            composable("loginScreen", content = { LoginScreen(navigationController=navigationController, profileViewState = profileViewState,
-                login = login, logout = logout)})
-            composable("registrationScreen", content = { RegistrationScreen(navigationController=navigationController)})
+            composable("loginScreen", content = { EmailPassScreen(navigationController=navigationController, profileViewState = profileViewState,
+                login = login, logout = logout, logScreen)
+            })
+            //composable("registrationScreen", content = { RegistrationScreen(navigationController=navigationController)})
+            composable("registrationScreen", content = { EmailPassScreen(navigationController=navigationController, profileViewState = profileViewState,
+                login = login, logout = logout, regScreen)})
+            /*
             composable("facebookScreen", content = { SampleView(
                 profileViewState = profileViewState,
-                login = login, logout = logout)})
+                login = login, logout = logout)})*/
             //composable("registerScreen")
         })
 
     }
-    @Composable
-    fun LoginScreen(navigationController:NavController, profileViewState: ProfileViewState, login: () -> Unit, logout: () -> Unit) {
-        val context = LocalContext.current
-        val email = remember { mutableStateOf(TextFieldValue()) }
-        val emailErrorState = remember { mutableStateOf(false) }
-        val passwordErrorState = remember { mutableStateOf(false) }
-        val password = remember { mutableStateOf(TextFieldValue()) }
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.Center,
-        ) {
-            Text(text = buildAnnotatedString {
-                withStyle(style = SpanStyle(color = Color.Red)) {
-                    append("Sign")
-                }
-                withStyle(style = SpanStyle(color = Color.Red)) {
-                    append(" In")
-                }
-            }, fontSize = 30.sp)
-            Spacer(Modifier.size(16.dp))
-            OutlinedTextField(
-                value = email.value,
-                onValueChange = {
-                    if (emailErrorState.value) {
-                        emailErrorState.value = false
-                    }
-                    email.value = it
-                },
-                isError = emailErrorState.value,
-                modifier = Modifier.fillMaxWidth(),
-                label = {
-                    Text(text = "Enter Email*")
-                },
-            )
-            if (emailErrorState.value) {
-                Text(text = "Required", color = Color.Red)
+
+/*fun printHashKey(context: Context) {
+    try {
+        val info: PackageInfo = context.packageManager
+            .getPackageInfo(context.packageName, PackageManager.GET_SIGNATURES)
+        for (signature in info.signatures) {
+            val md: MessageDigest = MessageDigest.getInstance("SHA")
+            md.update(signature.toByteArray())
+            val hashKey: String = String(Base64.encode(md.digest(), 0))
+            Log.d("hashkey", "Hash Key: $hashKey")
+        }
+    } catch (e: NoSuchAlgorithmException) {
+        Log.e("Error", "${e.localizedMessage}")
+    } catch (e: Exception) {
+        Log.e("Exception", "${e.localizedMessage}")
+    }
+}*/
+
+@Composable
+
+fun EmailPassScreen (navigationController: NavController, profileViewState: ProfileViewState, login: () -> Unit, logout: () -> Unit, logreg: Boolean) {
+    val context = LocalContext.current
+    val email = remember { mutableStateOf(TextFieldValue()) }
+    val emailErrorState = remember { mutableStateOf(false) }
+    val passwordErrorState = remember { mutableStateOf(false) }
+    val password = remember { mutableStateOf(TextFieldValue()) }
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.Center,
+    ) {
+        Text(text = buildAnnotatedString {
+            withStyle(style = SpanStyle(color = Color.Red)) {
+                if(logreg) append("Sign in")
+                else append ("Register")
             }
-            Spacer(Modifier.size(16.dp))
-            val passwordVisibility = remember { mutableStateOf(true) }
-            OutlinedTextField(
-                value = password.value,
-                onValueChange = {
-                    if (passwordErrorState.value) {
-                        passwordErrorState.value = false
-                    }
-                    password.value = it
-                },
-                isError = passwordErrorState.value,
-                modifier = Modifier.fillMaxWidth(),
-                label = {
-                    Text(text = "Enter Password*")
-                },
-                /* trailingIcon = {
-                    IconButton(onClick = {
-                        passwordVisibility.value = !passwordVisibility.value
-                    }) {
-                        Icon(
-                            ImageVector = if (passwordVisibility.value) ,
-                            contentDescription = "visibility",
-                            tint = Color.Red
-                        )
-                    }
-                },*/
-                visualTransformation = if (passwordVisibility.value) PasswordVisualTransformation() else VisualTransformation.None
-            )
-            if (passwordErrorState.value) {
-                Text(text = "Required", color = Color.Red)
-            }
-            Spacer(Modifier.size(16.dp))
+        }, fontSize = 30.sp)
+        Spacer(Modifier.size(16.dp))
+        OutlinedTextField(
+            value = email.value,
+            onValueChange = {
+                if (emailErrorState.value) {
+                    emailErrorState.value = false
+                }
+                email.value = it
+            },
+            isError = emailErrorState.value,
+            modifier = Modifier.fillMaxWidth(),
+            label = {
+                Text(text = "Enter Email*")
+            },
+        )
+        if (emailErrorState.value) {
+            Text(text = "Required", color = Color.Red)
+        }
+        Spacer(Modifier.size(16.dp))
+        val passwordVisibility = remember { mutableStateOf(true) }
+        OutlinedTextField(
+            value = password.value,
+            onValueChange = {
+                if (passwordErrorState.value) {
+                    passwordErrorState.value = false
+                }
+                password.value = it
+            },
+            isError = passwordErrorState.value,
+            modifier = Modifier.fillMaxWidth(),
+            label = {
+                Text(text = "Enter Password*")
+            },
+            /* trailingIcon = {
+                IconButton(onClick = {
+                    passwordVisibility.value = !passwordVisibility.value
+                }) {
+                    Icon(
+                        ImageVector = if (passwordVisibility.value) ,
+                        contentDescription = "visibility",
+                        tint = Color.Red
+                    )
+                }
+            },*/
+            visualTransformation = if (passwordVisibility.value) PasswordVisualTransformation() else VisualTransformation.None
+        )
+        if (passwordErrorState.value) {
+            Text(text = "Required", color = Color.Red)
+        }
+        Spacer(Modifier.size(16.dp))
+
+        Log.i("LOGREG", logreg.toString())
+
+        // --------------------------------------------------
+        // LOGIN PART
+        if (logreg == true) // login screen
+        {
             Button(
                 onClick = {
                     when {
@@ -279,11 +384,12 @@ class LoginActivity : ComponentActivity() {
                         else -> {
                             passwordErrorState.value = false
                             emailErrorState.value = false
-                            Toast.makeText(
+                            signIn(email.value.text, password.value.text)
+                            /*Toast.makeText(
                                 context,
                                 "Logged in successfully",
                                 Toast.LENGTH_SHORT
-                            ).show()
+                            ).show()*/
                         }
                     }
 
@@ -309,104 +415,17 @@ class LoginActivity : ComponentActivity() {
                     }
                 },
                 content = {
-                    Text(text = "Register", color = Color.White)
+                    Text(text = "Click here for Registration", color = Color.White)
                 },
                 modifier = Modifier.fillMaxWidth(),
                 colors = ButtonDefaults.buttonColors(backgroundColor = Color.Blue)
             )
-            Spacer(Modifier.size(16.dp))
-            Column(
-                modifier = Modifier.fillMaxSize(),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
-            ) {
-                /*CustomLoginButton(
-                    profile = profileViewState.profile,
-                    login = { login() },
-                    logout = { logout() }
-                )*/
-                Spacer(modifier = Modifier.height(15.dp))
-
-                WrappedLoginButton()
-
-                Spacer(modifier = Modifier.height(15.dp))
-
-                Text(
-                    text = profileViewState.profile?.name ?: "Logged Out"
-                )
-            }
         }
-    }
+        // --------------------------------------------------
+        // REGISTRATION PART
 
-    // @Preview(showBackground = true)
-    @Composable
-    fun RegistrationScreen(navigationController:NavController){
-        val context = LocalContext.current
-        val email = remember {mutableStateOf(TextFieldValue())}
-        val emailErrorState = remember {mutableStateOf(false)}
-        val passwordErrorState = remember {mutableStateOf(false)}
-        val password = remember {mutableStateOf(TextFieldValue())}
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.Center,
-        ) {
-            Text(text = buildAnnotatedString {
-                withStyle(style = SpanStyle(color = Color.Red)) {
-                    append("Register")
-                }
-            }, fontSize = 30.sp)
-            Spacer(Modifier.size(16.dp))
-            OutlinedTextField(
-                value = email.value,
-                onValueChange = {
-                    if (emailErrorState.value) {
-                        emailErrorState.value = false
-                    }
-                    email.value = it
-                },
-                isError = emailErrorState.value,
-                modifier = Modifier.fillMaxWidth(),
-                label = {
-                    Text(text = "Enter Email*")
-                },
-            )
-            if (emailErrorState.value) {
-                Text(text = "Required", color = Color.Red)
-            }
-            Spacer(Modifier.size(16.dp))
-            val passwordVisibility = remember { mutableStateOf(true) }
-            OutlinedTextField(
-                value = password.value,
-                onValueChange = {
-                    if (passwordErrorState.value) {
-                        passwordErrorState.value = false
-                    }
-                    password.value = it
-                },
-                isError = passwordErrorState.value,
-                modifier = Modifier.fillMaxWidth(),
-                label = {
-                    Text(text = "Enter Password*")
-                },
-                /* trailingIcon = {
-                     IconButton(onClick = {
-                         passwordVisibility.value = !passwordVisibility.value
-                     }) {
-                         Icon(
-                             ImageVector = if (passwordVisibility.value) ,
-                             contentDescription = "visibility",
-                             tint = Color.Red
-                         )
-                     }
-                 },*/
-                visualTransformation = if (passwordVisibility.value) PasswordVisualTransformation() else VisualTransformation.None
-            )
-            if (passwordErrorState.value) {
-                Text(text = "Required", color = Color.Red)
-            }
-            Spacer(Modifier.size(16.dp))
+        else if (!logreg) // registration screen
+        {
             Button(
                 onClick = {
                     when {
@@ -454,208 +473,303 @@ class LoginActivity : ComponentActivity() {
                     }
                 },
                 content = {
-                    Text(text = "Login", color = Color.White)
+                    Text(text = "Click here for login", color = Color.White)
                 },
                 modifier = Modifier.fillMaxWidth(),
                 colors = ButtonDefaults.buttonColors(backgroundColor = Color.Blue)
             )
-            Spacer(Modifier.size(16.dp))
-
-
-            /*
-                Image(
-                    modifier = Modifier.width(80.dp).height(80.dp),
-                    painter = painterResource(id = R.drawable.facebook_icon),
-                    contentDescription = null // decorative element
-                )
-
-                Image(
-                    modifier = Modifier.width(80.dp).height(80.dp),
-                    painter = painterResource(id = R.drawable.gmail_icon),
-                    contentDescription = null // decorative element
-                )
-                Image(
-                    modifier = Modifier.width(80.dp).height(80.dp),
-                    painter = painterResource(id = R.drawable.google_icon),
-                    contentDescription = null // decorative element
-                )
-*
-
-             */
         }
-            }
+        // --------------------------------------------------
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            var buttonFacebookLogin = LoginButton(context)
+            buttonFacebookLogin.setPermissions("email", "public_profile")
+            AndroidView(
+                factory = {
+
+                    context -> buttonFacebookLogin.apply {
+                    var callbackManager = CallbackManager.Factory.create()
+                    buttonFacebookLogin.registerCallback(callbackManager, object : FacebookCallback<LoginResult>{
+                    override fun onSuccess(loginResult: LoginResult) {
+                        Log.d("FacebookLogin - Success", "facebook:onSuccess:$loginResult")
+                        handleFacebookAccessToken(loginResult.accessToken)
+                    }
+
+                    override fun onCancel() {
+                        Log.d("FacebookLogin - Cancel", "facebook:onCancel")
+                    }
+
+                    override fun onError(error: FacebookException) {
+                        Log.d("FacebookLogin - Error", "facebook:onError", error)
+                    }
+                }) }
+                }
+            )
+
+            Spacer(modifier = Modifier.height(15.dp))
+
+            Text(
+                text = profileViewState.profile?.name ?: "Logged Out"
+            )
+            Spacer(modifier = Modifier.height(15.dp))
+            GoogleButtonPreview()
         }
-    @Composable
-    fun Greeting(name: String) {
-        Text(text = "Hello $name!")
-    }
+        /*Button(
+            onClick = {
 
 
-    @Composable
-    fun DefaultPreview() {
-        Travel_AppTheme {
-            Greeting("Android")
-        }
-    }
-
-
-@Composable
-fun SampleView(profileViewState: ProfileViewState, login: () -> Unit, logout: () -> Unit) {
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        /*CustomLoginButton(
-            profile = profileViewState.profile,
-            login = { login() },
-            logout = { logout() }
+            },
+            content = {
+                Text(text = "Google Sign In", color = Color.White)
+            },
+            modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.buttonColors(backgroundColor = Color.Cyan)
         )*/
 
-        Spacer(modifier = Modifier.height(15.dp))
+        }
+    }
 
-        WrappedLoginButton()
 
-        Spacer(modifier = Modifier.height(15.dp))
+    /*private fun signInGoogle() {
+        try {
+            val task = GoogleSignIn.getSignedInAccountFromIntent()
+        } catch (e: Exception) {
+        }
+    }*/
 
-        Text(
-            text = profileViewState.profile?.name ?: "Logged Out"
+    private fun handleFacebookAccessToken(token: AccessToken) {
+        Log.d("Facebook Login - Token", "handleFacebookAccessToken:$token")
+
+        val credential = FacebookAuthProvider.getCredential(token.token)
+        auth.signInWithCredential(credential)
+            .addOnCompleteListener(this) { task ->
+                if (task.isSuccessful) {
+                    // Sign in success, update UI with the signed-in user's information
+                    Log.d("Facebook Login - Token", "signInWithCredential:success")
+                    val user = auth.currentUser
+                    Log.i("User toString ", user.toString())
+                    setContent{
+                        updateUI(user)
+                    }
+                } else {
+                    // If sign in fails, display a message to the user.
+                    Log.w("Facebook Login - Token", "signInWithCredential:failure", task.exception)
+                    Toast.makeText(baseContext, "Authentication failed.",
+                        Toast.LENGTH_SHORT).show()
+                    //updateUI(null)
+                }
+            }
+    }
+
+    @Composable
+    fun GoogleButton(
+        modifier: Modifier = Modifier,
+        text: String = "Sign Up with Google",
+        loadingText: String = "Creating Account...",
+        icon: Int = R.drawable.ic_google_logo,
+        shape: Shape = Shapes.medium,
+        borderColor: Color = Color.LightGray,
+        backgroundColor: Color = MaterialTheme.colors.surface,
+        progressIndicatorColor: Color = MaterialTheme.colors.primary,
+        onClicked: () -> Unit
+    ) {
+        var clicked by remember { mutableStateOf(false) }
+
+        Surface(
+            modifier = modifier.clickable { clicked = !clicked },
+            shape = shape,
+            border = BorderStroke(width = 1.dp, color = borderColor),
+            color = backgroundColor
+        ) {
+            Row(
+                modifier = Modifier
+                    .padding(
+                        start = 12.dp,
+                        end = 16.dp,
+                        top = 12.dp,
+                        bottom = 12.dp
+                    )
+                    .animateContentSize(
+                        animationSpec = tween(
+                            durationMillis = 300,
+                            easing = LinearOutSlowInEasing
+                        )
+                    ),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Icon(
+                    painter = painterResource(id = icon),
+                    contentDescription = "Google Button",
+                    tint = Color.Unspecified
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(text = if (clicked) loadingText else text)
+                if (clicked) {
+                    Spacer(modifier = Modifier.width(16.dp))
+                    CircularProgressIndicator(
+                        modifier = Modifier
+                            .height(16.dp)
+                            .width(16.dp),
+                        strokeWidth = 2.dp,
+                        color = progressIndicatorColor
+                    )
+                    onClicked()
+                }
+            }
+        }
+    }
+
+    @Composable
+    @Preview
+    private fun GoogleButtonPreview() {
+        GoogleButton(
+            text = "Sign Up with Google",
+            loadingText = "Creating Account...",
+            onClicked = {}
         )
     }
 }
 
-fun printHashKey(context: Context) {
-    try {
-        val info: PackageInfo = context.packageManager
-            .getPackageInfo(context.packageName, PackageManager.GET_SIGNATURES)
-        for (signature in info.signatures) {
-            val md: MessageDigest = MessageDigest.getInstance("SHA")
-            md.update(signature.toByteArray())
-            val hashKey: String = String(Base64.encode(md.digest(), 0))
-            Log.d("hashkey", "Hash Key: $hashKey")
-        }
-    } catch (e: NoSuchAlgorithmException) {
-        Log.e("Error", "${e.localizedMessage}")
-    } catch (e: Exception) {
-        Log.e("Exception", "${e.localizedMessage}")
-    }
-}
-
-
-    /*public override fun onStart() {
-        super.onStart()
-        // Check if user is signed in (non-null) and update UI accordingly.
-        val currentUser = auth.currentUser
-        Log.d("EVOO", "TRY")
-        if(currentUser != null){
-            reload()
-        }
-        else Log.i("FAILED", "Success failed")
-    }
-
-    private fun reload() {
-        Log.i("SUCCESS", "Successful login")
-    }
-
-    private fun createAccount(email: String, password: String) {
-        // [START create_user_with_email]
-        auth.createUserWithEmailAndPassword(email, password)
-            .addOnCompleteListener(this) { task ->
-                if (task.isSuccessful) {
-                    // Sign in success, update UI with the signed-in user's information
-                    Log.d("DDD", "createUserWithEmail:success")
-                    val user = auth.currentUser
-                    updateUI(user)
-                } else {
-                    // If sign in fails, display a message to the user.
-                    Log.w("WWW", "createUserWithEmail:failure", task.exception)
-                    Toast.makeText(baseContext, "Authentication failed.",
-                        Toast.LENGTH_SHORT).show()
-                    updateUI(null)
-                }
-            }
-        // [END create_user_with_email]
-    }
-
-    private fun signIn(email: String, password: String) {
-        // [START sign_in_with_email]
-        auth.signInWithEmailAndPassword(email, password)
-            .addOnCompleteListener(this) { task ->
-                if (task.isSuccessful) {
-                    // Sign in success, update UI with the signed-in user's information
-                    Log.d("DDD", "signInWithEmail:success")
-                    val user = auth.currentUser
-                    updateUI(user)
-                } else {
-                    // If sign in fails, display a message to the user.
-                    Log.w("WWW", "signInWithEmail:failure", task.exception)
-                    Toast.makeText(baseContext, "Authentication failed.",
-                        Toast.LENGTH_SHORT).show()
-                    updateUI(null)
-                }
-            }
-        // [END sign_in_with_email]
-    }
-    private fun sendEmailVerification() {
-        // [START send_email_verification]
-        val user = auth.currentUser!!
-        user.sendEmailVerification()
-            .addOnCompleteListener(this) { task ->
-                // Email Verification sent
-            }
-        // [END send_email_verification]
-    }
-
-    private fun updateUI(user: FirebaseUser?) {
-
-    }
-}
-*/
-
-
-// Create and launch sign-in intent
 /*
-fun CreatLogin(){
-    val providers = arrayListOf(
-        AuthUI.IdpConfig.EmailBuilder().build()
-        /*AuthUI.IdpConfig.PhoneBuilder().build(),
-        AuthUI.IdpConfig.GoogleBuilder().build(),
-        AuthUI.IdpConfig.FacebookBuilder().build(),
-        AuthUI.IdpConfig.TwitterBuilder().build())*/)
+// @Preview(showBackground = true)
+@Composable
+fun RegistrationScreen(navigationController:NavController){
+    val context = LocalContext.current
+    val email = remember {mutableStateOf(TextFieldValue())}
+    val emailErrorState = remember {mutableStateOf(false)}
+    val passwordErrorState = remember {mutableStateOf(false)}
+    val password = remember {mutableStateOf(TextFieldValue())}
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.Center,
+    ) {
+        Text(text = buildAnnotatedString {
+            withStyle(style = SpanStyle(color = Color.Red)) {
+                append("Register")
+            }
+        }, fontSize = 30.sp)
+        Spacer(Modifier.size(16.dp))
+        OutlinedTextField(
+            value = email.value,
+            onValueChange = {
+                if (emailErrorState.value) {
+                    emailErrorState.value = false
+                }
+                email.value = it
+            },
+            isError = emailErrorState.value,
+            modifier = Modifier.fillMaxWidth(),
+            label = {
+                Text(text = "Enter Email*")
+            },
+        )
+        if (emailErrorState.value) {
+            Text(text = "Required", color = Color.Red)
+        }
+        Spacer(Modifier.size(16.dp))
+        val passwordVisibility = remember { mutableStateOf(true) }
+        OutlinedTextField(
+            value = password.value,
+            onValueChange = {
+                if (passwordErrorState.value) {
+                    passwordErrorState.value = false
+                }
+                password.value = it
+            },
+            isError = passwordErrorState.value,
+            modifier = Modifier.fillMaxWidth(),
+            label = {
+                Text(text = "Enter Password*")
+            },
+            /* trailingIcon = {
+                 IconButton(onClick = {
+                     passwordVisibility.value = !passwordVisibility.value
+                 }) {
+                     Icon(
+                         ImageVector = if (passwordVisibility.value) ,
+                         contentDescription = "visibility",
+                         tint = Color.Red
+                     )
+                 }
+             },*/
+            visualTransformation = if (passwordVisibility.value) PasswordVisualTransformation() else VisualTransformation.None
+        )
+        if (passwordErrorState.value) {
+            Text(text = "Required", color = Color.Red)
+        }
+        Spacer(Modifier.size(16.dp))
+        Button(
+            onClick = {
+                when {
+                    email.value.text.isEmpty() -> {
+                        emailErrorState.value = true
+                    }
+                    password.value.text.isEmpty() -> {
+                        passwordErrorState.value = true
+                    }
+                    else -> {
+                        passwordErrorState.value = false
+                        emailErrorState.value = false
+                        Log.i("Account check", "Opening function")
+                        Log.i("Email try", email.value.text)
+                        Log.i("Pass try", password.value.text)
+                        createAccount(email.value.text, password.value.text)
+                        Log.i("Account check 2", "Results")
+                        /* Toast.makeText(
+                            context,
+                            "Logged in successfully",
+                            Toast.LENGTH_SHORT
+                        ).show()*/
+                    }
+                }
 
-    val signInIntent = AuthUI.getInstance()
-        .createSignInIntentBuilder()
-        .setAvailableProviders(providers)
-        .build()
-    //RL_SIGN
-    signInLauncher
-}
+            },
+            content = {
+                Text(text = "Register", color = Color.White)
+            },
+            modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.buttonColors(backgroundColor = Color.Red)
+        )
+        Spacer(Modifier.size(16.dp))
+        Button(
+            onClick = {
 
+                Toast.makeText(
+                    context,
+                    "Login screen",
+                    Toast.LENGTH_SHORT
+                ).show()
+                navigationController.navigate("loginScreen") {
+                    popUpTo(navigationController.graph.startDestinationId)
+                    launchSingleTop = true
+                }
+            },
+            content = {
+                Text(text = "Login", color = Color.White)
+            },
+            modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.buttonColors(backgroundColor = Color.Blue)
+        )
+        Spacer(Modifier.size(16.dp))
 
-private val signInLauncher = registerForActivityResult(
-    FirebaseAuthUIActivityResultContract()
-) { res ->
-    this.onSignInResult(res)
-}
-
-fun registerForActivityResult(
-    firebaseAuthUIActivityResultContract: FirebaseAuthUIActivityResultContract,
-    any: Any
-): Any {
-    TODO("Not yet implemented")
-}
-
-private fun onSignInResult(result: FirebaseAuthUIAuthenticationResult) {
-    val response = result.idpResponse
-    if (result.resultCode == RESULT_OK) {
-        // Successfully signed in
-        val user = FirebaseAuth.getInstance().currentUser
-        // ...
-    } else {
-        // Sign in failed. If response is null the user canceled the
-        // sign-in flow using the back button. Otherwise check
-        // response.getError().getErrorCode() and handle the error.
-        // ...
     }
-}
+        }
+    }
 */
+/*class AuthResultContract : ActivityResultContract<Int, Task<GoogleSignInAccount>?>() {
+    override fun createIntent(context: Context, input: Int?): Intent =
+        getGoogleSignInClient(context).signInIntent.putExtra("input", input)
+
+    override fun parseResult(resultCode: Int, intent: Intent?): Task<GoogleSignInAccount>? {
+        return when (resultCode) {
+            Activity.RESULT_OK -> GoogleSignIn.getSignedInAccountFromIntent(intent)
+            else -> null
+        }
+    }
+}*/
