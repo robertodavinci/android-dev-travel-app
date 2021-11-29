@@ -197,7 +197,7 @@ fun numberedMarker(number: Int): BitmapDescriptor {
     paintStroke.strokeWidth = 5f
     paintStroke.color = Color.WHITE
 
-    canvas.drawCircle(40f, 40f, 40f, paintStroke)
+    canvas.drawCircle(40f, 40f, 38f, paintStroke)
     canvas.drawText(number.toString(), xPos.toFloat(), yPos, paint)
 
     return BitmapDescriptorFactory.fromBitmap(bmp)

@@ -13,7 +13,7 @@ val darkBackground = Color(0xFF262638)
 val yellow = Color(0xFFFFC107)
 val danger = Color(0xFFF4364C)
 val success = Color(0xFF8CCE3F)
-val cardlightBackground = Color(0xFFEEEEF8)
+val cardlightBackground = Color(0xFFFFFFFF)
 val carddarkBackground = Color(0xFF333341)
 
 fun contrastColor(color: Color): Color {

@@ -2,10 +2,11 @@ package com.apps.travel_app.ui.components
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.GenericShape
 import androidx.compose.material.MaterialTheme
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
@@ -13,6 +14,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import com.apps.travel_app.ui.theme.iconLightColor
 import com.apps.travel_app.ui.theme.yellow
@@ -24,16 +26,28 @@ fun RatingBar(
     rating: Float,
     modifier: Modifier = Modifier,
     color: Color = yellow,
-    emptyColor: Color = MaterialTheme.colors.surface
+    emptyColor: Color = MaterialTheme.colors.surface,
+    enabled: Boolean = false,
+    onChange: (Float) -> Unit = {}
 ) {
+    var ratingValue by remember { mutableStateOf(rating) }
     Row(modifier = modifier.wrapContentSize()) {
         (1..5).forEach { step ->
             val stepRating = when {
-                rating > step -> 1f
-                step.rem(rating) < 1 -> rating - (step - 1f)
+                ratingValue > step -> 1f
+                step.rem(ratingValue) < 1 -> ratingValue - (step - 1f)
                 else -> 0f
             }
-            RatingStar(stepRating, color, emptyColor)
+            RatingStar(stepRating, color, emptyColor, modifier = Modifier.pointerInput(Unit) {
+                if (enabled) {
+                    detectTapGestures(
+                        onTap = {
+                            ratingValue = step.toFloat()
+                            onChange(ratingValue)
+                        }
+                    )
+                }
+            })
         }
     }
 }
@@ -42,10 +56,11 @@ fun RatingBar(
 private fun RatingStar(
     rating: Float,
     ratingColor: Color = Color.Yellow,
-    backgroundColor: Color = Color.Gray
+    backgroundColor: Color = Color.Gray,
+    modifier: Modifier = Modifier
 ) {
     BoxWithConstraints(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxHeight()
             .aspectRatio(1f)
             .clip(starShape)

@@ -22,9 +22,11 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.apps.travel_app.MainActivity
 import com.apps.travel_app.models.Destination
+import com.apps.travel_app.models.Trip
 import com.apps.travel_app.ui.components.Heading
 import com.apps.travel_app.ui.components.Loader
 import com.apps.travel_app.ui.components.MainCard
+import com.apps.travel_app.ui.components.TripCard
 import com.apps.travel_app.ui.theme.cardPadding
 import com.apps.travel_app.ui.theme.textHeading
 import com.apps.travel_app.ui.utils.sendPostRequest
@@ -36,6 +38,7 @@ import com.skydoves.landscapist.glide.GlideImage
 import java.lang.Math.random
 
 lateinit var trips: MutableState<ArrayList<Destination>>
+var activeTrip: MutableState<Trip?> = mutableStateOf(null)
 var images: MutableState<Boolean> = mutableStateOf(false)
 
 @Composable
@@ -50,8 +53,10 @@ fun HomeScreen(navController: NavController, mainActivity: MainActivity) {
     images = remember { mutableStateOf(false) }
     trips = remember { mutableStateOf(ArrayList()) }
 
-    if (!images.value)
+    if (!images.value) {
         getImages()
+        getActiveTrip()
+    }
 
     Column(
         modifier = Modifier
@@ -96,10 +101,11 @@ fun HomeScreen(navController: NavController, mainActivity: MainActivity) {
             }
         }
 
-        Box {
+        if (activeTrip.value == null) {
             val destination = Destination()
             destination.name = "Milan"
-            destination.thumbnailUrl = "https://www.welcometoitalia.com/wp-content/uploads/2020/10/galleria_Milan.jpg"
+            destination.thumbnailUrl =
+                "https://www.welcometoitalia.com/wp-content/uploads/2020/10/galleria_Milan.jpg"
             MainCard(
                 destination = destination,
                 rating = 3.5f,
@@ -108,7 +114,17 @@ fun HomeScreen(navController: NavController, mainActivity: MainActivity) {
                 mainActivity = mainActivity,
                 imageMaxHeight = 200f
             )
+        } else {
+            Heading("Active trip")
+            TripCard(
+                trip = activeTrip.value!!,
+                rating = 4.8f,
+                imageMaxHeight = 200f,
+                mainActivity = mainActivity,
+                active = true
+            )
         }
+
 
 
         Heading(
@@ -119,10 +135,12 @@ fun HomeScreen(navController: NavController, mainActivity: MainActivity) {
             modifier = Modifier.padding(bottom = 40.dp)
         ) {
             if (trips.value.size <= 0) {
-                Box(modifier = Modifier
-                    .align(Alignment.Center)
-                    .alpha(0.5f)
-                    .padding(50.dp)) {
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .alpha(0.5f)
+                        .padding(50.dp)
+                ) {
                     Loader()
                 }
             } else {
@@ -190,6 +208,19 @@ fun HomeScreen(navController: NavController, mainActivity: MainActivity) {
         }
 
     }
+}
+
+fun getActiveTrip(){
+    Thread {
+        val request = "125"
+        val tripText = sendPostRequest(request, action = "trip")
+        if (!tripText.isNullOrEmpty()) {
+            val gson = Gson()
+            val itemType = object : TypeToken<Trip>() {}.type
+            val trip: Trip = gson.fromJson(tripText, itemType)
+            activeTrip.value = trip
+        }
+    }.start()
 }
 
 fun getImages() {

@@ -5,6 +5,9 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.darkColors
 import androidx.compose.material.lightColors
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import com.apps.travel_app.R
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
@@ -33,10 +36,12 @@ private val LightColorPalette = lightColors(
 )
 
 var mapStyle = R.raw.style
+lateinit var followSystem: MutableState<Boolean>
 
 @Composable
 fun Travel_AppTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable() () -> Unit) {
-    val colors = if (darkTheme) {
+    followSystem = remember { mutableStateOf(true)}
+    val colors = if (darkTheme && followSystem.value) {
         mapStyle = R.raw.style_dark
         DarkColorPalette
     } else {

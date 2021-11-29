@@ -10,6 +10,7 @@ class TripDestination : Destination {
     var mediumToNextDestination: MediumType? = MediumType.Foot
     var hour: String = ""
     var minutes: Int = 0
+    var visited: Boolean = false
 
     constructor()
 
@@ -20,6 +21,7 @@ class TripDestination : Destination {
         mediumToNextDestination = if (i >= 0) MediumType.values()[i] else null
         hour = parcel.readString()!!
         minutes = parcel.readInt()
+        visited = parcel.readInt() > 0
     }
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
@@ -29,7 +31,7 @@ class TripDestination : Destination {
         parcel.writeInt(mediumToNextDestination?.ordinal ?: -1)
         parcel.writeString(hour)
         parcel.writeInt(minutes)
-
+        parcel.writeInt(if (visited) 1 else 0)
     }
 
     companion object CREATOR : Parcelable.Creator<TripDestination> {

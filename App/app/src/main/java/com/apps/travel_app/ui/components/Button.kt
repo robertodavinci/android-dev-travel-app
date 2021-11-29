@@ -8,6 +8,7 @@ import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -23,6 +24,7 @@ fun Button(
     enabled: Boolean = true,
     elevation: Dp = 0.dp,
     contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
+    background: Color = MaterialTheme.colors.onBackground,
     content: @Composable RowScope.() -> Unit
 ) {
 
@@ -30,8 +32,8 @@ fun Button(
     Surface(
         modifier = modifier,
         shape = RoundedCornerShape(cardRadius),
-        color = MaterialTheme.colors.onBackground,
-        contentColor = contrastColor(MaterialTheme.colors.onBackground),
+        color = background,
+        contentColor = contrastColor(background),
         elevation = elevation,
         onClick = onClick,
         enabled = enabled,

@@ -1,4 +1,5 @@
 package com.apps.travel_app.ui.components
+
 import androidx.compose.material.MaterialTheme
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
@@ -32,9 +33,10 @@ import com.skydoves.landscapist.CircularReveal
 import com.skydoves.landscapist.glide.GlideImage
 
 @Composable
-fun TripStepCard(trip: Trip, destination: TripDestination, index: Int) {
+fun TripStepCard(trip: Trip, destination: TripDestination, index: Int, onComplete: (Boolean) -> Unit = {}) {
 
     val openDialog = remember { mutableStateOf(false) }
+    val done = remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -55,29 +57,51 @@ fun TripStepCard(trip: Trip, destination: TripDestination, index: Int) {
                     }
             ) {
                 Row {
-                    GlideImage(
-                        imageModel = destination.thumbnailUrl,
-                        contentDescription = "",
-                        modifier = Modifier
+                    Box(modifier = Modifier.align(Alignment.CenterVertically)) {
+                        GlideImage(
+                            imageModel = destination.thumbnailUrl,
+                            contentDescription = "",
+                            modifier = Modifier
+                                .width(50.dp)
+                                .height(50.dp)
+                                .border(
+                                    5.dp,
+                                    MaterialTheme.colors.surface,
+                                    shape = RoundedCornerShape(100)
+                                )
+                                .graphicsLayer {
+                                    shape = RoundedCornerShape(100)
+                                    clip = true
+                                }
+                        )
+
+                        val scale: Float by animateFloatAsState(
+                            if (done.value) 1f else 0f, animationSpec = tween(
+                                durationMillis = 500,
+                                easing = LinearOutSlowInEasing
+                            )
+                        )
+
+                        IconButton(onClick = { done.value = !done.value; destination.visited = done.value; onComplete(done.value) }, modifier = Modifier
                             .width(50.dp)
                             .height(50.dp)
-                            .border(
-                                5.dp,
-                                MaterialTheme.colors.surface,
-                                shape = RoundedCornerShape(100)
-                            )
-                            .align(Alignment.CenterVertically)
                             .graphicsLayer {
                                 shape = RoundedCornerShape(100)
                                 clip = true
                             }
-                    )
+                            .background(if (done.value) Color(0x88111122) else Color.Transparent)) {
+                            FaIcon(FaIcons.Check, tint = textDarkColor, modifier = Modifier.scale(scale))
+                        }
+
+                    }
                     Column {
                         Row {
                             Text(
                                 destination.name,
                                 color = MaterialTheme.colors.surface,
-                                modifier = Modifier.padding(5.dp).weight(1f),
+                                modifier = Modifier
+                                    .padding(5.dp)
+                                    .weight(1f),
                                 fontWeight = FontWeight.Bold,
                                 fontSize = textNormal,
                                 overflow = TextOverflow.Ellipsis
@@ -96,7 +120,9 @@ fun TripStepCard(trip: Trip, destination: TripDestination, index: Int) {
                             Text(
                                 destination.description,
                                 color = MaterialTheme.colors.surface,
-                                modifier = Modifier.padding(5.dp).weight(1f),
+                                modifier = Modifier
+                                    .padding(5.dp)
+                                    .weight(1f),
                                 fontWeight = FontWeight.Bold,
                                 fontSize = textSmall,
                                 maxLines = 1,
@@ -146,7 +172,7 @@ fun Dialog(openDialog: MutableState<Boolean>, destination: TripDestination) {
                     .fillMaxWidth()
             ) {
                 GlideImage(
-                    imageModel = destination.thumbnailUrl ?: destination.thumbnail,
+                    imageModel = destination.thumbnailUrl,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(200.dp),

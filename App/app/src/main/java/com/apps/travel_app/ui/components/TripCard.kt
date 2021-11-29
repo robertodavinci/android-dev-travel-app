@@ -49,7 +49,8 @@ fun TripCard(
     shadow: Dp = cardElevation,
     radius: Dp = cardRadius,
     icon: FaIconType? = null,
-    imageMaxHeight: Float = Float.POSITIVE_INFINITY
+    imageMaxHeight: Float = Float.POSITIVE_INFINITY,
+    active: Boolean = false
 ) {
 
     val openDialog = remember { mutableStateOf(false) }
@@ -74,7 +75,7 @@ fun TripCard(
                     .pointerInput(Unit) {
                         detectTapGestures(
                             onTap = {
-                                mainActivity?.setTrip(trip, true)
+                                mainActivity?.setTrip(trip, active)
                             }
                         )
                     }

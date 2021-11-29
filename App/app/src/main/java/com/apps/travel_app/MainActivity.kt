@@ -42,10 +42,16 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    fun setTrip(trip: Trip, openScreen: Boolean = false) {
-        val intent = Intent(this, TripActivity::class.java)
-        intent.putExtra("trip", trip)
-        startActivity(intent)
+    fun setTrip(trip: Trip, active: Boolean = false) {
+        if (active) {
+            val intent = Intent(this, ActiveTripActivity::class.java)
+            intent.putExtra("trip", trip)
+            startActivity(intent)
+        } else {
+            val intent = Intent(this, TripActivity::class.java)
+            intent.putExtra("trip", trip)
+            startActivity(intent)
+        }
 
     }
 
