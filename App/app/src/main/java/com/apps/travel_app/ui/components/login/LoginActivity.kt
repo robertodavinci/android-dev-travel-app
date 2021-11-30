@@ -61,7 +61,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 @ExperimentalAnimationApi
 @ExperimentalMaterialApi
 class LoginActivity : ComponentActivity() {
-    
+
 
     private lateinit var auth: FirebaseAuth
     private lateinit var googleSignInClient: GoogleSignInClient
