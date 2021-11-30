@@ -83,10 +83,12 @@ dependencies {
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.2-native-mt'
     implementation 'com.facebook.android:facebook-android-sdk:latest.release'
     implementation "androidx.compose.runtime:runtime-livedata:$compose_version"
-
-    // Firebase UI library
-    //implementation 'com.firebaseui:firebase-ui-auth:8.0.0'
-    //implementation 'com.firebaseui:firebase-ui-database:8.0.0'
-
+    implementation "com.google.android.libraries.places:places:2.5.0"
+    implementation "com.google.maps.android:maps-v3-ktx:2.2.0"
+    implementation "com.google.maps.android:android-maps-utils:2.3.0"
+    implementation "com.google.android.gms:play-services-location:18.0.0"
+    implementation "com.google.android.gms:play-services-maps:18.0.0"
+    implementation "com.google.code.gson:gson:2.8.6"
+    implementation "com.github.skydoves:landscapist-glide:1.4.3"
 
 }

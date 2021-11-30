@@ -1,24 +1,31 @@
 package com.apps.travel_app.ui.components
 
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
+import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.apps.travel_app.ui.theme.cardElevation
 import com.apps.travel_app.ui.theme.iconLightColor
 import com.apps.travel_app.ui.theme.primaryColor
-import com.apps.travel_app.ui.theme.textLightColor
 import com.guru.fontawesomecomposelib.FaIcon
 
 @Composable
 fun BottomNavigationBar(navController: NavController) {
-    var currentTab = BottomBarItem.Home.route
     val items = listOf(
         BottomBarItem.Home,
         BottomBarItem.Map,
@@ -28,49 +35,76 @@ fun BottomNavigationBar(navController: NavController) {
     )
 
     BottomNavigation(
-        backgroundColor = Color.White,
-        contentColor = iconLightColor,
-        elevation = cardElevation
+        backgroundColor = MaterialTheme.colors.onBackground,
+        contentColor = MaterialTheme.colors.surface,
+        modifier = Modifier
+            .padding(10.dp)
+            .height(60.dp)
+            .graphicsLayer {
+                shape = RoundedCornerShape(60.dp)
+                clip = true
+                shadowElevation = cardElevation.value
+            }
     ) {
         val navBackStackEntry by navController.currentBackStackEntryAsState()
         val currentRoute = navBackStackEntry?.destination?.route
-        items.forEach { item ->
+        items.forEachIndexed { index, item ->
+            val scale: Float by animateFloatAsState(
+                if (currentRoute == item.route) 1.35f else 1f, animationSpec = tween(
+                    durationMillis = 700,
+                    easing = LinearOutSlowInEasing
+                )
+            )
             BottomNavigationItem(
-                icon = { FaIcon(item.icon, tint = if (currentRoute == item.route) textLightColor else iconLightColor) },
+                icon = {
+                    if (index == 2) {
+                        Row(modifier = Modifier
+                            .graphicsLayer {
+                                shape = RoundedCornerShape(100)
+                                clip = true
+                            }
+                            .width(40.dp)
+                            .height(40.dp)
+                            .background(primaryColor),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center) {
+                            FaIcon(
+                                item.icon,
+                                tint = Color.White,
+
+                                )
+                        }
+                    } else {
+                        FaIcon(
+                            item.icon,
+                            tint = if (currentRoute == item.route) MaterialTheme.colors.surface else iconLightColor,
+                        )
+                    }
+                },
                 selectedContentColor = primaryColor,
                 unselectedContentColor = iconLightColor,
                 alwaysShowLabel = false,
                 modifier = Modifier.then(
-                      Modifier.scale(
-                          if(currentRoute == item.route) 1.35f
-                            else 1f
-                      )
-                  ),
+                    Modifier.scale(
+                        scale
+                    )
+                ),
                 selected = currentRoute == item.route,
                 onClick = {
                     navController.navigate(item.route) {
-                        // Pop up to the start destination of the graph to
-                        // avoid building up a large stack of destinations
-                        // on the back stack as users select items
+
                         navController.graph.startDestinationRoute?.let { route ->
                             popUpTo(route) {
                                 saveState = true
                             }
                         }
-                        // Avoid multiple copies of the same destination when
-                        // reselecting the same item
+
                         launchSingleTop = true
-                        // Restore state when reselecting a previously selected item
+
                         restoreState = true
                     }
                 }
             )
         }
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun BottomNavigationBarPreview() {
-    //BottomNavigationBar()
 }
