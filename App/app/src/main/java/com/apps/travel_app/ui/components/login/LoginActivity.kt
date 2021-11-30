@@ -1,10 +1,6 @@
 package com.apps.travel_app.ui.components.login
 
-import android.app.Activity
-import android.content.Context
 import android.content.Intent
-// import android.graphics.drawable.shapes.Shape
-import androidx.compose.ui.graphics.Shape
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
@@ -15,7 +11,6 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.tooling.preview.Preview
 import com.apps.travel_app.ui.theme.Travel_AppTheme
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
@@ -30,7 +25,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -46,13 +40,7 @@ import com.apps.travel_app.ui.components.BottomBarItem
 import com.google.firebase.auth.FirebaseUser
 import com.facebook.login.LoginManager
 import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.LinearOutSlowInEasing
-import androidx.compose.animation.core.tween
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.clickable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.viewinterop.AndroidView
@@ -64,8 +52,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.firebase.auth.FacebookAuthProvider
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.runtime.*
-import com.apps.travel_app.ui.theme.Shapes
 import com.google.android.gms.common.api.ApiException
 import com.google.firebase.auth.GoogleAuthProvider
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -75,33 +61,21 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 @ExperimentalAnimationApi
 @ExperimentalMaterialApi
 class LoginActivity : ComponentActivity() {
-
-
-    companion object{
-        private const val RL_SIGN = 111
-    }
+    
 
     private lateinit var auth: FirebaseAuth
     private lateinit var googleSignInClient: GoogleSignInClient
-    private lateinit var authResultLauncher: ActivityResultLauncher<Intent>
 
     var logScreen = true
     var regScreen = false
 
-    val items = listOf(
-        BottomBarItem.Email,
-        BottomBarItem.Google,
-        BottomBarItem.Facebook
-    )
     val viewModel: LoginViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        //val viewModel: LoginViewModel by viewModels()
         auth = Firebase.auth
         auth.addAuthStateListener { auth ->
             Log.d("Tag---", "addAuthStateListener: ${auth.currentUser}")
-            //viewModel.setCurrentUser(auth.currentUser)
         }
         val currentUser = auth.currentUser
 
