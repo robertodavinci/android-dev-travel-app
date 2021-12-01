@@ -1,5 +1,6 @@
 package com.apps.travel_app.ui.components
 
+import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -37,12 +38,21 @@ fun NiceSwitch(
     var _checked by remember {
         mutableStateOf(checked)
     }
+    var widthController by remember { mutableStateOf(false) }
     val offset: Float by animateFloatAsState(
         if (!_checked) 50f else 0f, animationSpec = tween(
             durationMillis = 500,
             easing = LinearOutSlowInEasing
         )
     )
+    val width: Float by animateFloatAsState(
+        if (!widthController) 50f else 100f, animationSpec = tween(
+            durationMillis = 300,
+            easing = LinearOutSlowInEasing
+        )
+    )
+    if (width >= 90)
+        widthController = false
     Row(modifier = modifier) {
         Box(
             modifier = Modifier
@@ -56,7 +66,7 @@ fun NiceSwitch(
             Box(
                 modifier = Modifier
                     .padding(start = offset.dp)
-                    .width(50.dp)
+                    .width(width.dp)
                     .height(50.dp)
                     .align(Alignment.CenterStart)
 
@@ -74,6 +84,7 @@ fun NiceSwitch(
                         .weight(1f),
                     onClick = {
                         _checked = true
+                        widthController = true
                         onChecked(true)
                     }
                 ) {

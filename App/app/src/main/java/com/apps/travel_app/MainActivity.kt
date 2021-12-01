@@ -3,6 +3,7 @@ package com.apps.travel_app
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.preference.PreferenceManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.material.Scaffold
@@ -19,13 +20,16 @@ import com.apps.travel_app.models.Trip
 import com.apps.travel_app.ui.components.BottomBarItem
 import com.apps.travel_app.ui.components.BottomNavigationBar
 import com.apps.travel_app.ui.pages.*
+import com.apps.travel_app.ui.theme.MainActivity_Travel_AppTheme
 import com.apps.travel_app.ui.theme.Travel_AppTheme
+import com.apps.travel_app.ui.theme.followSystem
 import com.guru.fontawesomecomposelib.FaIconType
 
 class MainActivity : ComponentActivity() {
 
     private var destination: Destination? = null
     lateinit var navController: NavHostController
+    var prova: MutableState<Boolean> = mutableStateOf(true)
 
     fun setDestination(destination: Destination, openScreen: Boolean = false) {
         this.destination = destination
@@ -59,8 +63,11 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        val sharedPref = PreferenceManager.getDefaultSharedPreferences(this)
+        val systemTheme = sharedPref.getBoolean("darkTheme", true)
+
         setContent {
-            Travel_AppTheme {
+            MainActivity_Travel_AppTheme(systemTheme = systemTheme) {
                 MainScreen(this,this)
             }
         }
@@ -95,7 +102,7 @@ class MainActivity : ComponentActivity() {
                 ExploreScreen(navController, activity)
             }
             composable(BottomBarItem.Profile.route) {
-                ProfileScreen()
+                ProfileScreen(activity)
             }
             composable(SubPages.Location.route) {
                 if (destination != null) {
@@ -108,5 +115,11 @@ class MainActivity : ComponentActivity() {
     sealed class SubPages(var route: String, var icon: FaIconType, var title: String) {
         object Location : SubPages("location", FaIcons.Home, "Location")
         object Trip : SubPages("trip", FaIcons.Home, "Trip")
+    }
+
+
+    override fun onResume() {
+
+        super.onResume()
     }
 }

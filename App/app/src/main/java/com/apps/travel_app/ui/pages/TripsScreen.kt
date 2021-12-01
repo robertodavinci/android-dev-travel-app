@@ -13,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -25,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import com.apps.travel_app.MainActivity
 import com.apps.travel_app.models.Destination
 import com.apps.travel_app.models.Trip
+import com.apps.travel_app.ui.components.Button
 import com.apps.travel_app.ui.components.Heading
 import com.apps.travel_app.ui.components.MainCard
 import com.apps.travel_app.ui.components.TripCard
@@ -60,18 +62,20 @@ fun TripsScreen(mainActivity: MainActivity) {
         )
     }
 
-    Column (modifier = Modifier.background(MaterialTheme.colors.background)) {
+    Column(modifier = Modifier.background(MaterialTheme.colors.background)) {
 
         Row(
-            modifier = Modifier.graphicsLayer {
-                shape = RoundedCornerShape(bottomStart = 50.dp)
-                clip = true
-            }.background(primaryColor)
+            modifier = Modifier
+                .graphicsLayer {
+                    shape = RoundedCornerShape(bottomStart = 50.dp)
+                    clip = true
+                }
+                .background(primaryColor)
         ) {
             Heading("Motherfucker's trips", color = White, modifier = Modifier.padding(cardPadding))
         }
 
-        Box (
+        Box(
             modifier = Modifier.background(primaryColor)
         ) {
 
@@ -83,8 +87,22 @@ fun TripsScreen(mainActivity: MainActivity) {
                         clip = true
                     }
                     .background(MaterialTheme.colors.background)
+                    .align(Center)
             ) {
                 item {
+
+                    Button(
+                        onClick = {},
+                        background = primaryColor,
+                        modifier = Modifier.padding(5.dp)
+                    ) {
+                        Row {
+                            FaIcon(FaIcons.Hiking, tint = White, size = 18.dp)
+                            Spacer(modifier = Modifier.width(5.dp))
+                            Text("Create yours!", color = White)
+
+                        }
+                    }
 
                     Spacer(modifier = Modifier.height(cardPadding))
 

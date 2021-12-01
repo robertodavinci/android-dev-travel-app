@@ -25,6 +25,7 @@ class Trip() : Parcelable {
     var description : String =""
     var season: String = ""
     var creationDate: String = ""
+    var mine: Boolean = false
 
     constructor(parcel: Parcel) : this() {
         id = parcel.readInt()
@@ -43,6 +44,7 @@ class Trip() : Parcelable {
         season = parcel.readString()!!
         description = parcel.readString()!!
         creationDate = parcel.readString()!!
+        mine = parcel.readInt() > 0
     }
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
@@ -58,6 +60,7 @@ class Trip() : Parcelable {
         parcel.writeString(season)
         parcel.writeString(description)
         parcel.writeString(creationDate)
+        parcel.writeInt(if (mine) 1 else 0)
     }
 
     override fun describeContents(): Int {

@@ -34,77 +34,79 @@ fun BottomNavigationBar(navController: NavController) {
         BottomBarItem.Profile
     )
 
-    BottomNavigation(
-        backgroundColor = MaterialTheme.colors.onBackground,
-        contentColor = MaterialTheme.colors.surface,
-        modifier = Modifier
-            .padding(10.dp)
-            .height(60.dp)
-            .graphicsLayer {
-                shape = RoundedCornerShape(60.dp)
-                clip = true
-                shadowElevation = cardElevation.value
-            }
-    ) {
-        val navBackStackEntry by navController.currentBackStackEntryAsState()
-        val currentRoute = navBackStackEntry?.destination?.route
-        items.forEachIndexed { index, item ->
-            val scale: Float by animateFloatAsState(
-                if (currentRoute == item.route) 1.35f else 1f, animationSpec = tween(
-                    durationMillis = 700,
-                    easing = LinearOutSlowInEasing
+    Column {
+        BottomNavigation(
+            backgroundColor = MaterialTheme.colors.onBackground,
+            contentColor = MaterialTheme.colors.surface,
+            modifier = Modifier
+                .padding(start= 10.dp, end = 10.dp, bottom = 10.dp)
+                .height(60.dp)
+                .graphicsLayer {
+                    shape = RoundedCornerShape(60.dp)
+                    clip = true
+                    shadowElevation = cardElevation.value
+                }
+        ) {
+            val navBackStackEntry by navController.currentBackStackEntryAsState()
+            val currentRoute = navBackStackEntry?.destination?.route
+            items.forEachIndexed { index, item ->
+                val scale: Float by animateFloatAsState(
+                    if (currentRoute == item.route) 1.35f else 1f, animationSpec = tween(
+                        durationMillis = 700,
+                        easing = LinearOutSlowInEasing
+                    )
                 )
-            )
-            BottomNavigationItem(
-                icon = {
-                    if (index == 2) {
-                        Row(modifier = Modifier
-                            .graphicsLayer {
-                                shape = RoundedCornerShape(100)
-                                clip = true
+                BottomNavigationItem(
+                    icon = {
+                        if (index == 2) {
+                            Row(modifier = Modifier
+                                .graphicsLayer {
+                                    shape = RoundedCornerShape(100)
+                                    clip = true
+                                }
+                                .width(40.dp)
+                                .height(40.dp)
+                                .background(primaryColor),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.Center) {
+                                FaIcon(
+                                    item.icon,
+                                    tint = Color.White,
+
+                                    )
                             }
-                            .width(40.dp)
-                            .height(40.dp)
-                            .background(primaryColor),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.Center) {
+                        } else {
                             FaIcon(
                                 item.icon,
-                                tint = Color.White,
-
-                                )
+                                tint = if (currentRoute == item.route) MaterialTheme.colors.surface else iconLightColor,
+                            )
                         }
-                    } else {
-                        FaIcon(
-                            item.icon,
-                            tint = if (currentRoute == item.route) MaterialTheme.colors.surface else iconLightColor,
+                    },
+                    selectedContentColor = primaryColor,
+                    unselectedContentColor = iconLightColor,
+                    alwaysShowLabel = false,
+                    modifier = Modifier.then(
+                        Modifier.scale(
+                            scale
                         )
-                    }
-                },
-                selectedContentColor = primaryColor,
-                unselectedContentColor = iconLightColor,
-                alwaysShowLabel = false,
-                modifier = Modifier.then(
-                    Modifier.scale(
-                        scale
-                    )
-                ),
-                selected = currentRoute == item.route,
-                onClick = {
-                    navController.navigate(item.route) {
+                    ),
+                    selected = currentRoute == item.route,
+                    onClick = {
+                        navController.navigate(item.route) {
 
-                        navController.graph.startDestinationRoute?.let { route ->
-                            popUpTo(route) {
-                                saveState = true
+                            navController.graph.startDestinationRoute?.let { route ->
+                                popUpTo(route) {
+                                    saveState = true
+                                }
                             }
+
+                            launchSingleTop = true
+
+                            restoreState = true
                         }
-
-                        launchSingleTop = true
-
-                        restoreState = true
                     }
-                }
-            )
+                )
+            }
         }
     }
 }

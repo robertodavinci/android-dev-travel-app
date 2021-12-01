@@ -1,5 +1,7 @@
 package com.apps.travel_app.ui.theme
 
+import android.app.Activity
+import android.content.Context
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.darkColors
@@ -9,6 +11,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
+import com.apps.travel_app.MainActivity
 import com.apps.travel_app.R
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 
@@ -36,12 +39,13 @@ private val LightColorPalette = lightColors(
 )
 
 var mapStyle = R.raw.style
-lateinit var followSystem: MutableState<Boolean>
+
 
 @Composable
-fun Travel_AppTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable() () -> Unit) {
-    followSystem = remember { mutableStateOf(true)}
-    val colors = if (darkTheme && followSystem.value) {
+fun Travel_AppTheme(systemTheme: Boolean = true, content: @Composable() () -> Unit) {
+
+
+    val colors = if (isSystemInDarkTheme() && systemTheme) {
         mapStyle = R.raw.style_dark
         DarkColorPalette
     } else {
@@ -50,7 +54,7 @@ fun Travel_AppTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Compos
     }
 
     val systemUiController = rememberSystemUiController()
-    if(darkTheme){
+    if(isSystemInDarkTheme() && systemTheme){
         systemUiController.setSystemBarsColor(
             color = darkBackground // TODO: dark theme status bar color
         )
@@ -66,4 +70,10 @@ fun Travel_AppTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Compos
         shapes = Shapes,
         content = content
     )
+}
+
+@Composable
+fun MainActivity_Travel_AppTheme(systemTheme: Boolean = true, content: @Composable() () -> Unit) {
+    followSystem = remember { mutableStateOf(systemTheme)}
+    Travel_AppTheme(systemTheme = followSystem.value, content = content)
 }

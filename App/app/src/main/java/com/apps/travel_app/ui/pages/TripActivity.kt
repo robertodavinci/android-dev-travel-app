@@ -3,6 +3,7 @@ package com.apps.travel_app.ui.pages
 import androidx.compose.material.MaterialTheme
 import FaIcons
 import android.os.Bundle
+import android.preference.PreferenceManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.core.animateFloatAsState
@@ -67,8 +68,11 @@ class TripActivity : ComponentActivity() {
 
         val intent = intent
 
+        val sharedPref = PreferenceManager.getDefaultSharedPreferences(this)
+        val systemTheme = sharedPref.getBoolean("darkTheme", true)
+
         setContent {
-            Travel_AppTheme {
+            Travel_AppTheme(systemTheme = systemTheme) {
                 val trip = intent.getParcelableExtra<Trip>("trip")
                 if (trip != null) {
                     TripScreen(trip)
@@ -253,6 +257,16 @@ class TripActivity : ComponentActivity() {
                     ) {
                         item {
                             Column {
+                                Button(onClick = {},background = primaryColor, modifier = Modifier.align(
+                                    Alignment.CenterHorizontally
+                                ).padding(5.dp)) {
+                                    Row {
+                                        FaIcon(FaIcons.Play, tint = White, size = 18.dp)
+                                        Spacer(modifier = Modifier.width(5.dp))
+                                        Text("Start", color = White)
+
+                                    }
+                                }
                                 Box(
                                     modifier = Modifier
                                         .heightIn(0.dp, maxHeight.dp)
@@ -349,7 +363,7 @@ class TripActivity : ComponentActivity() {
                                         )
                                     ) {
                                         FaIcon(
-                                            FaIcons.SaveRegular,
+                                            FaIcons.Download,
                                             tint = MaterialTheme.colors.surface,
                                             size = 20.dp
                                         )
@@ -419,25 +433,27 @@ class TripActivity : ComponentActivity() {
                                                                 .align(Alignment.CenterVertically)
                                                         )
                                                     }
-                                                    IconButton(
-                                                        onClick = {
-                                                            val _steps =
-                                                                steps.clone() as ArrayList<TripDestination>
-                                                            _steps.add(
-                                                                index + 1,
-                                                                TripDestination()
+                                                    if (trip.mine) {
+                                                        IconButton(
+                                                            onClick = {
+                                                                val _steps =
+                                                                    steps.clone() as ArrayList<TripDestination>
+                                                                _steps.add(
+                                                                    index + 1,
+                                                                    TripDestination()
+                                                                )
+                                                                steps = _steps
+                                                            },
+                                                            modifier = Modifier
+                                                                .size(22.dp, 22.dp)
+                                                                .align(CenterVertically)
+                                                        ) {
+                                                            FaIcon(
+                                                                FaIcons.Plus,
+                                                                size = 18.dp,
+                                                                tint = MaterialTheme.colors.surface,
                                                             )
-                                                            steps = _steps
-                                                        },
-                                                        modifier = Modifier
-                                                            .size(22.dp, 22.dp)
-                                                            .align(CenterVertically)
-                                                    ) {
-                                                        FaIcon(
-                                                            FaIcons.Plus,
-                                                            size = 18.dp,
-                                                            tint = MaterialTheme.colors.surface,
-                                                        )
+                                                        }
                                                     }
                                                 }
                                             }

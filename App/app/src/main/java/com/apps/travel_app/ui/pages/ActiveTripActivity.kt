@@ -2,6 +2,7 @@ package com.apps.travel_app.ui.pages
 
 import FaIcons
 import android.os.Bundle
+import android.preference.PreferenceManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.core.animateFloatAsState
@@ -52,10 +53,10 @@ import com.google.android.libraries.maps.model.MapStyleOptions
 import com.google.android.libraries.maps.model.MarkerOptions
 import com.google.gson.Gson
 import com.guru.fontawesomecomposelib.FaIcon
+import com.guru.fontawesomecomposelib.FaIconType
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlin.reflect.KMutableProperty1
 
 class ActiveTripActivity : ComponentActivity() {
 
@@ -64,8 +65,11 @@ class ActiveTripActivity : ComponentActivity() {
 
         val intent = intent
 
+        val sharedPref = PreferenceManager.getDefaultSharedPreferences(this)
+        val systemTheme = sharedPref.getBoolean("darkTheme", true)
+
         setContent {
-            Travel_AppTheme {
+            Travel_AppTheme(systemTheme = systemTheme) {
                 val trip = intent.getParcelableExtra<Trip>("trip")
                 if (trip != null) {
                     TripScreen(trip)
@@ -96,6 +100,11 @@ class ActiveTripActivity : ComponentActivity() {
         val map: MutableState<GoogleMap?> = remember { mutableStateOf(null) }
         val mapLoaded = remember { mutableStateOf(false) }
         var selectedDay by remember { mutableStateOf(0) }
+
+        var icon: FaIconType? = null
+        weatherChip(latitude = trip.startingPoint.latitude, longitude = trip.startingPoint.longitude) {
+            icon = it
+        }
 
         var steps by remember { mutableStateOf(trip.destinations) }
 
@@ -225,6 +234,16 @@ class ActiveTripActivity : ComponentActivity() {
                     ) {
                         item {
                             Column {
+                                Button(onClick = {},background = danger, modifier = Modifier
+                                    .align(CenterHorizontally)
+                                    .padding(5.dp)) {
+                                    Row {
+                                        FaIcon(FaIcons.Stop, tint = White, size = 18.dp)
+                                        Spacer(modifier = Modifier.width(5.dp))
+                                        Text("Quit the game", color = White)
+
+                                    }
+                                }
                                 LazyRow(
                                     modifier = Modifier.align(CenterHorizontally),
                                     horizontalArrangement = Arrangement.SpaceAround,
@@ -232,6 +251,8 @@ class ActiveTripActivity : ComponentActivity() {
                                     items(trip.days) { i ->
                                         val background =
                                             if (i == selectedDay) primaryColor else colors.onBackground
+                                        val foreground =
+                                            if (i == selectedDay) White else colors.surface
                                         Button(
                                             onClick = { selectedDay = i },
                                             modifier = Modifier.padding(5.dp),
@@ -240,12 +261,12 @@ class ActiveTripActivity : ComponentActivity() {
                                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                                 Text(
                                                     (i + 1).toString(),
-                                                    color = colors.surface,
+                                                    color = foreground,
                                                     fontSize = textHeading
                                                 )
                                                 Text(
                                                     "day",
-                                                    color = colors.surface,
+                                                    color = foreground,
                                                     fontSize = textSmall
                                                 )
                                             }
@@ -265,7 +286,8 @@ class ActiveTripActivity : ComponentActivity() {
                                         trip = trip,
                                         rating = 3.5f,
                                         padding = cardPadding,
-                                        radius = cardRadius
+                                        radius = cardRadius,
+                                        icon = icon
                                     )
                                 }
 
@@ -300,7 +322,7 @@ class ActiveTripActivity : ComponentActivity() {
                                 ) {
 
                                     FlexibleRow(
-                                        alignment = Alignment.CenterHorizontally,
+                                        alignment = CenterHorizontally,
                                         modifier = Modifier
                                             .align(CenterVertically)
                                             .scale(0.8f)

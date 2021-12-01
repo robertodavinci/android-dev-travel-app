@@ -1,7 +1,10 @@
 package com.apps.travel_app.ui.theme
 
+import androidx.compose.runtime.MutableState
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
+
+lateinit var followSystem: MutableState<Boolean>
 
 val primaryColor = Color(0xFF0083FF)
 val secondaryColor = Color(0xFF0460D9)
