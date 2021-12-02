@@ -1,5 +1,6 @@
 package com.apps.travel_app.ui.pages
 
+import com.apps.travel_app.R
 import androidx.compose.material.MaterialTheme
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -70,7 +71,7 @@ fun HomeScreen(navController: NavController, mainActivity: MainActivity) {
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                text = "Hi motherfucker",
+                text = "Hi ${mainActivity.user.displayName ?: mainActivity.user.email}",
                 fontSize = textHeading,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colors.surface
@@ -88,7 +89,7 @@ fun HomeScreen(navController: NavController, mainActivity: MainActivity) {
 
             }) {
                 GlideImage(
-                    imageModel = "https://www.whatsappprofiledpimages.com/wp-content/uploads/2021/08/Profile-Photo-Wallpaper.jpg",
+                    imageModel = R.mipmap.icon,
                     contentDescription = "",
                     modifier = Modifier
                         .width(40.dp)

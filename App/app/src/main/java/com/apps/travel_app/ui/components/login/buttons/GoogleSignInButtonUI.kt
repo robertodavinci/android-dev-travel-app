@@ -1,4 +1,4 @@
-package com.apps.travel_app.ui.components.login
+package com.apps.travel_app.ui.components.login.buttons
 
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.animation.animateContentSize
@@ -20,126 +20,55 @@ import com.apps.travel_app.ui.theme.Shapes
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.*
+import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.tooling.preview.Preview
 import com.apps.travel_app.R
+import com.apps.travel_app.ui.theme.primaryColor
+import com.guru.fontawesomecomposelib.FaIcon
+import com.guru.fontawesomecomposelib.FaIconType
 import java.util.function.IntConsumer
 
 @ExperimentalMaterialApi
 @Composable
 fun GoogleSignInButtonUI(
-    text : String = "",
-    loadingText: String = "" ,
-    onClicked:() -> Unit){
+    text: String = "",
+    loadingText: String = "",
+    onClicked: () -> Unit
+) {
 
-    var clicked by remember { mutableStateOf(false)}
-    Surface(
-        onClick = {clicked = !clicked},
-        shape = Shapes.medium,
-        border = BorderStroke(width = 1.dp,color = Color.LightGray),
-        color = MaterialTheme.colors.surface
+    var clicked by remember { mutableStateOf(false) }
+    com.apps.travel_app.ui.components.Button(
+        onClick = { clicked = !clicked },
+        background = White
     ) {
-        Row (modifier = Modifier
-            .padding(
-                start = 12.dp,
-                end = 16.dp,
-                top = 12.dp,
-                bottom = 12.dp
-            )
-            .animateContentSize(
-                animationSpec = tween(durationMillis = 300, easing = LinearOutSlowInEasing)
-            ),verticalAlignment = Alignment.CenterVertically,horizontalArrangement = Arrangement.Center){
-            Icon(painter = painterResource(id = R.drawable.ic_google_logo), contentDescription = "Google sign button", tint = Color.Unspecified)
+        Row(
+            modifier = Modifier
+                .animateContentSize(
+                    animationSpec = tween(durationMillis = 300, easing = LinearOutSlowInEasing)
+                ),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ) {
+            FaIcon(FaIcons.Google, tint = primaryColor)
             Spacer(modifier = Modifier.width(8.dp))
-            Text(text = if (clicked) loadingText else text)
+            Text(text = if (clicked) loadingText else text, color = primaryColor)
 
-            if (clicked){
+            if (clicked) {
                 Spacer(modifier = Modifier.width(16.dp))
                 CircularProgressIndicator(
-                    modifier = Modifier.height(16.dp)
+                    modifier = Modifier
+                        .height(16.dp)
                         .width(16.dp),
                     strokeWidth = 2.dp,
-                    color = MaterialTheme.colors.primary
+                    color = primaryColor
                 )
                 onClicked()
 
 
-
             }
 
         }
     }
 
 
-    @Composable
-    fun GoogleButton(
-        modifier: Modifier = Modifier,
-        text: String = "Sign Up with Google",
-        loadingText: String = "Creating Account...",
-        icon: Int = R.drawable.ic_google_logo,
-        shape: Shape = Shapes.medium,
-        borderColor: Color = Color.LightGray,
-        backgroundColor: Color = MaterialTheme.colors.surface,
-        progressIndicatorColor: Color = MaterialTheme.colors.primary,
-        onClicked: () -> Unit
-    ) {
-        var clicked by remember { mutableStateOf(false) }
-
-        Surface(
-            modifier = modifier.clickable { clicked = !clicked },
-            shape = shape,
-            border = BorderStroke(width = 1.dp, color = borderColor),
-            color = backgroundColor
-        ) {
-            Row(
-                modifier = Modifier
-                    .padding(
-                        start = 12.dp,
-                        end = 16.dp,
-                        top = 12.dp,
-                        bottom = 12.dp
-                    )
-                    .animateContentSize(
-                        animationSpec = tween(
-                            durationMillis = 300,
-                            easing = LinearOutSlowInEasing
-                        )
-                    ),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
-            ) {
-                Icon(
-                    painter = painterResource(id = icon),
-                    contentDescription = "Google Button",
-                    tint = Color.Unspecified
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(text = if (clicked) loadingText else text)
-                if (clicked) {
-                    Spacer(modifier = Modifier.width(16.dp))
-                    CircularProgressIndicator(
-                        modifier = Modifier
-                            .height(16.dp)
-                            .width(16.dp),
-                        strokeWidth = 2.dp,
-                        color = progressIndicatorColor
-                    )
-                    onClicked()
-                }
-            }
-        }
-    }
-
-
-
-}
-
-@ExperimentalMaterialApi
-@Composable
-@Preview
-fun GoogleButtonPreview(){
-    GoogleSignInButtonUI(
-        text = "Sign Up With Google",
-        loadingText = "Signing In....",
-        onClicked = {}
-    )
 }

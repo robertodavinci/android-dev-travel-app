@@ -51,6 +51,8 @@ import com.google.android.libraries.maps.MapView
 import com.google.android.libraries.maps.model.LatLng
 import com.google.android.libraries.maps.model.MapStyleOptions
 import com.google.android.libraries.maps.model.MarkerOptions
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import com.google.gson.Gson
 import com.guru.fontawesomecomposelib.FaIcon
 import com.guru.fontawesomecomposelib.FaIconType
@@ -450,6 +452,7 @@ class ActiveTripActivity : ComponentActivity() {
                                     RatingField {
                                         val rating = it
                                         rating.entityId = trip.id
+                                        rating.username = Firebase.auth.currentUser?.displayName.toString()
                                         uploadRating(rating) { result ->
                                             if (result) {
                                                 reviewed = true

@@ -1,5 +1,7 @@
 package com.apps.travel_app.ui.components
 
+
+import com.apps.travel_app.R
 import androidx.compose.material.MaterialTheme
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -47,7 +49,7 @@ fun RatingCard(rating: Rating) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             GlideImage(
-                imageModel = "https://www.whatsappprofiledpimages.com/wp-content/uploads/2021/08/Profile-Photo-Wallpaper.jpg",
+                imageModel = R.mipmap.icon,
                 contentDescription = "",
                 modifier = Modifier
                     .padding(cardPadding)

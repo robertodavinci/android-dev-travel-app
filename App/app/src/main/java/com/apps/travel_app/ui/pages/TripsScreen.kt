@@ -72,7 +72,7 @@ fun TripsScreen(mainActivity: MainActivity) {
                 }
                 .background(primaryColor)
         ) {
-            Heading("Motherfucker's trips", color = White, modifier = Modifier.padding(cardPadding))
+            Heading("${mainActivity.user.displayName ?: mainActivity.user.email}'s trips", color = White, modifier = Modifier.padding(cardPadding))
         }
 
         Box(

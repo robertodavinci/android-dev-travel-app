@@ -1,59 +1,76 @@
 package com.apps.travel_app.ui.components.login
 
+import FaIcons
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
-import com.apps.travel_app.ui.theme.Travel_AppTheme
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
-import androidx.navigation.compose.rememberNavController
-import androidx.navigation.compose.NavHost
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.foundation.layout.*
-import androidx.compose.material.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.Transparent
+import androidx.compose.ui.graphics.Color.Companion.White
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.text.style.TextAlign.Companion.Center
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
-import androidx.navigation.compose.composable
-import com.apps.travel_app.R
-import com.apps.travel_app.ui.components.BottomBarItem
-import com.google.firebase.auth.FirebaseUser
-import com.facebook.login.LoginManager
-import androidx.activity.result.ActivityResultLauncher
-import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.viewinterop.AndroidView
-import com.facebook.*
+import androidx.navigation.NavController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import com.apps.travel_app.MainActivity
+import com.apps.travel_app.ui.components.Button
+import com.apps.travel_app.ui.components.Heading
+import com.apps.travel_app.ui.components.login.buttons.GoogleSignInButtonUI
+import com.apps.travel_app.ui.theme.Travel_AppTheme
+import com.apps.travel_app.ui.theme.cardPadding
+import com.apps.travel_app.ui.theme.danger
+import com.apps.travel_app.ui.theme.primaryColor
+import com.facebook.AccessToken
+import com.facebook.CallbackManager
+import com.facebook.FacebookCallback
+import com.facebook.FacebookException
 import com.facebook.login.LoginResult
 import com.facebook.login.widget.LoginButton
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import com.google.firebase.auth.FacebookAuthProvider
-import androidx.compose.foundation.ExperimentalFoundationApi
 import com.google.android.gms.common.api.ApiException
+import com.google.firebase.auth.FacebookAuthProvider
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
+import com.guru.fontawesomecomposelib.FaIcon
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @ExperimentalCoroutinesApi
@@ -72,6 +89,7 @@ class LoginActivity : ComponentActivity() {
     val viewModel: LoginViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
+
         super.onCreate(savedInstanceState)
         auth = Firebase.auth
         auth.addAuthStateListener { auth ->
@@ -81,20 +99,15 @@ class LoginActivity : ComponentActivity() {
 
 
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken(getString(R.string.default_web_client_id))
+            .requestIdToken("939417698638-a7pboqvvs0auptiglk9n17qd3re1b1dj.apps.googleusercontent.com")
             .requestEmail()
             .build()
 
         googleSignInClient = GoogleSignIn.getClient(this, gso)
         if (currentUser != null) {
-            setContent {
-                Travel_AppTheme {
-                    Log.i("LOGG", "LOGGED IN ALREADYY")
-                    updateUI(currentUser)
-                }
-            }
-        }
-        else {
+            val intent = Intent(this, MainActivity::class.java)
+            startActivity(intent)
+        } else {
             setContent {
                 Travel_AppTheme {
                     Surface(color = MaterialTheme.colors.background) {
@@ -104,6 +117,7 @@ class LoginActivity : ComponentActivity() {
             }
         }
     }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
@@ -125,18 +139,9 @@ class LoginActivity : ComponentActivity() {
     }
 
 
-
     private fun googleSignIn() {
         val signInIntent = googleSignInClient.signInIntent
         startActivityForResult(signInIntent, 9001)
-    }
-
-    private val login = {
-        LoginManager.getInstance().logIn(this, CallbackManager.Factory.create(), listOf("email"))
-    }
-
-    private val logout = {
-        LoginManager.getInstance().logOut()
     }
 
 
@@ -153,316 +158,411 @@ class LoginActivity : ComponentActivity() {
                         baseContext, "Account creation successful.",
                         Toast.LENGTH_SHORT
                     ).show()
-                    setContent{
-                        updateUI(user)
-                    }
+
+                    val intent = Intent(this, MainActivity::class.java)
+                    startActivity(intent)
                 } else {
-                    // If sign in fails, display a message to the user.
                     Log.w("Registration info", "createUserWithEmail:failure", task.exception)
-                    Toast.makeText(
-                        baseContext, "Account creation failed failed.",
-                        Toast.LENGTH_SHORT
+                    com.google.android.material.snackbar.Snackbar.make(
+                        View(this@LoginActivity),
+                        "Account creation failed: " + task.exception?.localizedMessage,
+                        com.google.android.material.snackbar.Snackbar.LENGTH_LONG
                     ).show()
-                    //updateUI(null)
+
                 }
             }
-        }
+    }
 
 
     private fun signIn(email: String, password: String) {
-        // [START sign_in_with_email]
         auth.signInWithEmailAndPassword(email, password)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
                     // Sign in success, update UI with the signed-in user's information
                     Log.d("SignIn info", "signInWithEmail:success")
                     val user = auth.currentUser
-                    setContent{
-                        updateUI(user)
-                    }
+
+                    val intent = Intent(this, MainActivity::class.java)
+                    startActivity(intent)
 
                 } else {
                     // If sign in fails, display a message to the user.
                     Log.w("SignIn Info", "signInWithEmail:failure", task.exception)
-                    Toast.makeText(baseContext, "Authentication failed.",
-                        Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        baseContext, "Authentication failed.",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
-        // [END sign_in_with_email]
     }
-        @Composable
-        private fun updateUI(user: FirebaseUser?) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.Center,
-            ) {
-                Text(text = buildAnnotatedString {
-                    withStyle(style = SpanStyle(color = Color.Red)) {
-                        append("You are logged in " + user.toString())
-                    }
-                }, fontSize = 30.sp)
-                Button(onClick = {
-                    logout;
-                    auth.signOut();
-                    setContent {
-                        Travel_AppTheme {LoginAndRegistrationUI()}
-                    }}, content = {
-                        Text(text = "Back to the login screen", color = Color.White)
-                    })
-                }
-
-            }
 
     @Composable
-    fun LoginAndRegistrationUI(){
+    fun LoginAndRegistrationUI() {
         val navigationController = rememberNavController()
         val profileViewState by viewModel.profileViewState.observeAsState(ProfileViewState())
-        NavHost(navController=navigationController, startDestination="loginScreen", builder=
+        NavHost(navController = navigationController, startDestination = "loginScreen", builder =
         {
-            composable("loginScreen", content = { EmailPassScreen(navigationController=navigationController, profileViewState = profileViewState,
-                login = login, logout = logout, logScreen)
+            composable("loginScreen", content = {
+                EmailPassScreen(
+                    navigationController = navigationController,
+                    profileViewState = profileViewState,
+                    logScreen
+                )
             })
-            //composable("registrationScreen", content = { RegistrationScreen(navigationController=navigationController)})
-            composable("registrationScreen", content = { EmailPassScreen(navigationController=navigationController, profileViewState = profileViewState,
-                login = login, logout = logout, regScreen)})
-            /*
-            composable("facebookScreen", content = { })
-            composable("googleScreen", content = { })
-               */
+
+            composable("registrationScreen", content = {
+                EmailPassScreen(
+                    navigationController = navigationController,
+                    profileViewState = profileViewState,
+                    regScreen
+                )
+            })
         })
 
     }
 
 
-@Composable
-fun EmailPassScreen (navigationController: NavController, profileViewState: ProfileViewState, login: () -> Unit, logout: () -> Unit, logreg: Boolean) {
-    val context = LocalContext.current
-    val email = remember { mutableStateOf(TextFieldValue()) }
-    val emailErrorState = remember { mutableStateOf(false) }
-    val passwordErrorState = remember { mutableStateOf(false) }
-    val password = remember { mutableStateOf(TextFieldValue()) }
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.Center,
+    @Composable
+    fun EmailPassScreen(
+        navigationController: NavController,
+        profileViewState: ProfileViewState,
+        logreg: Boolean
     ) {
-        Text(text = buildAnnotatedString {
-            withStyle(style = SpanStyle(color = Color.Red)) {
-                if(logreg) append("Sign in")
-                else append ("Register")
-            }
-        }, fontSize = 30.sp)
-        Spacer(Modifier.size(16.dp))
-        OutlinedTextField(
-            value = email.value,
-            onValueChange = {
-                if (emailErrorState.value) {
-                    emailErrorState.value = false
-                }
-                email.value = it
-            },
-            isError = emailErrorState.value,
-            modifier = Modifier.fillMaxWidth(),
-            label = {
-                Text(text = "Enter Email*")
-            },
+
+
+        val context = LocalContext.current
+        val email = remember { mutableStateOf(TextFieldValue()) }
+        val emailErrorState = remember { mutableStateOf(false) }
+        val passwordErrorState = remember { mutableStateOf(false) }
+        val password = remember { mutableStateOf(TextFieldValue()) }
+
+        val topColor = Color(0xFF00EEFF)
+
+        val bottomColor = primaryColor
+
+        val systemUiController = rememberSystemUiController()
+        systemUiController.setSystemBarsColor(
+            color = topColor
         )
-        if (emailErrorState.value) {
-            Text(text = "Required", color = Color.Red)
-        }
-        Spacer(Modifier.size(16.dp))
-        val passwordVisibility = remember { mutableStateOf(true) }
-        OutlinedTextField(
-            value = password.value,
-            onValueChange = {
-                if (passwordErrorState.value) {
-                    passwordErrorState.value = false
-                }
-                password.value = it
-            },
-            isError = passwordErrorState.value,
-            modifier = Modifier.fillMaxWidth(),
-            label = {
-                Text(text = "Enter Password*")
-            },
-            /* trailingIcon = {
-                IconButton(onClick = {
-                    passwordVisibility.value = !passwordVisibility.value
-                }) {
-                    Icon(
-                        ImageVector = if (passwordVisibility.value) ,
-                        contentDescription = "visibility",
-                        tint = Color.Red
+
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(
+                            topColor,
+                            bottomColor
+
+                        )
+                    )
+
+                )
+        ) {
+            Column(
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .padding(cardPadding),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Heading(if (logreg) "Login" else "Sign up", color = White)
+                Spacer(Modifier.padding(cardPadding))
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .graphicsLayer {
+                            shape = RoundedCornerShape(100)
+                            clip = true
+                        }
+                        .background(Color(0x88FFFFFF))
+                ) {
+                    Box(modifier = Modifier
+                        .size(60.dp)
+                        .graphicsLayer {
+                            shape = RoundedCornerShape(100)
+                            clip = true
+                        }
+                        .background(White)) {
+                        FaIcon(
+                            FaIcons.UserAstronaut,
+                            tint = primaryColor,
+                            modifier = Modifier.align(Alignment.Center)
+                        )
+                    }
+                    TextField(
+                        colors = TextFieldDefaults.textFieldColors(
+                            focusedIndicatorColor = Transparent,
+                            disabledIndicatorColor = Transparent,
+                            unfocusedIndicatorColor = Transparent,
+                            backgroundColor = Transparent,
+                        ),
+                        modifier = Modifier
+                            .height(60.dp)
+                            .weight(1f),
+                        placeholder = {
+                            Text(
+                                "Email",
+                                color = White,
+                                modifier = Modifier.alpha(0.5f)
+                            )
+                        },
+                        trailingIcon = { FaIcon(FaIcons.Asterisk, tint = White, size = 12.dp) },
+                        singleLine = true,
+                        textStyle = TextStyle(
+                            color = White,
+                            fontWeight = FontWeight.Bold
+                        ),
+                        value = email.value,
+                        onValueChange = {
+                            if (emailErrorState.value) {
+                                emailErrorState.value = false
+                            }
+                            email.value = it
+                        },
+                        isError = emailErrorState.value,
                     )
                 }
-            },*/
-            visualTransformation = if (passwordVisibility.value) PasswordVisualTransformation() else VisualTransformation.None
-        )
-        if (passwordErrorState.value) {
-            Text(text = "Required", color = Color.Red)
-        }
-        Spacer(Modifier.size(16.dp))
-
-        Log.i("LOGREG", logreg.toString())
-
-        // --------------------------------------------------
-        // LOGIN PART
-        if (logreg == true) // login screen
-        {
-            Button(
-                onClick = {
-                    when {
-                        email.value.text.isEmpty() -> {
-                            emailErrorState.value = true
-                        }
-                        password.value.text.isEmpty() -> {
-                            passwordErrorState.value = true
-                        }
-                        else -> {
-                            passwordErrorState.value = false
-                            emailErrorState.value = false
-                            signIn(email.value.text, password.value.text)
-                            /*Toast.makeText(
-                                context,
-                                "Logged in successfully",
-                                Toast.LENGTH_SHORT
-                            ).show()*/
-                        }
-                    }
-
-                },
-                content = {
-                    Text(text = "Login", color = Color.White)
-                },
-                modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(backgroundColor = Color.Red)
-            )
-            Spacer(Modifier.size(16.dp))
-            Button(
-                onClick = {
-
-                    Toast.makeText(
-                        context,
-                        "Registration screen",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    navigationController.navigate("registrationScreen") {
-                        popUpTo(navigationController.graph.startDestinationId)
-                        launchSingleTop = true
-                    }
-                },
-                content = {
-                    Text(text = "Click here for Registration", color = Color.White)
-                },
-                modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(backgroundColor = Color.Blue)
-            )
-        }
-        // --------------------------------------------------
-        // REGISTRATION PART
-
-        else if (!logreg) // registration screen
-        {
-            Button(
-                onClick = {
-                    when {
-                        email.value.text.isEmpty() -> {
-                            emailErrorState.value = true
-                        }
-                        password.value.text.isEmpty() -> {
-                            passwordErrorState.value = true
-                        }
-                        else -> {
-                            passwordErrorState.value = false
-                            emailErrorState.value = false
-                            Log.i("Account check", "Opening function")
-                            Log.i("Email try", email.value.text)
-                            Log.i("Pass try", password.value.text)
-                            createAccount(email.value.text, password.value.text)
-                            Log.i("Account check 2", "Results")
-                            /* Toast.makeText(
-                                context,
-                                "Logged in successfully",
-                                Toast.LENGTH_SHORT
-                            ).show()*/
-                        }
-                    }
-
-                },
-                content = {
-                    Text(text = "Register", color = Color.White)
-                },
-                modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(backgroundColor = Color.Red)
-            )
-            Spacer(Modifier.size(16.dp))
-            Button(
-                onClick = {
-
-                    Toast.makeText(
-                        context,
-                        "Login screen",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    navigationController.navigate("loginScreen") {
-                        popUpTo(navigationController.graph.startDestinationId)
-                        launchSingleTop = true
-                    }
-                },
-                content = {
-                    Text(text = "Click here for login", color = Color.White)
-                },
-                modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(backgroundColor = Color.Blue)
-            )
-        }
-        // --------------------------------------------------
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            var buttonFacebookLogin = LoginButton(context)
-            buttonFacebookLogin.setPermissions("email", "public_profile")
-            AndroidView(
-                factory = {
-
-                    context -> buttonFacebookLogin.apply {
-                    var callbackManager = CallbackManager.Factory.create()
-                    buttonFacebookLogin.registerCallback(callbackManager, object : FacebookCallback<LoginResult>{
-                    override fun onSuccess(loginResult: LoginResult) {
-                        Log.d("FacebookLogin - Success", "facebook:onSuccess:$loginResult")
-                        handleFacebookAccessToken(loginResult.accessToken)
-                    }
-
-                    override fun onCancel() {
-                        Log.d("FacebookLogin - Cancel", "facebook:onCancel")
-                    }
-
-                    override fun onError(error: FacebookException) {
-                        Log.d("FacebookLogin - Error", "facebook:onError", error)
-                    }
-                }) }
+                if (emailErrorState.value) {
+                    Text(text = "Required", color = danger)
                 }
-            )
+                Spacer(Modifier.padding(cardPadding))
+                val passwordVisibility = remember { mutableStateOf(true) }
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .graphicsLayer {
+                            shape = RoundedCornerShape(100)
+                            clip = true
+                        }
+                        .background(Color(0x88FFFFFF))
+                ) {
+                    Box(modifier = Modifier
+                        .size(60.dp)
+                        .graphicsLayer {
+                            shape = RoundedCornerShape(100)
+                            clip = true
+                        }
+                        .background(White)) {
+                        FaIcon(
+                            FaIcons.Lock,
+                            tint = primaryColor,
+                            modifier = Modifier.align(Alignment.Center)
+                        )
+                    }
+                    TextField(
+                        colors = TextFieldDefaults.textFieldColors(
+                            focusedIndicatorColor = Transparent,
+                            disabledIndicatorColor = Transparent,
+                            unfocusedIndicatorColor = Transparent,
+                            backgroundColor = Transparent,
+                        ),
+                        modifier = Modifier
+                            .height(60.dp)
+                            .weight(1f),
+                        placeholder = {
+                            Text(
+                                "Password",
+                                color = White,
+                                modifier = Modifier.alpha(0.5f)
+                            )
+                        },
+                        trailingIcon = { FaIcon(FaIcons.Asterisk, tint = White, size = 12.dp) },
+                        singleLine = true,
+                        textStyle = TextStyle(
+                            color = White,
+                            fontWeight = FontWeight.Bold
+                        ),
+                        value = password.value,
+                        onValueChange = {
+                            if (passwordErrorState.value) {
+                                passwordErrorState.value = false
+                            }
+                            password.value = it
+                        },
+                        isError = passwordErrorState.value,
+                        visualTransformation = if (passwordVisibility.value) PasswordVisualTransformation() else VisualTransformation.None
+                    )
+                }
+                if (passwordErrorState.value) {
+                    Text(text = "Required", color = Color.Red)
+                }
+                Spacer(Modifier.padding(cardPadding))
 
-            Spacer(modifier = Modifier.height(15.dp))
+                Log.i("LOGREG", logreg.toString())
 
-            Text(
-                text = profileViewState.profile?.name ?: "Logged Out"
-            )
-            Spacer(modifier = Modifier.height(15.dp))
-            //AuthScreen(AuthViewModel())
-            val currentUser = auth.currentUser
-            Log.i("USER LOGGED IN - ", currentUser.toString())
-            Log.i("USER LOGGED IN NAME - ", currentUser?.displayName.toString())
-            Log.i("USER LOGGED IN MAIL - ", currentUser?.email.toString())
-            GoogleSignInButtonUI("Sign in with Google","Signing in...",onClicked = {googleSignIn()})
-        }
+                // --------------------------------------------------
+                // LOGIN PART
+                if (logreg) // login screen
+                {
+                    Button(
+                        onClick = {
+                            when {
+                                email.value.text.isEmpty() -> {
+                                    emailErrorState.value = true
+                                }
+                                password.value.text.isEmpty() -> {
+                                    passwordErrorState.value = true
+                                }
+                                else -> {
+                                    passwordErrorState.value = false
+                                    emailErrorState.value = false
+                                    signIn(email.value.text, password.value.text)
+                                }
+                            }
 
+                        },
+                        content = {
+                            Text(
+                                text = "Login",
+                                color = primaryColor,
+                                modifier = Modifier.padding(5.dp)
+                            )
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(60.dp),
+                        background = White
+                    )
+                    Spacer(Modifier.padding(cardPadding))
+                    Text(
+                        text = "Don't you have an account? Sign up here!",
+                        color = White,
+                        textAlign = Center,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .pointerInput(Unit) {
+                                detectTapGestures(
+                                    onTap = {
+                                        navigationController.navigate("registrationScreen") {
+                                            popUpTo(navigationController.graph.startDestinationId)
+                                            launchSingleTop = true
+                                        }
+                                    }
+                                )
+                            })
+
+                }
+                // --------------------------------------------------
+                // REGISTRATION PART
+
+                else if (!logreg) // registration screen
+                {
+                    Button(
+                        onClick = {
+                            when {
+                                email.value.text.isEmpty() -> {
+                                    emailErrorState.value = true
+                                }
+                                password.value.text.isEmpty() -> {
+                                    passwordErrorState.value = true
+                                }
+                                else -> {
+                                    passwordErrorState.value = false
+                                    emailErrorState.value = false
+                                    Log.i("Account check", "Opening function")
+                                    Log.i("Email try", email.value.text)
+                                    Log.i("Pass try", password.value.text)
+                                    createAccount(email.value.text, password.value.text)
+                                    Log.i("Account check 2", "Results")
+                                }
+                            }
+
+                        },
+                        content = {
+                            Text(
+                                text = "Register",
+                                color = primaryColor,
+                                modifier = Modifier.padding(5.dp)
+                            )
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(60.dp),
+                        background = White
+                    )
+                    Spacer(Modifier.padding(cardPadding))
+                    Text(
+                        text = "Do you already have an account? Log in!",
+                        color = White,
+                        textAlign = Center,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .pointerInput(Unit) {
+                                detectTapGestures(
+                                    onTap = {
+                                        navigationController.navigate("loginScreen") {
+                                            popUpTo(navigationController.graph.startDestinationId)
+                                            launchSingleTop = true
+                                        }
+                                    }
+                                )
+                            })
+                }
+                Spacer(modifier = Modifier.padding(cardPadding))
+                // --------------------------------------------------
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    val buttonFacebookLogin = LoginButton(context)
+                    buttonFacebookLogin.visibility = View.GONE
+                    buttonFacebookLogin.setPermissions("email", "public_profile")
+                    Button(onClick = { buttonFacebookLogin.callOnClick() }, background = White) {
+                        Row(
+                            modifier = Modifier
+                                .animateContentSize(
+                                    animationSpec = tween(durationMillis = 300, easing = LinearOutSlowInEasing)
+                                ),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            FaIcon(FaIcons.Facebook, tint = primaryColor)
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(text = "Get in", color = primaryColor)
+
+                        }
+                    }
+                    AndroidView(
+                        factory = {
+                            buttonFacebookLogin.apply {
+                                val callbackManager = CallbackManager.Factory.create()
+                                buttonFacebookLogin.registerCallback(
+                                    callbackManager,
+                                    object : FacebookCallback<LoginResult> {
+                                        override fun onSuccess(loginResult: LoginResult) {
+                                            Log.d(
+                                                "FacebookLogin - Success",
+                                                "facebook:onSuccess:$loginResult"
+                                            )
+                                            handleFacebookAccessToken(loginResult.accessToken)
+                                        }
+
+                                        override fun onCancel() {
+                                            Log.d("FacebookLogin - Cancel", "facebook:onCancel")
+                                        }
+
+                                        override fun onError(error: FacebookException) {
+                                            Log.d(
+                                                "FacebookLogin - Error",
+                                                "facebook:onError",
+                                                error
+                                            )
+                                        }
+                                    })
+                            }
+                        }
+                    )
+
+                    Spacer(modifier = Modifier.padding(cardPadding))
+                    GoogleSignInButtonUI(
+                        "Get in",
+                        "Trying to get in...",
+                        onClicked = {
+                            googleSignIn()
+                        })
+                }
+
+            }
         }
     }
 
@@ -472,19 +572,16 @@ fun EmailPassScreen (navigationController: NavController, profileViewState: Prof
         auth.signInWithCredential(credential)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
-                    // Sign in success, update UI with the signed-in user's information
                     Log.d("Google Login ", "signInWithCredential:success")
                     val user = auth.currentUser
-                    setContent {
-                        updateUI(user)
-                    }
+                    val intent = Intent(this, MainActivity::class.java)
+                    startActivity(intent)
                 } else {
-                    // If sign in fails, display a message to the user.
                     Log.w("Google Login ", "signInWithCredential:failure", task.exception)
-                    //updateUI(null)
                 }
             }
     }
+
     private fun handleFacebookAccessToken(token: AccessToken) {
         Log.d("Facebook Login - Token", "handleFacebookAccessToken:$token")
 
@@ -496,15 +593,15 @@ fun EmailPassScreen (navigationController: NavController, profileViewState: Prof
                     Log.d("Facebook Login - Token", "signInWithCredential:success")
                     val user = auth.currentUser
                     Log.i("User toString ", user.toString())
-                    setContent{
-                        updateUI(user)
-                    }
+                    val intent = Intent(this, MainActivity::class.java)
+                    startActivity(intent)
                 } else {
-                    // If sign in fails, display a message to the user.
                     Log.w("Facebook Login - Token", "signInWithCredential:failure", task.exception)
-                    Toast.makeText(baseContext, "Authentication failed.",
-                        Toast.LENGTH_SHORT).show()
-                    //updateUI(null)
+                    com.google.android.material.snackbar.Snackbar.make(
+                        View(this@LoginActivity),
+                        "Authentication failed." + task.exception?.localizedMessage,
+                        com.google.android.material.snackbar.Snackbar.LENGTH_LONG
+                    ).show()
                 }
             }
     }

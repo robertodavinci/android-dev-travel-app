@@ -1,11 +1,13 @@
 package com.apps.travel_app
 
+import FaIcons
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.preference.PreferenceManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -19,17 +21,35 @@ import com.apps.travel_app.models.Destination
 import com.apps.travel_app.models.Trip
 import com.apps.travel_app.ui.components.BottomBarItem
 import com.apps.travel_app.ui.components.BottomNavigationBar
+import com.apps.travel_app.ui.components.login.LoginActivity
+import com.apps.travel_app.ui.components.login.User
 import com.apps.travel_app.ui.pages.*
 import com.apps.travel_app.ui.theme.MainActivity_Travel_AppTheme
-import com.apps.travel_app.ui.theme.Travel_AppTheme
-import com.apps.travel_app.ui.theme.followSystem
+import com.facebook.login.LoginManager
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import com.guru.fontawesomecomposelib.FaIconType
 
 class MainActivity : ComponentActivity() {
 
+    var user: User = User("","")
     private var destination: Destination? = null
     lateinit var navController: NavHostController
     var prova: MutableState<Boolean> = mutableStateOf(true)
+
+    @OptIn(ExperimentalFoundationApi::class,
+        androidx.compose.animation.ExperimentalAnimationApi::class,
+        androidx.compose.material.ExperimentalMaterialApi::class,
+        kotlinx.coroutines.ExperimentalCoroutinesApi::class
+    )
+    fun signOut() {
+
+        val auth = Firebase.auth
+        LoginManager.getInstance().logOut()
+        auth.signOut()
+        val intent = Intent(this, LoginActivity::class.java)
+        startActivity(intent)
+    }
 
     fun setDestination(destination: Destination, openScreen: Boolean = false) {
         this.destination = destination
@@ -62,6 +82,11 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val auth = Firebase.auth
+        user.displayName = auth.currentUser?.displayName
+        user.email = auth.currentUser?.email.toString()
+
 
         val sharedPref = PreferenceManager.getDefaultSharedPreferences(this)
         val systemTheme = sharedPref.getBoolean("darkTheme", true)

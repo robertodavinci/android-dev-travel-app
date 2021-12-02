@@ -18,6 +18,7 @@
         <item name="windowNoTitle">true</item>
     </style>
 
+
     <style name="Theme.Travel_App.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
     <style name="Theme.Travel_App.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />

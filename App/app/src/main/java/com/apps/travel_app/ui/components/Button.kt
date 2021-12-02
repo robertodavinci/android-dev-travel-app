@@ -31,7 +31,7 @@ fun Button(
 
     Surface(
         modifier = modifier,
-        shape = RoundedCornerShape(cardRadius),
+        shape = RoundedCornerShape(100),
         color = background,
         contentColor = contrastColor(background),
         elevation = elevation,
