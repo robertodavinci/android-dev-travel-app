@@ -24,7 +24,7 @@ fun getBitmapFromURL(src: String?): Bitmap? {
 }
 
 fun sendPostRequest(body: String, url: String = API, action: String = ""): String? {
-    val mURL = URL("${url}?action=${action}")
+   val mURL = URL("${url}?action=${action}")
 
     var responseBody: String?
 

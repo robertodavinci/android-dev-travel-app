@@ -52,7 +52,8 @@ fun MainCard(
     mainActivity: MainActivity,
     radius: Dp = cardRadius,
     icon: FaIconType? = null,
-    imageMaxHeight: Float = Float.POSITIVE_INFINITY
+    imageMaxHeight: Float = Float.POSITIVE_INFINITY,
+    imageMinHeight: Float = 0f
 ) {
 
 
@@ -93,7 +94,7 @@ fun MainCard(
             ) {
                 val modifier = Modifier
                     .fillMaxWidth()
-                    .heightIn(0.dp, imageMaxHeight.dp)
+                    .heightIn(imageMinHeight.dp, imageMaxHeight.dp)
                 if (squaredImage)
                     modifier.aspectRatio(1f)
                 GlideImage(
