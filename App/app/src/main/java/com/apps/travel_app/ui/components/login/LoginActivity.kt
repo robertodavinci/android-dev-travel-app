@@ -1,6 +1,7 @@
 package com.apps.travel_app.ui.components.login
 
 import FaIcons
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -40,6 +41,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign.Companion.Center
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation.NavController
@@ -65,10 +67,10 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
-import com.google.firebase.auth.FacebookAuthProvider
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.auth.*
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.functions.FirebaseFunctions
+import com.google.firebase.functions.ktx.functions
 import com.google.firebase.ktx.Firebase
 import com.guru.fontawesomecomposelib.FaIcon
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -83,8 +85,13 @@ class LoginActivity : ComponentActivity() {
     private lateinit var auth: FirebaseAuth
     private lateinit var googleSignInClient: GoogleSignInClient
 
+    private lateinit var functions: FirebaseFunctions
+    private lateinit var secondCredential: AuthCredential
+
+    var googleLog = true
     var logScreen = true
     var regScreen = false
+
 
     val viewModel: LoginViewModel by viewModels()
 
@@ -96,6 +103,7 @@ class LoginActivity : ComponentActivity() {
             Log.d("Tag---", "addAuthStateListener: ${auth.currentUser}")
         }
         val currentUser = auth.currentUser
+        functions = Firebase.functions
 
 
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -117,6 +125,9 @@ class LoginActivity : ComponentActivity() {
             }
         }
     }
+
+
+
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
@@ -142,6 +153,56 @@ class LoginActivity : ComponentActivity() {
     private fun googleSignIn() {
         val signInIntent = googleSignInClient.signInIntent
         startActivityForResult(signInIntent, 9001)
+    }
+
+
+    @Composable
+    private fun FacebookSignInButtonUI(context: Context) {
+        val buttonFacebookLogin = LoginButton(context)
+        buttonFacebookLogin.visibility = View.GONE
+        buttonFacebookLogin.setPermissions("email", "public_profile")
+        buttonFacebookLogin.apply {
+            val callbackManager = CallbackManager.Factory.create()
+            buttonFacebookLogin.registerCallback(
+                callbackManager,
+                object : FacebookCallback<LoginResult> {
+                    override fun onSuccess(loginResult: LoginResult) {
+                        Log.d(
+                            "FacebookLogin - Success",
+                            "facebook:onSuccess:$loginResult"
+                        )
+                        handleFacebookAccessToken(loginResult.accessToken)
+                    }
+
+                    override fun onCancel() {
+                        Log.d("FacebookLogin - Cancel", "facebook:onCancel")
+                    }
+
+                    override fun onError(error: FacebookException) {
+                        Log.d(
+                            "FacebookLogin - Error",
+                            "facebook:onError",
+                            error
+                        )
+                    }
+                })
+        }
+        Button(onClick = { buttonFacebookLogin.callOnClick() }, background = White) {
+            Row(
+                modifier = Modifier
+                    .animateContentSize(
+                        animationSpec = tween(durationMillis = 300, easing = LinearOutSlowInEasing)
+                    ),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                FaIcon(FaIcons.Facebook, tint = primaryColor)
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(text = "Login via Facebook", color = primaryColor)
+
+            }
+        }
+
     }
 
 
@@ -426,17 +487,22 @@ class LoginActivity : ComponentActivity() {
                     )
                     Spacer(Modifier.padding(cardPadding))
                     Text(
-                        text = "Don't you have an account? Sign up here!",
+                        text = "Don't have an account?",
+                        color = White,
+                        textAlign = Center)
+                    Text(
+                        text = "Sign up here!",
+                        style = TextStyle(textDecoration = TextDecoration.Underline),
                         color = White,
                         textAlign = Center,
                         modifier = Modifier
                             .fillMaxWidth()
                             .pointerInput(Unit) {
                                 detectTapGestures(
-                                    onTap = {
-                                        navigationController.navigate("registrationScreen") {
-                                            popUpTo(navigationController.graph.startDestinationId)
-                                            launchSingleTop = true
+                                        onTap = {
+                                            navigationController.navigate("registrationScreen") {
+                                                popUpTo(navigationController.graph.startDestinationId)
+                                                launchSingleTop = true
                                         }
                                     }
                                 )
@@ -483,7 +549,12 @@ class LoginActivity : ComponentActivity() {
                     )
                     Spacer(Modifier.padding(cardPadding))
                     Text(
-                        text = "Do you already have an account? Log in!",
+                        text = "Already have an account?",
+                        color = White,
+                        textAlign = Center)
+                    Text(
+                        text = "Log in!",
+                        style = TextStyle(textDecoration = TextDecoration.Underline),
                         color = White,
                         textAlign = Center,
                         modifier = Modifier
@@ -504,82 +575,40 @@ class LoginActivity : ComponentActivity() {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    val buttonFacebookLogin = LoginButton(context)
-                    buttonFacebookLogin.visibility = View.GONE
-                    buttonFacebookLogin.setPermissions("email", "public_profile")
-                    Button(onClick = { buttonFacebookLogin.callOnClick() }, background = White) {
-                        Row(
-                            modifier = Modifier
-                                .animateContentSize(
-                                    animationSpec = tween(durationMillis = 300, easing = LinearOutSlowInEasing)
-                                ),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.Center
-                        ) {
-                            FaIcon(FaIcons.Facebook, tint = primaryColor)
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(text = "Get in", color = primaryColor)
 
-                        }
-                    }
-                    AndroidView(
-                        factory = {
-                            buttonFacebookLogin.apply {
-                                val callbackManager = CallbackManager.Factory.create()
-                                buttonFacebookLogin.registerCallback(
-                                    callbackManager,
-                                    object : FacebookCallback<LoginResult> {
-                                        override fun onSuccess(loginResult: LoginResult) {
-                                            Log.d(
-                                                "FacebookLogin - Success",
-                                                "facebook:onSuccess:$loginResult"
-                                            )
-                                            handleFacebookAccessToken(loginResult.accessToken)
-                                        }
-
-                                        override fun onCancel() {
-                                            Log.d("FacebookLogin - Cancel", "facebook:onCancel")
-                                        }
-
-                                        override fun onError(error: FacebookException) {
-                                            Log.d(
-                                                "FacebookLogin - Error",
-                                                "facebook:onError",
-                                                error
-                                            )
-                                        }
-                                    })
-                            }
-                        }
-                    )
-
+                    FacebookSignInButtonUI(LocalContext.current)
                     Spacer(modifier = Modifier.padding(cardPadding))
                     GoogleSignInButtonUI(
-                        "Get in",
-                        "Trying to get in...",
+                        "Login via Google",
+                        "Logging in...",
                         onClicked = {
+                            googleLog = true
                             googleSignIn()
                         })
                 }
-
             }
         }
     }
 
+    private fun LoginSuccess(user: FirebaseUser?,context: Context){
+        val intent = Intent(context, MainActivity::class.java)
+        startActivity(intent)
+    }
 
     private fun firebaseAuthWithGoogle(idToken: String) {
         val credential = GoogleAuthProvider.getCredential(idToken, null)
-        auth.signInWithCredential(credential)
-            .addOnCompleteListener(this) { task ->
-                if (task.isSuccessful) {
-                    Log.d("Google Login ", "signInWithCredential:success")
-                    val user = auth.currentUser
-                    val intent = Intent(this, MainActivity::class.java)
-                    startActivity(intent)
-                } else {
-                    Log.w("Google Login ", "signInWithCredential:failure", task.exception)
+            auth.signInWithCredential(credential)
+                .addOnCompleteListener(this) { task ->
+                    if (task.isSuccessful) {
+                        Log.d("Google Login ", "signInWithCredential:success")
+                        val user = auth.currentUser
+                        Log.d("CURRENT USER 1", auth.currentUser.toString())
+                        if(googleLog) LoginSuccess(user, this)
+                        else linkAccount(secondCredential)
+                    } else {
+                        Log.w("Google Login ", "signInWithCredential:failure", task.exception)
+                    }
                 }
-            }
     }
 
     private fun handleFacebookAccessToken(token: AccessToken) {
@@ -593,17 +622,41 @@ class LoginActivity : ComponentActivity() {
                     Log.d("Facebook Login - Token", "signInWithCredential:success")
                     val user = auth.currentUser
                     Log.i("User toString ", user.toString())
-                    val intent = Intent(this, MainActivity::class.java)
-                    startActivity(intent)
+                    LoginSuccess(user,this)
                 } else {
                     Log.w("Facebook Login - Token", "signInWithCredential:failure", task.exception)
-                    com.google.android.material.snackbar.Snackbar.make(
+                    /*com.google.android.material.snackbar.Snackbar.make(
                         View(this@LoginActivity),
                         "Authentication failed." + task.exception?.localizedMessage,
                         com.google.android.material.snackbar.Snackbar.LENGTH_LONG
-                    ).show()
+                    ).show()*/
+                    googleLog = false
+                    secondCredential = credential
+                    googleSignIn()
+
                 }
             }
+    }
+
+    private fun linkAccount(credential: AuthCredential) {
+        // Create EmailAuthCredential with email and password
+        //val credential = EmailAuthProvider.getCredential("", "")
+        // [START link_credential]
+        Log.d("CURRENT USER 2", auth.currentUser.toString())
+        auth.currentUser!!.linkWithCredential(credential)
+            .addOnCompleteListener(this) { task ->
+                if (task.isSuccessful) {
+                    Log.d("LinkCredential", "linkWithCredential:success")
+                    val user = task.result?.user
+                    LoginSuccess(user,this)
+                } else {
+                    Log.w("LinkCredential", "linkWithCredential:failure", task.exception)
+                    Toast.makeText(baseContext, "Authentication failed.",
+                        Toast.LENGTH_SHORT).show()
+                            //updateUI(null)
+                }
+            }
+        // [END link_credential]
     }
 
 }
