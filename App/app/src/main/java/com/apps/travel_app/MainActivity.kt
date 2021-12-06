@@ -17,6 +17,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.room.Room
+//import com.apps.travel_app.data.room.db.DB
 import com.apps.travel_app.models.Destination
 import com.apps.travel_app.models.Trip
 import com.apps.travel_app.ui.components.BottomBarItem
@@ -87,6 +89,12 @@ class MainActivity : ComponentActivity() {
         user.displayName = auth.currentUser?.displayName
         user.email = auth.currentUser?.email.toString()
 
+
+        // maybe do this Async way - Room DB creation
+      /*  val db = Room.databaseBuilder(
+            applicationContext,
+            DB::class.java, "travel-db"
+        ).build()*/
 
         val sharedPref = PreferenceManager.getDefaultSharedPreferences(this)
         val systemTheme = sharedPref.getBoolean("darkTheme", true)
