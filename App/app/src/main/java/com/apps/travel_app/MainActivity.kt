@@ -108,7 +108,7 @@ class MainActivity : ComponentActivity() {
         */
 
         // Create a new user with a first and last name
-        val user = hashMapOf(
+       /* val user = hashMapOf(
             "first" to "Ada",
             "last" to "Lovelace",
             "born" to 1815
@@ -123,7 +123,7 @@ class MainActivity : ComponentActivity() {
             .addOnFailureListener { e ->
                 Log.w("Firestore", "Error adding document", e)
             }
-
+*/
 
 
         val sharedPref = PreferenceManager.getDefaultSharedPreferences(this)
