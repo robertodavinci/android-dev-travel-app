@@ -53,7 +53,9 @@ fun MainCard(
     radius: Dp = cardRadius,
     icon: FaIconType? = null,
     imageMaxHeight: Float = Float.POSITIVE_INFINITY,
-    imageMinHeight: Float = 0f
+    imageMinHeight: Float = 0f,
+    isGooglePlace: Boolean = false,
+    clickable: Boolean = true
 ) {
 
 
@@ -80,16 +82,22 @@ fun MainCard(
                         haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                     }
                     .pointerInput(Unit) {
-                        detectTapGestures(
-                            onLongPress = {
-                                openDialog.value = true; haptic.performHapticFeedback(
-                                HapticFeedbackType.LongPress
+                        if (clickable) {
+                            detectTapGestures(
+                                onLongPress = {
+                                    openDialog.value = true; haptic.performHapticFeedback(
+                                    HapticFeedbackType.LongPress
+                                )
+                                },
+                                onTap = {
+                                    if (isGooglePlace) {
+                                        mainActivity.setGooglePlace(destination, true)
+                                    } else {
+                                        mainActivity.setDestination(destination, true)
+                                    }
+                                }
                             )
-                            },
-                            onTap = {
-                                mainActivity.setDestination(destination, true)
-                            }
-                        )
+                        }
                     }
             ) {
                 val modifier = Modifier

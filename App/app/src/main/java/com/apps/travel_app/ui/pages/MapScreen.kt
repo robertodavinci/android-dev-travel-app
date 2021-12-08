@@ -324,7 +324,7 @@ class MapScreen {
 
                 DestinationCard(
                     destination = currentDestination.value,
-                    destinationSelected.value && !drawingEnabled.value
+                    open = destinationSelected.value && !drawingEnabled.value
                 )
 
             }

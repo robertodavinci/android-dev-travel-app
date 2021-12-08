@@ -7,7 +7,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import java.util.*
 
 open class Destination() : Parcelable {
-    var id: Int = 0
+    var id: String = ""
     var latitude: Double = 0.0
     var longitude: Double = 0.0
     var type: String = ""
@@ -19,9 +19,10 @@ open class Destination() : Parcelable {
     var description: String = ""
     var priceLevel: Float = 0f
     var isOpen: Boolean = false
+    var address: String = ""
 
     constructor(parcel: Parcel) : this() {
-        id = parcel.readInt()
+        id = parcel.readString()!!
         latitude = parcel.readDouble()
         longitude = parcel.readDouble()
         type = parcel.readString() ?: ""
@@ -33,10 +34,11 @@ open class Destination() : Parcelable {
             isOpen = parcel.readBoolean()
         }
         description = parcel.readString() ?: ""
+        address = parcel.readString() ?: ""
     }
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
-        parcel.writeInt(id)
+        parcel.writeString(id)
         parcel.writeDouble(latitude)
         parcel.writeDouble(longitude)
         parcel.writeString(type)
@@ -48,6 +50,7 @@ open class Destination() : Parcelable {
             parcel.writeBoolean(isOpen)
         }
         parcel.writeString(description)
+        parcel.writeString(address)
     }
 
     override fun describeContents(): Int {

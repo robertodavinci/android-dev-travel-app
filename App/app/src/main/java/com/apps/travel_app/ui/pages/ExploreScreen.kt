@@ -1,6 +1,7 @@
 package com.apps.travel_app.ui.pages
 
 import FaIcons
+import android.content.Intent
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -12,9 +13,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.MaterialTheme.colors
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.rotate
@@ -27,6 +30,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
+import androidx.core.content.ContextCompat.startActivity
 import androidx.navigation.NavController
 import com.apps.travel_app.MainActivity
 import com.apps.travel_app.models.Destination
@@ -208,109 +212,122 @@ fun ExploreScreen(navController: NavController, mainActivity: MainActivity) {
 
     var searchTerm by remember { mutableStateOf("") }
 
+    val result = places.value.size > 0 || trips.value.size > 0 || cities.value.size > 0
+
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(if (!result) Color(0x44000000) else colors.background)
+            ,
+        verticalArrangement = if (!result) Arrangement.Center else Arrangement.Top
     ) {
-        if (mapView != null && mapVisible) {
-            Card(
-                modifier = Modifier
-                    .height(200.dp)
-                    .padding(cardPadding),
-                elevation = cardElevation,
-                shape = RoundedCornerShape(
-                    cardRadius
-                )
-            ) {
-                Box {
-                    AndroidView({ mapView }) { mapView ->
-                        CoroutineScope(Dispatchers.Main).launch {
-                            if (!mapLoaded.value) {
-                                mapView.getMapAsync { mMap ->
-                                    if (!mapLoaded.value) {
-                                        map.value = mMap
-                                        mapInit()
-                                        mapLoaded.value = true
+        Column(
+            modifier = Modifier.padding(cardPadding).graphicsLayer {
+                shape = RoundedCornerShape(cardRadius)
+                clip = true
+            }.background(colors.background)
+        ) {
+            if (mapView != null && mapVisible) {
+                Card(
+                    modifier = Modifier
+                        .height(200.dp)
+                        .padding(cardPadding),
+                    elevation = cardElevation,
+                    shape = RoundedCornerShape(
+                        cardRadius
+                    )
+                ) {
+                    Box {
+                        AndroidView({ mapView }) { mapView ->
+                            CoroutineScope(Dispatchers.Main).launch {
+                                if (!mapLoaded.value) {
+                                    mapView.getMapAsync { mMap ->
+                                        if (!mapLoaded.value) {
+                                            map.value = mMap
+                                            mapInit()
+                                            mapLoaded.value = true
+                                        }
                                     }
                                 }
                             }
                         }
+                        Text(
+                            modifier = Modifier
+                                .align(Center)
+                                .background(Color(0x44000000)),
+                            color = colors.surface,
+                            text = "Drag to choose an area"
+                        )
                     }
-                    Text(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(Color(0x44000000)),
-                        color = colors.surface,
-                        text = "Drag to choose an area"
-                    )
                 }
-            }
 
-        } else if (mapView == null) {
-            Text(
-                "Loading...",
-                color = colors.surface,
-                modifier = Modifier.padding(
-                    cardPadding
+            } else if (mapView == null) {
+                Text(
+                    "Loading...",
+                    color = colors.surface,
+                    modifier = Modifier.padding(
+                        cardPadding
+                    )
                 )
-            )
-            loadingScreen.value++
-        }
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(colors.background)
-                .padding(cardPadding),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-
-            TextField(
-                value = searchTerm, onValueChange = { searchTerm = it },
-                shape = RoundedCornerShape(cardRadius),
+                loadingScreen.value++
+            }
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(1f),
-                colors = TextFieldDefaults.textFieldColors(
-                    focusedIndicatorColor = Color.Transparent,
-                    disabledIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent,
-                    backgroundColor = colors.background,
-                ),
-                placeholder = {
-                    Text(
-                        "Search",
+                    .background(colors.background)
+                    .padding(cardPadding),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+
+                TextField(
+                    value = searchTerm, onValueChange = { searchTerm = it },
+                    shape = RoundedCornerShape(cardRadius),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f),
+                    colors = TextFieldDefaults.textFieldColors(
+                        focusedIndicatorColor = Color.Transparent,
+                        disabledIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent,
+                        backgroundColor = colors.background,
+                    ),
+                    placeholder = {
+                        Text(
+                            "Search",
+                            color = colors.surface,
+                            modifier = Modifier.alpha(0.5f)
+                        )
+                    },
+                    trailingIcon = {
+                        Row {
+                            IconButton(onClick = {
+                                openFilters = true
+                            }) {
+                                FaIcon(FaIcons.Filter, tint = colors.surface)
+                            }
+                            IconButton(onClick = {
+                                Search(
+                                    searchTerm,
+                                    types = filters
+                                )
+                            }) {
+                                FaIcon(FaIcons.Search, tint = colors.surface)
+                            }
+                            IconButton(onClick = {
+                                val intent = Intent(mainActivity, AroundMeActivity::class.java)
+                                startActivity(mainActivity, intent, null)
+                            }) {
+                                FaIcon(FaIcons.StreetView, tint = colors.surface)
+                            }
+                        }
+                    },
+                    singleLine = true,
+                    textStyle = TextStyle(
                         color = colors.surface,
-                        modifier = Modifier.alpha(0.5f)
-                    )
-                },
-                trailingIcon = {
-                    Row {
-                        IconButton(onClick = {
-                            openFilters = true
-                        }) {
-                            FaIcon(FaIcons.Filter, tint = colors.surface)
-                        }
-                        IconButton(onClick = {
-                            Search(
-                                searchTerm,
-                                types = filters
-                            )
-                        }) {
-                            FaIcon(FaIcons.Search, tint = colors.surface)
-                        }
-                        IconButton(onClick = {
-                            mapVisible = !mapVisible
-                        }) {
-                            FaIcon(FaIcons.GlobeEurope, tint = colors.surface)
-                        }
-                    }
-                },
-                singleLine = true,
-                textStyle = TextStyle(
-                    color = colors.surface,
-                    fontWeight = FontWeight.Bold
-                ),
-            )
+                        fontWeight = FontWeight.Bold
+                    ),
+                )
+            }
         }
         LazyColumn {
             if (places.value.size > 0) {
@@ -336,7 +353,8 @@ fun ExploreScreen(navController: NavController, mainActivity: MainActivity) {
                                     mainActivity = mainActivity,
                                     icon = FaIcons.Google,
                                     imageMaxHeight = 120f,
-                                    imageMinHeight = 120f
+                                    imageMinHeight = 120f,
+                                    isGooglePlace = true
                                 )
                             }
                             if (index < places.value.size - 1) {
@@ -354,7 +372,8 @@ fun ExploreScreen(navController: NavController, mainActivity: MainActivity) {
                                         mainActivity = mainActivity,
                                         icon = FaIcons.Google,
                                         imageMaxHeight = 150f,
-                                        imageMinHeight = 120f
+                                        imageMinHeight = 120f,
+                                        isGooglePlace = true
                                     )
                                 }
                             }

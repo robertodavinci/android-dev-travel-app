@@ -27,7 +27,7 @@ import com.skydoves.landscapist.glide.GlideImage
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun DestinationCard(destination: Destination?, open: Boolean = false, maxHeightValue: Float = 130f) {
+fun DestinationCard(modifier: Modifier = Modifier, destination: Destination?, open: Boolean = false, maxHeightValue: Float = 130f) {
 
     val maxHeight: Float by animateFloatAsState(
         if (open) maxHeightValue else 0f, animationSpec = tween(
@@ -40,7 +40,7 @@ fun DestinationCard(destination: Destination?, open: Boolean = false, maxHeightV
         elevation = cardElevation,
         backgroundColor = MaterialTheme.colors.onBackground,
         shape = RoundedCornerShape(cardRadius),
-        modifier = Modifier
+        modifier = modifier
             .heightIn(0.dp, maxHeight.dp)
             .wrapContentSize()
             .padding(cardPadding),
@@ -52,17 +52,16 @@ fun DestinationCard(destination: Destination?, open: Boolean = false, maxHeightV
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            if (destination?.thumbnail != null) {
-                GlideImage(
-                    imageModel = destination.thumbnailUrl,
-                    contentDescription = "",
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .fillMaxHeight()
-                        .widthIn(0.dp, maxHeightValue.dp)
-                        .align(Alignment.CenterVertically)
-                )
-            }
+            GlideImage(
+                imageModel = destination?.thumbnailUrl,
+                contentDescription = "",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .widthIn(0.dp, maxHeightValue.dp)
+                    .align(Alignment.CenterVertically)
+            )
+
             Column(
                 modifier = Modifier.padding(cardPadding)
             ) {

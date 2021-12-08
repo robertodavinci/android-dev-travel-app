@@ -51,6 +51,21 @@ class MainActivity : ComponentActivity() {
         startActivity(intent)
     }
 
+    fun setGooglePlace(destination: Destination, openScreen: Boolean = false) {
+        this.destination = destination
+        if (openScreen) {
+            navController.navigate(SubPages.GooglePlace.route) {
+                navController.graph.startDestinationRoute?.let { route ->
+                    popUpTo(route) {
+                        saveState = true
+                    }
+                }
+                launchSingleTop = true
+                restoreState = true
+            }
+        }
+    }
+
     fun setDestination(destination: Destination, openScreen: Boolean = false) {
         this.destination = destination
         if (openScreen) {
@@ -129,6 +144,9 @@ class MainActivity : ComponentActivity() {
             composable(BottomBarItem.Profile.route) {
                 ProfileScreen(activity)
             }
+            composable(SubPages.GooglePlace.route) {
+                GooglePlaceScreen(navController, destination!!, activity)
+            }
             composable(SubPages.Location.route) {
                 if (destination != null) {
                     LocationScreen(navController, destination!!, activity)
@@ -140,6 +158,7 @@ class MainActivity : ComponentActivity() {
     sealed class SubPages(var route: String, var icon: FaIconType, var title: String) {
         object Location : SubPages("location", FaIcons.Home, "Location")
         object Trip : SubPages("trip", FaIcons.Home, "Trip")
+        object GooglePlace : SubPages("googlePlace", FaIcons.Home, "Place")
     }
 
 

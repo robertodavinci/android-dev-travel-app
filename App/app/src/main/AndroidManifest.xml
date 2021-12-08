@@ -3,6 +3,8 @@
     package="com.apps.travel_app">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
     <application
         android:allowBackup="true"
@@ -49,6 +51,11 @@
             android:theme="@style/Theme.Travel_App.NoActionBar">
 
         </activity>
+
+        <activity
+            android:name=".ui.pages.AroundMeActivity"
+            android:exported="true"
+            android:theme="@style/Theme.Travel_App.NoActionBar"/>
 
         <activity
             android:name=".ui.pages.TripActivity"
