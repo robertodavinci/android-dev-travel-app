@@ -23,8 +23,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.apps.travel_app.MainActivity
+import com.apps.travel_app.models.Country
 import com.apps.travel_app.models.Destination
 import com.apps.travel_app.models.Trip
+import com.apps.travel_app.models.addCountry
 import com.apps.travel_app.ui.components.Heading
 import com.apps.travel_app.ui.components.Loader
 import com.apps.travel_app.ui.components.MainCard
@@ -36,6 +38,7 @@ import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.google.android.libraries.maps.model.LatLng
 import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
@@ -64,6 +67,9 @@ fun HomeScreen(navController: NavController, mainActivity: MainActivity) {
         getActiveTrip()
     }
 
+
+    // TRY
+    //addCountry(Firebase.firestore, Country("Germany", "GER", "EUR"))
 
 
     Column(

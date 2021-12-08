@@ -697,6 +697,8 @@ class LoginActivity : ComponentActivity() {
                         Log.d("Google Login ", "signInWithCredential:success")
                         val user = auth.currentUser
                         Log.d("CURRENT USER 1", auth.currentUser.toString())
+                        // Log.i("UserTT toString ", task.getResult().additionalUserInfo?.isNewUser().toString())
+                        if(task.getResult().additionalUserInfo?.isNewUser() == true) addUserCheck(auth.currentUser, auth.currentUser?.displayName)
                         if(googleLog) loginSuccess(user, this)
                         else linkAccount(secondCredential)
                     } else {
@@ -715,7 +717,8 @@ class LoginActivity : ComponentActivity() {
                     // Sign in success, update UI with the signed-in user's information
                     Log.d("Facebook Login - Token", "signInWithCredential:success")
                     val user = auth.currentUser
-                    Log.i("User toString ", user.toString())
+                    //Log.i("UserTT toString ", task.getResult().additionalUserInfo?.isNewUser().toString())
+                    if(task.getResult().additionalUserInfo?.isNewUser() == true) addUserCheck(auth.currentUser, auth.currentUser?.displayName)
                     loginSuccess(user,this)
                 } else {
                     Log.w("Facebook Login - Token", "signInWithCredential:failure", task.exception)
@@ -732,8 +735,7 @@ class LoginActivity : ComponentActivity() {
             }
     }
 
-    private fun addUserCheck(user: FirebaseUser?, displayName: String){
-        val db = Firebase.firestore
+    private fun addUserCheck(user: FirebaseUser?, displayName: String?){
         displayName?.let { it1 ->
             Firebase.auth.currentUser?.uid?.let {
                     it2 ->
