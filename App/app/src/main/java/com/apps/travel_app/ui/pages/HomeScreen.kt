@@ -1,5 +1,6 @@
 package com.apps.travel_app.ui.pages
 
+import android.util.Log
 import com.apps.travel_app.R
 import androidx.compose.material.MaterialTheme
 import androidx.compose.foundation.background
@@ -33,6 +34,9 @@ import com.apps.travel_app.ui.theme.textHeading
 import com.apps.travel_app.ui.utils.sendPostRequest
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.google.android.libraries.maps.model.LatLng
+import com.google.firebase.auth.UserProfileChangeRequest
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.skydoves.landscapist.glide.GlideImage
@@ -46,6 +50,7 @@ var images: MutableState<Boolean> = mutableStateOf(false)
 fun HomeScreen(navController: NavController, mainActivity: MainActivity) {
 
 
+    Log.d("CurUsr --- ", Firebase.auth.currentUser.toString())
     val systemUiController = rememberSystemUiController()
     systemUiController.setSystemBarsColor(
         color = MaterialTheme.colors.background
@@ -58,6 +63,8 @@ fun HomeScreen(navController: NavController, mainActivity: MainActivity) {
         getImages()
         getActiveTrip()
     }
+
+
 
     Column(
         modifier = Modifier

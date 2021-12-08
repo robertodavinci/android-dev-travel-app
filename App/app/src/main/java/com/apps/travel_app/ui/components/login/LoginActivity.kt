@@ -49,6 +49,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.apps.travel_app.MainActivity
+import com.apps.travel_app.models.addUser
+import com.apps.travel_app.models.addUserPeferences
 import com.apps.travel_app.ui.components.Button
 import com.apps.travel_app.ui.components.Heading
 import com.apps.travel_app.ui.components.login.buttons.GoogleSignInButtonUI
@@ -69,6 +71,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.google.firebase.auth.*
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.functions.FirebaseFunctions
 import com.google.firebase.functions.ktx.functions
 import com.google.firebase.ktx.Firebase
@@ -206,31 +209,55 @@ class LoginActivity : ComponentActivity() {
     }
 
 
-    private fun createAccount(email: String, password: String) {
+    private fun createAccount(email: String, password: String, displayName: String) {
         // [START create_user_with_email]
         auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
-                    // Sign in success, update UI with the signed-in user's information
-                    Log.d("Registration info", "createUserWithEmail:success")
-                    val user = auth.currentUser
-
-                    Toast.makeText(
-                        baseContext, "Account creation successful.",
-                        Toast.LENGTH_SHORT
-                    ).show()
-
-                    val intent = Intent(this, MainActivity::class.java)
-                    startActivity(intent)
-                } else {
-                    Log.w("Registration info", "createUserWithEmail:failure", task.exception)
-                    com.google.android.material.snackbar.Snackbar.make(
-                        View(this@LoginActivity),
-                        "Account creation failed: " + task.exception?.localizedMessage,
-                        com.google.android.material.snackbar.Snackbar.LENGTH_LONG
-                    ).show()
-
+                    auth.currentUser?.let { auth.updateCurrentUser(it) }
+                    Log.d("CurUsrBefore - ", auth.currentUser?.email.toString())
+                    auth.signInWithEmailAndPassword(email, password)
+                        .addOnCompleteListener(this) { task ->
+                            if (task.isSuccessful) {
+                                // Sign in success, update UI with the signed-in user's information
+                                Log.d("Registration info", "createUserWithEmail:success")
+                                Log.d("DisplayName ", displayName)
+                                //val user = auth.currentUser
+                                val profileUpdates: UserProfileChangeRequest  = UserProfileChangeRequest.Builder()
+                                    .setDisplayName(displayName).build()
+                                auth.currentUser?.updateProfile(profileUpdates)?.addOnCompleteListener(this ) {
+                                    task -> if (task.isSuccessful){
+                                        Log.d("Update user profile ", " displayName")
+                                    /*Log.d("CurUsr - ", auth.currentUser?.email.toString())
+                                    Log.d("CurUsr Name - ", auth.currentUser?.displayName.toString())
+                                    Log.d("CurUsr Name CU - ", auth.currentUser?.displayName.toString())*/
+                                    Toast.makeText(
+                                        baseContext, "Account creation successful.",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                    addUserCheck(auth.currentUser, displayName)
+                                    loginSuccess(auth.currentUser, this,)
+                                    val intent = Intent(this, MainActivity::class.java)
+                                    startActivity(intent)
+                                    }
+                                    else Log.d("Error ", "- Something doesn't work")
+                                }
+                            } else {
+                                Log.w(
+                                    "Registration error - Registration completed, sign-in failed- ",
+                                    "createUserWithEmail:success; signInWithEmailAndPassword:failure",
+                                    task.exception
+                                )
+                            }
+                        }
                 }
+                    else {
+                       Log.w(
+                            "Registration error - Registration failed - ",
+                            "createUserWithEmail:failure",
+                            task.exception
+                        )
+                    }
             }
     }
 
@@ -296,6 +323,8 @@ class LoginActivity : ComponentActivity() {
         val emailErrorState = remember { mutableStateOf(false) }
         val passwordErrorState = remember { mutableStateOf(false) }
         val password = remember { mutableStateOf(TextFieldValue()) }
+        val displayName = remember { mutableStateOf(TextFieldValue()) }
+        val displayNameErrorState = remember { mutableStateOf(false) }
 
         val topColor = Color(0xFF00EEFF)
 
@@ -385,7 +414,68 @@ class LoginActivity : ComponentActivity() {
                     )
                 }
                 if (emailErrorState.value) {
-                    Text(text = "Required", color = danger)
+                    Text(text = "Required", color = Color.Yellow)
+                }
+                if (!logreg) {
+                    Spacer(Modifier.padding(cardPadding))
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .graphicsLayer {
+                                shape = RoundedCornerShape(100)
+                                clip = true
+                            }
+                            .background(Color(0x88FFFFFF))
+                    ) {
+                        Box(modifier = Modifier
+                            .size(60.dp)
+                            .graphicsLayer {
+                                shape = RoundedCornerShape(100)
+                                clip = true
+                            }
+                            .background(White)) {
+                            FaIcon(
+                                FaIcons.Lock,
+                                tint = primaryColor,
+                                modifier = Modifier.align(Alignment.Center)
+                            )
+                        }
+                        TextField(
+                            colors = TextFieldDefaults.textFieldColors(
+                                focusedIndicatorColor = Transparent,
+                                disabledIndicatorColor = Transparent,
+                                unfocusedIndicatorColor = Transparent,
+                                backgroundColor = Transparent,
+                            ),
+                            modifier = Modifier
+                                .height(60.dp)
+                                .weight(1f),
+                            placeholder = {
+                                Text(
+                                    "Username",
+                                    color = White,
+                                    modifier = Modifier.alpha(0.5f)
+                                )
+                            },
+                            trailingIcon = { FaIcon(FaIcons.Asterisk, tint = White, size = 12.dp) },
+                            singleLine = true,
+                            textStyle = TextStyle(
+                                color = White,
+                                fontWeight = FontWeight.Bold
+                            ),
+                            value = displayName.value,
+                            onValueChange = {
+                                if (displayNameErrorState.value) {
+                                    displayNameErrorState.value = false
+                                }
+                                displayName.value = it
+                            },
+                            isError = displayNameErrorState.value
+                        )
+                    }
+                    if (displayNameErrorState.value) {
+                        Text(text = "Required", color = Color.Yellow)
+                    }
                 }
                 Spacer(Modifier.padding(cardPadding))
                 val passwordVisibility = remember { mutableStateOf(true) }
@@ -446,7 +536,7 @@ class LoginActivity : ComponentActivity() {
                     )
                 }
                 if (passwordErrorState.value) {
-                    Text(text = "Required", color = Color.Red)
+                    Text(text = "Required", color = Color.Yellow)
                 }
                 Spacer(Modifier.padding(cardPadding))
 
@@ -499,10 +589,10 @@ class LoginActivity : ComponentActivity() {
                             .fillMaxWidth()
                             .pointerInput(Unit) {
                                 detectTapGestures(
-                                        onTap = {
-                                            navigationController.navigate("registrationScreen") {
-                                                popUpTo(navigationController.graph.startDestinationId)
-                                                launchSingleTop = true
+                                    onTap = {
+                                        navigationController.navigate("registrationScreen") {
+                                            popUpTo(navigationController.graph.startDestinationId)
+                                            launchSingleTop = true
                                         }
                                     }
                                 )
@@ -523,13 +613,17 @@ class LoginActivity : ComponentActivity() {
                                 password.value.text.isEmpty() -> {
                                     passwordErrorState.value = true
                                 }
+                                displayName.value.text.isEmpty() -> {
+                                    displayNameErrorState.value = true
+                                }
                                 else -> {
                                     passwordErrorState.value = false
                                     emailErrorState.value = false
+                                    displayNameErrorState.value = false
                                     Log.i("Account check", "Opening function")
                                     Log.i("Email try", email.value.text)
                                     Log.i("Pass try", password.value.text)
-                                    createAccount(email.value.text, password.value.text)
+                                    createAccount(email.value.text, password.value.text, displayName.value.text)
                                     Log.i("Account check 2", "Results")
                                 }
                             }
@@ -590,7 +684,7 @@ class LoginActivity : ComponentActivity() {
         }
     }
 
-    private fun LoginSuccess(user: FirebaseUser?,context: Context){
+    private fun loginSuccess(user: FirebaseUser?,context: Context){
         val intent = Intent(context, MainActivity::class.java)
         startActivity(intent)
     }
@@ -603,7 +697,7 @@ class LoginActivity : ComponentActivity() {
                         Log.d("Google Login ", "signInWithCredential:success")
                         val user = auth.currentUser
                         Log.d("CURRENT USER 1", auth.currentUser.toString())
-                        if(googleLog) LoginSuccess(user, this)
+                        if(googleLog) loginSuccess(user, this)
                         else linkAccount(secondCredential)
                     } else {
                         Log.w("Google Login ", "signInWithCredential:failure", task.exception)
@@ -622,7 +716,7 @@ class LoginActivity : ComponentActivity() {
                     Log.d("Facebook Login - Token", "signInWithCredential:success")
                     val user = auth.currentUser
                     Log.i("User toString ", user.toString())
-                    LoginSuccess(user,this)
+                    loginSuccess(user,this)
                 } else {
                     Log.w("Facebook Login - Token", "signInWithCredential:failure", task.exception)
                     /*com.google.android.material.snackbar.Snackbar.make(
@@ -638,6 +732,17 @@ class LoginActivity : ComponentActivity() {
             }
     }
 
+    private fun addUserCheck(user: FirebaseUser?, displayName: String){
+        val db = Firebase.firestore
+        displayName?.let { it1 ->
+            Firebase.auth.currentUser?.uid?.let {
+                    it2 ->
+                Log.i("Detaljcici--- ", it1 + " " + it2)
+                addUser(Firebase.firestore, it1, it2)
+            }
+        }
+    }
+
     private fun linkAccount(credential: AuthCredential) {
         // Create EmailAuthCredential with email and password
         //val credential = EmailAuthProvider.getCredential("", "")
@@ -648,7 +753,7 @@ class LoginActivity : ComponentActivity() {
                 if (task.isSuccessful) {
                     Log.d("LinkCredential", "linkWithCredential:success")
                     val user = task.result?.user
-                    LoginSuccess(user,this)
+                    loginSuccess(user,this)
                 } else {
                     Log.w("LinkCredential", "linkWithCredential:failure", task.exception)
                     Toast.makeText(baseContext, "Authentication failed.",
@@ -658,5 +763,4 @@ class LoginActivity : ComponentActivity() {
             }
         // [END link_credential]
     }
-
 }

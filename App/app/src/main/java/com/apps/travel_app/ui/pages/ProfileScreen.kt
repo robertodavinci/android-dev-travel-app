@@ -25,13 +25,19 @@ import com.apps.travel_app.ui.theme.followSystem
 import com.facebook.login.LoginManager
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.FirebaseFirestoreSettings
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.firestore.ktx.firestoreSettings
 import com.google.firebase.ktx.Firebase
 import com.guru.fontawesomecomposelib.FaIcon
-
+import com.apps.travel_app.models.addUser
 
 
 @Composable
 fun ProfileScreen(activity: MainActivity) {
+
+    val db = Firebase.firestore
 
 
     val systemUiController = rememberSystemUiController()
@@ -59,7 +65,11 @@ fun ProfileScreen(activity: MainActivity) {
         Heading("Astronaut preferences")
 
 
-        NiceSwitch(true, onChecked = { }, NiceSwitchStates(FaIcons.Tractor, FaIcons.City))
+        NiceSwitch(true, onChecked = {
+        },
+            NiceSwitchStates(FaIcons.Tractor, FaIcons.City))
+
+
         NiceSwitch(
             true,
             onChecked = { },
@@ -82,3 +92,14 @@ fun ProfileScreen(activity: MainActivity) {
 
     }
 }
+
+private fun setupCacheSize(db: FirebaseFirestore) {
+    // [START fs_setup_cache]
+    val settings = firestoreSettings {
+        cacheSizeBytes = FirebaseFirestoreSettings.CACHE_SIZE_UNLIMITED
+    }
+    db.firestoreSettings = settings
+    // [END fs_setup_cache]
+}
+
+

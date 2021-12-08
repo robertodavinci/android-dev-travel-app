@@ -29,7 +29,9 @@ import com.apps.travel_app.ui.components.login.User
 import com.apps.travel_app.ui.pages.*
 import com.apps.travel_app.ui.theme.MainActivity_Travel_AppTheme
 import com.facebook.login.LoginManager
+import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.guru.fontawesomecomposelib.FaIconType
@@ -40,6 +42,8 @@ class MainActivity : ComponentActivity() {
     private var destination: Destination? = null
     lateinit var navController: NavHostController
     var prova: MutableState<Boolean> = mutableStateOf(true)
+
+
 
     @OptIn(ExperimentalFoundationApi::class,
         androidx.compose.animation.ExperimentalAnimationApi::class,
@@ -98,9 +102,9 @@ class MainActivity : ComponentActivity() {
             DB::class.java, "travel-db"
         ).build()*/
 
-
+      /* val db: FirebaseFirestore = Firebase.firestore
         // Firebase database auth
-        val db = Firebase.firestore
+        // val db = Firebase.firestore
        /* val settings = firestoreSettings {
             isPersistenceEnabled = true
         }
@@ -108,7 +112,7 @@ class MainActivity : ComponentActivity() {
         */
 
         // Create a new user with a first and last name
-       /* val user = hashMapOf(
+       val user = hashMapOf(
             "first" to "Ada",
             "last" to "Lovelace",
             "born" to 1815
@@ -122,8 +126,17 @@ class MainActivity : ComponentActivity() {
             }
             .addOnFailureListener { e ->
                 Log.w("Firestore", "Error adding document", e)
-            }
-*/
+            }*/
+
+
+
+        // IS USER NEW
+        /* val metadata = auth.currentUser!!.metadata
+         if (metadata!!.creationTimestamp == metadata!!.lastSignInTimestamp) {
+             // The user is new, show them a fancy intro screen!
+         } else {
+             // This is an existing user, show them a welcome back screen.
+         }*/
 
 
         val sharedPref = PreferenceManager.getDefaultSharedPreferences(this)
