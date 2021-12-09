@@ -66,6 +66,9 @@ fun ProfileScreen(activity: MainActivity) {
 
 
         NiceSwitch(true, onChecked = {
+                                     // Image upload
+
+
         },
             NiceSwitchStates(FaIcons.Tractor, FaIcons.City))
 

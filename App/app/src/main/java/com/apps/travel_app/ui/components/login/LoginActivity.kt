@@ -685,6 +685,7 @@ class LoginActivity : ComponentActivity() {
     }
 
     private fun loginSuccess(user: FirebaseUser?,context: Context){
+        // Update user preferences!!!
         val intent = Intent(context, MainActivity::class.java)
         startActivity(intent)
     }

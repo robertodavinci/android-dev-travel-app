@@ -7,11 +7,12 @@ import androidx.compose.ui.graphics.ImageBitmap
 import java.util.*
 
 open class Destination() : Parcelable {
-    var id: Int = 0
+    var id: String = ""
     var latitude: Double = 0.0
     var longitude: Double = 0.0
     var type: String = ""
-    var country: Country = Country()
+    //var country: Country = Country()
+    var country: String = ""
     var thumbnail: ImageBitmap? = null
     var name: String = "Unknown"
     var thumbnailUrl: String = "https://render.fineartamerica.com/images/rendered/default/print/8.000/8.000/break/images-medium-5/lost-astronaut-roberta-ferreira.jpg"
@@ -21,7 +22,7 @@ open class Destination() : Parcelable {
     var isOpen: Boolean = false
 
     constructor(parcel: Parcel) : this() {
-        id = parcel.readInt()
+        id = parcel.readString() ?: ""
         latitude = parcel.readDouble()
         longitude = parcel.readDouble()
         type = parcel.readString() ?: ""
@@ -36,7 +37,7 @@ open class Destination() : Parcelable {
     }
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
-        parcel.writeInt(id)
+        parcel.writeString(id)
         parcel.writeDouble(latitude)
         parcel.writeDouble(longitude)
         parcel.writeString(type)

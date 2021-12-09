@@ -1,6 +1,10 @@
 package com.apps.travel_app.models
 
+import android.content.Context
+import android.content.Intent
 import android.util.Log
+import androidx.core.app.ActivityCompat.startActivityForResult
+import com.apps.travel_app.MainActivity
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 
@@ -48,6 +52,19 @@ fun addUserPeferences(db: FirebaseFirestore, userId: String){
     }
 }
 
+fun addDestination(db: FirebaseFirestore, destination: Destination){
+    val destinationDocument = db.collection("destinations")
+    destinationDocument.add(destination)
+        .addOnSuccessListener {   documentReference ->
+          destinationDocument.document(documentReference.id).update("destination_id", documentReference.id).addOnSuccessListener {
+              Log.d("Destination adding", "DocumentSnapshot added with ID: ${documentReference.id}")
+          }
+            }
+        .addOnFailureListener{ e ->
+                Log.w("Destination adding", "Error adding document", e)
+            }
+}
+
 fun addCountry(db: FirebaseFirestore, country: Country){
     val countrySet = hashMapOf(
         "acronym" to country.acronym,
@@ -72,6 +89,10 @@ fun updateUserInfo(db: FirebaseFirestore, userId: String, newDisplayName: String
     }
 }
 
+fun updateDestination(db: FirebaseFirestore, destination: Destination){
+    val destinationDocument = db.collection("destinations").document(destination.id)
+}
+
 fun updateUserPreferences(db: FirebaseFirestore, userId: String, colour: Boolean?, economy: Int?, name: String?, surname: String?){
     val userPref = db.collection("users").document(userId).collection("user_preferences").
     document(userId)
@@ -82,6 +103,17 @@ fun updateUserPreferences(db: FirebaseFirestore, userId: String, colour: Boolean
     if(name != null) data["colour"] = name
     if(surname != null) data["colour"] = surname
     userPref.let { if(data.isNotEmpty()) it.update("colour",true) }
+}
+
+//
+
+
+fun uploadImage(){
+
+}
+
+fun selectImage(){
+
 }
 
 
