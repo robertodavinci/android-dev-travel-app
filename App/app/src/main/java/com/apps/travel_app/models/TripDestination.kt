@@ -2,45 +2,38 @@ package com.apps.travel_app.models
 
 import android.os.Parcel
 import android.os.Parcelable
+import androidx.compose.ui.graphics.ImageBitmap
 import com.guru.fontawesomecomposelib.FaIconType
 
-class TripDestination : Destination {
+class TripDestination : Destination() {
     var kmToNextDestination: Float = 0f
     var minutesToNextDestination: Float = 0f
     var mediumToNextDestination: MediumType? = MediumType.Foot
     var hour: String = ""
     var minutes: Int = 0
     var visited: Boolean = false
+    var notes: ArrayList<String> = arrayListOf()
+    var images: ArrayList<String> = arrayListOf()
 
-    constructor()
 
-    constructor(parcel: Parcel) : super(parcel) {
-        kmToNextDestination = parcel.readFloat()
-        minutesToNextDestination = parcel.readFloat()
-        val i = parcel.readInt()
-        mediumToNextDestination = if (i >= 0) MediumType.values()[i] else null
-        hour = parcel.readString()!!
-        minutes = parcel.readInt()
-        visited = parcel.readInt() > 0
-    }
 
-    override fun writeToParcel(parcel: Parcel, flags: Int) {
-        super.writeToParcel(parcel, flags)
-        parcel.writeFloat(kmToNextDestination)
-        parcel.writeFloat(minutesToNextDestination)
-        parcel.writeInt(mediumToNextDestination?.ordinal ?: -1)
-        parcel.writeString(hour)
-        parcel.writeInt(minutes)
-        parcel.writeInt(if (visited) 1 else 0)
-    }
+    companion object {
 
-    companion object CREATOR : Parcelable.Creator<TripDestination> {
-        override fun createFromParcel(parcel: Parcel): TripDestination {
-            return TripDestination(parcel)
-        }
-
-        override fun newArray(size: Int): Array<TripDestination?> {
-            return arrayOfNulls(size)
+        operator fun invoke(it: Destination): TripDestination {
+            val trip = TripDestination()
+            trip.id = it.id
+            trip.latitude = it.latitude
+            trip.longitude = it.longitude
+            trip.type = it.type
+            trip.thumbnail = it.thumbnail
+            trip.name = it.name
+            trip.thumbnailUrl = it.thumbnailUrl
+            trip.rating = it.rating
+            trip.description = it.description
+            trip.priceLevel = it.priceLevel
+            trip.isOpen = it.isOpen
+            trip.address = it.address
+            return trip
         }
     }
 }

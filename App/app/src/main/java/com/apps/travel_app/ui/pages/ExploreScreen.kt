@@ -61,6 +61,26 @@ import java.lang.Math.random
 import kotlin.math.roundToInt
 
 
+val filterIcons = arrayListOf(
+    FilterIcon(FaIcons.Cocktail, "Bar"),
+    FilterIcon(FaIcons.DrumstickBite, "Restaurant"),
+    FilterIcon(FaIcons.Hotel, "Lodging"),
+    FilterIcon(FaIcons.DollarSign, "Bank"),
+    FilterIcon(FaIcons.Opencart, "Supermarket"),
+    FilterIcon(FaIcons.GasPump, "Gas_Station"),
+    FilterIcon(FaIcons.HatCowboy, "Tourist_attraction"),
+    FilterIcon(FaIcons.Monument, "Museum"),
+    FilterIcon(FaIcons.Running, "Gym"),
+    FilterIcon(FaIcons.Taxi, "Taxi_stand"),
+    FilterIcon(FaIcons.Bus, "Bus_station"),
+    FilterIcon(FaIcons.Train, "Train_station"),
+    FilterIcon(FaIcons.Parking, "parking"),
+    FilterIcon(FaIcons.Film, "cinema"),
+    FilterIcon(FaIcons.Coffee, "cafe"),
+    FilterIcon(FaIcons.Church, "church"),
+    FilterIcon(FaIcons.Mosque, "mosque")
+)
+
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ExploreScreen(navController: NavController, mainActivity: MainActivity) {
@@ -88,25 +108,7 @@ fun ExploreScreen(navController: NavController, mainActivity: MainActivity) {
     if (loadingScreen.value > 5)
         mapView = rememberMapViewWithLifecycle()
 
-    val filterIcons = arrayListOf(
-        FilterIcon(FaIcons.Cocktail, "Bar"),
-        FilterIcon(FaIcons.DrumstickBite, "Restaurant"),
-        FilterIcon(FaIcons.Hotel, "Lodging"),
-        FilterIcon(FaIcons.DollarSign, "Bank"),
-        FilterIcon(FaIcons.Opencart, "Supermarket"),
-        FilterIcon(FaIcons.GasPump, "Gas_Station"),
-        FilterIcon(FaIcons.HatCowboy, "Tourist_attraction"),
-        FilterIcon(FaIcons.Monument, "Museum"),
-        FilterIcon(FaIcons.Running, "Gym"),
-        FilterIcon(FaIcons.Taxi, "Taxi_stand"),
-        FilterIcon(FaIcons.Bus, "Bus_station"),
-        FilterIcon(FaIcons.Train, "Train_station"),
-        FilterIcon(FaIcons.Parking, "parking"),
-        FilterIcon(FaIcons.Film, "cinema"),
-        FilterIcon(FaIcons.Coffee, "cafe"),
-        FilterIcon(FaIcons.Church, "church"),
-        FilterIcon(FaIcons.Mosque, "mosque")
-    )
+
 
 
     fun addMarker(position: LatLng, index: Int, name: String) {

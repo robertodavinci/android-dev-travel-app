@@ -13,6 +13,7 @@ import android.graphics.*
 import android.graphics.drawable.Animatable
 import android.graphics.drawable.Drawable
 import android.os.Bundle
+import android.preference.PreferenceManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
@@ -207,6 +208,8 @@ class AroundMeActivity : ComponentActivity() {
             getLastKnownLocation()
         }
 
+        val sharedPref = PreferenceManager.getDefaultSharedPreferences(this)
+        val systemTheme = sharedPref.getBoolean("darkTheme", true)
 
         setContent {
             val state = rememberTransformableState { zoomChange, _, _ ->
@@ -215,7 +218,7 @@ class AroundMeActivity : ComponentActivity() {
             locations = remember { mutableStateOf(ArrayList()) }
             radius = remember { mutableStateOf(radius.value) }
             destinationSelected = remember { mutableStateOf(null) }
-            Travel_AppTheme {
+            Travel_AppTheme(systemTheme = systemTheme) {
                 Surface(color = colors.background) {
                     Box(modifier = Modifier.transformable(state = state)) {
 

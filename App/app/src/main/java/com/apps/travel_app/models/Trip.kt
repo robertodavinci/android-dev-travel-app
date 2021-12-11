@@ -3,8 +3,12 @@ package com.apps.travel_app.models
 import android.os.Parcel
 import android.os.Parcelable
 import androidx.compose.ui.graphics.ImageBitmap
+import com.apps.travel_app.ui.components.login.User
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 
-class Trip() : Parcelable {
+
+class Trip() {
     var id: Int = 0
     var startingPoint: Destination = Destination()
     var days: Int = 1
@@ -17,63 +21,9 @@ class Trip() : Parcelable {
     var name: String = ""
     var thumbnailUrl: String = ""
     var rating: Float = 0f
-    var destinations: ArrayList<TripDestination> = arrayListOf(
-        TripDestination(),
-        TripDestination(),
-        TripDestination()
-    )
+    var destinationsPerDay: ArrayList<ArrayList<TripDestination>> = ArrayList()
     var description : String =""
     var season: String = ""
     var creationDate: String = ""
     var mine: Boolean = false
-
-    constructor(parcel: Parcel) : this() {
-        id = parcel.readInt()
-        days = parcel.readInt()
-        val attributesArray = ArrayList<String>()
-        parcel.readList(attributesArray, String::class.java.classLoader)
-        attributes = attributesArray
-        creator = parcel.readString()!!
-        name = parcel.readString()!!
-        thumbnailUrl = parcel.readString()!!
-        rating = parcel.readFloat()
-        val mObjArray = ArrayList<TripDestination>()
-        parcel.readTypedList(mObjArray, TripDestination.CREATOR)
-        destinations = mObjArray
-        startingPoint = parcel.readTypedObject(Destination.CREATOR) ?: Destination()
-        season = parcel.readString()!!
-        description = parcel.readString()!!
-        creationDate = parcel.readString()!!
-        mine = parcel.readInt() > 0
-    }
-
-    override fun writeToParcel(parcel: Parcel, flags: Int) {
-        parcel.writeInt(id)
-        parcel.writeInt(days)
-        parcel.writeList(attributes)
-        parcel.writeString(creator)
-        parcel.writeString(name)
-        parcel.writeString(thumbnailUrl)
-        parcel.writeFloat(rating)
-        parcel.writeTypedList(destinations)
-        parcel.writeTypedObject(startingPoint, flags)
-        parcel.writeString(season)
-        parcel.writeString(description)
-        parcel.writeString(creationDate)
-        parcel.writeInt(if (mine) 1 else 0)
-    }
-
-    override fun describeContents(): Int {
-        return 0
-    }
-
-    companion object CREATOR : Parcelable.Creator<Trip> {
-        override fun createFromParcel(parcel: Parcel): Trip {
-            return Trip(parcel)
-        }
-
-        override fun newArray(size: Int): Array<Trip?> {
-            return arrayOfNulls(size)
-        }
-    }
 }

@@ -24,10 +24,21 @@ import androidx.compose.ui.unit.dp
 import com.apps.travel_app.models.Rating
 import com.apps.travel_app.ui.theme.*
 import com.skydoves.landscapist.glide.GlideImage
+import java.text.SimpleDateFormat
+import java.util.*
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun RatingCard(rating: Rating) {
+
+    fun epochToDate(netDate: Long): String {
+        if (netDate > 0) {
+            val simpleDateFormat = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
+            val date = Date(netDate * 1000)
+            return simpleDateFormat.format(date)
+        }
+        return ""
+    }
 
     val open = remember { mutableStateOf(false) }
     val maxHeight: Float by animateFloatAsState(
@@ -63,11 +74,21 @@ fun RatingCard(rating: Rating) {
             Column(
                 modifier = Modifier.padding(cardPadding)
             ) {
-                RatingBar(
-                    rating = rating.rating,
-                    modifier = Modifier.height(17.dp),
-                    emptyColor = Color(0x448888AA)
-                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    RatingBar(
+                        rating = rating.rating,
+                        modifier = Modifier.height(17.dp),
+                        emptyColor = Color(0x448888AA)
+                    )
+                    Text(
+                        text = epochToDate(rating.time),
+                        fontSize = textExtraSmall,
+                        color = MaterialTheme.colors.surface,
+                    )
+                }
                 Text(
                     text = rating.message,
                     fontSize = textNormal,

@@ -54,6 +54,7 @@ import com.google.android.libraries.maps.model.MarkerOptions
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import com.guru.fontawesomecomposelib.FaIcon
 import com.guru.fontawesomecomposelib.FaIconType
 import kotlinx.coroutines.CoroutineScope
@@ -70,11 +71,21 @@ class ActiveTripActivity : ComponentActivity() {
         val sharedPref = PreferenceManager.getDefaultSharedPreferences(this)
         val systemTheme = sharedPref.getBoolean("darkTheme", true)
 
+        val tripId = intent.getIntExtra("tripId",0)
+
         setContent {
+            var trip: Trip? by remember {mutableStateOf(null)}
+            Thread {
+                val request = tripId.toString()
+                val ratingsText = sendPostRequest(request, action = "trip")
+                val gson = Gson()
+                val itemType = object : TypeToken<Trip>() {}.type
+                trip = gson.fromJson(ratingsText, itemType)
+            }.start()
             Travel_AppTheme(systemTheme = systemTheme) {
-                val trip = intent.getParcelableExtra<Trip>("trip")
+
                 if (trip != null) {
-                    TripScreen(trip)
+                    TripScreen(trip!!)
                 }
             }
         }
@@ -101,14 +112,17 @@ class ActiveTripActivity : ComponentActivity() {
         val loadingScreen = remember { mutableStateOf(0) }
         val map: MutableState<GoogleMap?> = remember { mutableStateOf(null) }
         val mapLoaded = remember { mutableStateOf(false) }
-        var selectedDay by remember { mutableStateOf(0) }
+        var selectedDay by remember { mutableStateOf(1) }
 
         var icon: FaIconType? = null
-        weatherChip(latitude = trip.startingPoint.latitude, longitude = trip.startingPoint.longitude) {
+        weatherChip(
+            latitude = trip.startingPoint.latitude,
+            longitude = trip.startingPoint.longitude
+        ) {
             icon = it
         }
 
-        var steps by remember { mutableStateOf(trip.destinations) }
+        var steps by remember { mutableStateOf(trip.destinationsPerDay[selectedDay - 1]) }
 
         fun mapInit() {
             map.value!!.uiSettings.isZoomControlsEnabled = false
@@ -132,7 +146,7 @@ class ActiveTripActivity : ComponentActivity() {
             )
 
             map.value!!.clear()
-            for ((index, step) in trip.destinations.withIndex()) {
+            for ((index, step) in trip.destinationsPerDay[selectedDay - 1].withIndex()) {
                 val markerOptions = MarkerOptions()
                     .position(
                         LatLng(
@@ -236,9 +250,11 @@ class ActiveTripActivity : ComponentActivity() {
                     ) {
                         item {
                             Column {
-                                Button(onClick = {},background = danger, modifier = Modifier
-                                    .align(CenterHorizontally)
-                                    .padding(5.dp)) {
+                                Button(
+                                    onClick = {}, background = danger, modifier = Modifier
+                                        .align(CenterHorizontally)
+                                        .padding(5.dp)
+                                ) {
                                     Row {
                                         FaIcon(FaIcons.Stop, tint = White, size = 18.dp)
                                         Spacer(modifier = Modifier.width(5.dp))
@@ -250,7 +266,7 @@ class ActiveTripActivity : ComponentActivity() {
                                     modifier = Modifier.align(CenterHorizontally),
                                     horizontalArrangement = Arrangement.SpaceAround,
                                 ) {
-                                    items(trip.days) { i ->
+                                    items(trip.destinationsPerDay.size) { i ->
                                         val background =
                                             if (i == selectedDay) primaryColor else colors.onBackground
                                         val foreground =
@@ -319,27 +335,22 @@ class ActiveTripActivity : ComponentActivity() {
                                     modifier = Modifier.padding(cardPadding)
                                 )
 
-                                Row(
-                                    modifier = Modifier.padding(cardPadding / 3)
+                                FlexibleRow(
+                                    alignment = CenterHorizontally,
+                                    modifier = Modifier
+                                        .scale(0.8f)
+                                        .weight(1f)
+                                        .padding(cardPadding / 3)
                                 ) {
-
-                                    FlexibleRow(
-                                        alignment = CenterHorizontally,
-                                        modifier = Modifier
-                                            .align(CenterVertically)
-                                            .scale(0.8f)
-                                            .weight(1f)
-                                    ) {
-                                        Button(onClick = {}, modifier = Modifier.padding(5.dp)) {
-                                            Text("${trip.days} Day${if (trip.days > 1) "s" else ""}")
-                                        }
-                                        trip.attributes.forEach { activity ->
-                                            Button(
-                                                onClick = {},
-                                                modifier = Modifier.padding(5.dp)
-                                            ) {
-                                                Text(activity)
-                                            }
+                                    Button(onClick = {}, modifier = Modifier.padding(5.dp)) {
+                                        Text("${trip.destinationsPerDay.size} Day${if (trip.destinationsPerDay.size > 1) "s" else ""}")
+                                    }
+                                    trip.attributes.forEach { activity ->
+                                        Button(
+                                            onClick = {},
+                                            modifier = Modifier.padding(5.dp)
+                                        ) {
+                                            Text(activity)
                                         }
                                     }
 
@@ -371,7 +382,7 @@ class ActiveTripActivity : ComponentActivity() {
                                                         )
                                                 )
                                             }
-                                            TripStepCard(trip, place, index, onComplete = {
+                                            TripStepCard(place, index, onComplete = {
                                                 isCompleted = completed(steps)
                                             })
                                             if (index < steps.size - 1) {
@@ -411,7 +422,7 @@ class ActiveTripActivity : ComponentActivity() {
                                                                 fontSize = textSmall,
                                                                 modifier = Modifier
                                                                     .padding(start = 20.dp)
-                                                                    .align(Alignment.CenterVertically)
+                                                                    .align(CenterVertically)
                                                             )
                                                         }
                                                         if (!isCompleted) {
@@ -452,7 +463,8 @@ class ActiveTripActivity : ComponentActivity() {
                                     RatingField {
                                         val rating = it
                                         rating.entityId = trip.id
-                                        rating.username = Firebase.auth.currentUser?.displayName.toString()
+                                        rating.username =
+                                            Firebase.auth.currentUser?.displayName.toString()
                                         uploadRating(rating) { result ->
                                             if (result) {
                                                 reviewed = true

@@ -6,4 +6,5 @@ class Rating {
     var message: String = ""
     var entityId: Int = 0
     var id: Int = 0
+    var time: Long = 0
 }

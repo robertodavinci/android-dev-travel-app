@@ -1,6 +1,5 @@
 package com.apps.travel_app.ui.pages
 
-import androidx.compose.material.MaterialTheme
 import FaIcons
 import android.os.Bundle
 import android.preference.PreferenceManager
@@ -14,9 +13,10 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement.SpaceBetween
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.IconButton
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -26,16 +26,13 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Color.Companion.Black
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.FontWeight.Companion.Bold
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
-import com.apps.travel_app.R
 import com.apps.travel_app.models.MediumType
 import com.apps.travel_app.models.Rating
 import com.apps.travel_app.models.Trip
@@ -46,6 +43,7 @@ import com.apps.travel_app.ui.utils.markerPopUp
 import com.apps.travel_app.ui.utils.numberedMarker
 import com.apps.travel_app.ui.utils.rememberMapViewWithLifecycle
 import com.apps.travel_app.ui.utils.sendPostRequest
+import com.facebook.internal.Mutable
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.google.android.libraries.maps.CameraUpdateFactory
 import com.google.android.libraries.maps.GoogleMap
@@ -71,11 +69,21 @@ class TripActivity : ComponentActivity() {
         val sharedPref = PreferenceManager.getDefaultSharedPreferences(this)
         val systemTheme = sharedPref.getBoolean("darkTheme", true)
 
+        val tripId = intent.getIntExtra("tripId",0)
+
         setContent {
+            var trip: Trip? by remember {mutableStateOf(null)}
+            Thread {
+                val request = tripId.toString()
+                val ratingsText = sendPostRequest(request, action = "trip")
+                val gson = Gson()
+                val itemType = object : TypeToken<Trip>() {}.type
+                trip = gson.fromJson(ratingsText, itemType)
+            }.start()
             Travel_AppTheme(systemTheme = systemTheme) {
-                val trip = intent.getParcelableExtra<Trip>("trip")
+
                 if (trip != null) {
-                    TripScreen(trip)
+                    TripScreen(trip!!)
                 }
             }
         }
@@ -102,8 +110,9 @@ class TripActivity : ComponentActivity() {
         val loadingScreen = remember { mutableStateOf(0) }
         val map: MutableState<GoogleMap?> = remember { mutableStateOf(null) }
         val mapLoaded = remember { mutableStateOf(false) }
+        var selectedDay by remember { mutableStateOf(1) }
 
-        var steps by remember { mutableStateOf(trip.destinations) }
+        var steps by remember { mutableStateOf(trip.destinationsPerDay[selectedDay - 1]) }
 
         fun mapInit() {
             map.value!!.uiSettings.isZoomControlsEnabled = false
@@ -120,14 +129,14 @@ class TripActivity : ComponentActivity() {
             map.value!!.moveCamera(
                 CameraUpdateFactory.newLatLngZoom(
                     LatLng(
-                        trip.startingPoint.latitude,
-                        trip.startingPoint.longitude
+                        trip.startingPoint?.latitude,
+                        trip.startingPoint?.longitude
                     ), 6f
                 )
             )
 
             map.value!!.clear()
-            for ((index, step) in trip.destinations.withIndex()) {
+            for ((index, step) in trip.destinationsPerDay[selectedDay - 1].withIndex()) {
                 val markerOptions = MarkerOptions()
                     .position(
                         LatLng(
@@ -339,7 +348,7 @@ class TripActivity : ComponentActivity() {
                                             .weight(1f)
                                     ) {
                                         Button(onClick = {}, modifier = Modifier.padding(5.dp)) {
-                                            Text("${trip.days} Day${if (trip.days > 1) "s" else ""}")
+                                            Text("${trip.destinationsPerDay.size} Day${if (trip.destinationsPerDay.size > 1) "s" else ""}")
                                         }
                                         trip.attributes.forEach { activity ->
                                             Button(
@@ -371,6 +380,35 @@ class TripActivity : ComponentActivity() {
                                 }
                             }
 
+                            LazyRow(
+                                horizontalArrangement = Arrangement.SpaceAround,
+                            ) {
+                                items(trip.destinationsPerDay.size) { i ->
+                                    val background =
+                                        if (i == selectedDay) primaryColor else MaterialTheme.colors.onBackground
+                                    val foreground =
+                                        if (i == selectedDay) White else MaterialTheme.colors.surface
+                                    Button(
+                                        onClick = { selectedDay = i },
+                                        modifier = Modifier.padding(5.dp),
+                                        background = background
+                                    ) {
+                                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                            Text(
+                                                (i + 1).toString(),
+                                                color = foreground,
+                                                fontSize = textHeading
+                                            )
+                                            Text(
+                                                "day",
+                                                color = foreground,
+                                                fontSize = textSmall
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+
                             Box(
                                 modifier = Modifier
                                     .padding(cardPadding)
@@ -396,7 +434,7 @@ class TripActivity : ComponentActivity() {
                                                     )
                                             )
                                         }
-                                        TripStepCard(trip, place, index)
+                                        TripStepCard(place, index)
                                         if (index < steps.size - 1) {
                                             Box(
                                                 modifier = Modifier
@@ -430,7 +468,7 @@ class TripActivity : ComponentActivity() {
                                                             fontSize = textSmall,
                                                             modifier = Modifier
                                                                 .padding(start = 20.dp)
-                                                                .align(Alignment.CenterVertically)
+                                                                .align(CenterVertically)
                                                         )
                                                     }
                                                     if (trip.mine) {

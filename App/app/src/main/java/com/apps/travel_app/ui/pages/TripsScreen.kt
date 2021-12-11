@@ -92,7 +92,9 @@ fun TripsScreen(mainActivity: MainActivity) {
                 item {
 
                     Button(
-                        onClick = {},
+                        onClick = {
+                            mainActivity.createTrip()
+                        },
                         background = primaryColor,
                         modifier = Modifier.padding(5.dp)
                     ) {

@@ -81,14 +81,19 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    fun createTrip() {
+        val intent = Intent(this, TripCreationActivity::class.java)
+        startActivity(intent)
+    }
+
     fun setTrip(trip: Trip, active: Boolean = false) {
         if (active) {
             val intent = Intent(this, ActiveTripActivity::class.java)
-            intent.putExtra("trip", trip)
+            intent.putExtra("tripId", trip.id)
             startActivity(intent)
         } else {
             val intent = Intent(this, TripActivity::class.java)
-            intent.putExtra("trip", trip)
+            intent.putExtra("tripId", trip.id)
             startActivity(intent)
         }
 
