@@ -237,7 +237,7 @@ fun MainCard(
                         .fillMaxWidth()
                 ) {
                     GlideImage(
-                        imageModel = destination.thumbnailUrl ?: destination.thumbnail,
+                        imageModel = destination.thumbnailUrl ,
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(200.dp),

@@ -41,7 +41,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.apps.travel_app.models.Destination
 import com.apps.travel_app.models.MediumType
-import com.apps.travel_app.models.Trip
 import com.apps.travel_app.models.TripDestination
 import com.apps.travel_app.ui.components.Button
 import com.apps.travel_app.ui.components.FlexibleRow
@@ -77,7 +76,7 @@ class TripCreationActivity : ComponentActivity() {
             var locationSelection by remember { mutableStateOf(false) }
             var stepCursor by remember { mutableStateOf(0) }
             val initialDestinations: ArrayList<ArrayList<TripDestination>> =
-                arrayListOf(ArrayList<TripDestination>())
+                arrayListOf(ArrayList())
             var destinations by remember { mutableStateOf(initialDestinations) }
             var startingPoint: MutableState<Destination?> = remember { mutableStateOf(null) }
             var days by remember { mutableStateOf(1) }
@@ -155,7 +154,7 @@ class TripCreationActivity : ComponentActivity() {
                                     .background(colors.background)
                                     .padding(10.dp)
                                     .fillMaxSize(),
-                                horizontalAlignment = Alignment.CenterHorizontally
+                                horizontalAlignment = CenterHorizontally
                             ) {
                                 item {
                                     if (thumbnail.value != null) {
@@ -305,7 +304,7 @@ class TripCreationActivity : ComponentActivity() {
                                             val background =
                                                 if (i == selectedDay) primaryColor else colors.onBackground
                                             val foreground =
-                                                if (i == selectedDay) Color.White else colors.surface
+                                                if (i == selectedDay) White else colors.surface
                                             Button(
                                                 onClick = { selectedDay = i },
                                                 modifier = Modifier.padding(5.dp),
@@ -331,7 +330,7 @@ class TripCreationActivity : ComponentActivity() {
                                                     days++
                                                     val destinationsPerDay =
                                                         destinations.clone() as ArrayList<ArrayList<TripDestination>>
-                                                    destinationsPerDay.add(ArrayList<TripDestination>())
+                                                    destinationsPerDay.add(ArrayList())
                                                     destinations = destinationsPerDay
 
                                                     selectedDay = days - 1
@@ -423,7 +422,7 @@ class TripCreationActivity : ComponentActivity() {
                                                                 fontSize = textSmall,
                                                                 modifier = Modifier
                                                                     .padding(start = 20.dp)
-                                                                    .align(Alignment.CenterVertically)
+                                                                    .align(CenterVertically)
                                                             )
                                                         }
                                                         IconButton(
@@ -541,7 +540,7 @@ class TripCreationActivity : ComponentActivity() {
                     Row {
                         Text(
                             text,
-                            color = if (selectedTag == text) Color.White else colors.surface,
+                            color = if (selectedTag == text) White else colors.surface,
                             fontSize = textSmall
                         )
                     }

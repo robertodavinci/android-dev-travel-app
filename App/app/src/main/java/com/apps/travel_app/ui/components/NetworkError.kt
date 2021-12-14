@@ -1,8 +1,8 @@
 package com.apps.travel_app.ui.components
 
+import FaIcons
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -10,10 +10,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.apps.travel_app.R
 import com.apps.travel_app.ui.theme.cardPadding
 import com.guru.fontawesomecomposelib.FaIcon
-import com.skydoves.landscapist.glide.GlideImage
 
 @Composable
 fun NetworkError() {

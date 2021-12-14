@@ -33,7 +33,7 @@ class Trip() {
     }
 
     fun toTripDb(startingtripId: Int): Trip {
-        return com.apps.travel_app.data.rooms.Trip(
+        return Trip(
             tid = id,
             attributes = attributes.joinToString("|"),
             creator = creator,

@@ -187,7 +187,6 @@ fun LocationScreen(
             try {
                 isSaved = db.locationDao().getById(destination.id.toInt()) != null
             } catch (e: Exception) {
-                Log.e("ERROR", e.localizedMessage)
             }
         }.start()
 
@@ -337,7 +336,7 @@ fun LocationScreen(
                         if (ratings.value.size <= 0) {
                             Box(
                                 modifier = Modifier
-                                    .align(Alignment.Center)
+                                    .align(Center)
                                     .alpha(0.5f)
                                     .padding(50.dp)
                             ) {

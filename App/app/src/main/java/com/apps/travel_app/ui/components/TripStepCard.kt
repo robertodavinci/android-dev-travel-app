@@ -1,6 +1,6 @@
 package com.apps.travel_app.ui.components
 
-import androidx.compose.material.MaterialTheme
+import FaIcons
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -14,6 +14,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.material.IconButton
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.MaterialTheme.colors
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
@@ -28,9 +29,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign.Companion.Center
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.apps.travel_app.models.Destination
-import com.apps.travel_app.models.Rating
-import com.apps.travel_app.models.Trip
 import com.apps.travel_app.models.TripDestination
 import com.apps.travel_app.ui.theme.*
 import com.guru.fontawesomecomposelib.FaIcon
@@ -48,107 +46,104 @@ fun TripStepCard(destination: TripDestination, index: Int, onComplete: (Boolean)
             .fillMaxWidth()
 
     ) {
-        if (destination != null) {
-            Row(
-                //horizontalArrangement = SpaceBetween,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .pointerInput(Unit) {
-                        detectTapGestures(
-                            onTap = {
-                                openDialog.value = true
-                            }
-                        )
-                    }
-            ) {
-                Row {
-                    Box(modifier = Modifier.align(Alignment.CenterVertically)) {
-                        GlideImage(
-                            imageModel = destination.thumbnailUrl,
-                            contentDescription = "",
-                            modifier = Modifier
-                                .width(50.dp)
-                                .height(50.dp)
-                                .border(
-                                    5.dp,
-                                    MaterialTheme.colors.surface,
-                                    shape = RoundedCornerShape(100)
-                                )
-                                .graphicsLayer {
-                                    shape = RoundedCornerShape(100)
-                                    clip = true
-                                }
-                        )
-
-                        val scale: Float by animateFloatAsState(
-                            if (done.value) 1f else 0f, animationSpec = tween(
-                                durationMillis = 500,
-                                easing = LinearOutSlowInEasing
-                            )
-                        )
-
-                        IconButton(onClick = {
-                            done.value = !done.value; destination.visited = done.value; onComplete(
-                            done.value
-                        )
-                        }, modifier = Modifier
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .pointerInput(Unit) {
+                    detectTapGestures(
+                        onTap = {
+                            openDialog.value = true
+                        }
+                    )
+                }
+        ) {
+            Row {
+                Box(modifier = Modifier.align(Alignment.CenterVertically)) {
+                    GlideImage(
+                        imageModel = destination.thumbnailUrl,
+                        contentDescription = "",
+                        modifier = Modifier
                             .width(50.dp)
                             .height(50.dp)
+                            .border(
+                                5.dp,
+                                colors.surface,
+                                shape = RoundedCornerShape(100)
+                            )
                             .graphicsLayer {
                                 shape = RoundedCornerShape(100)
                                 clip = true
                             }
-                            .background(if (done.value) Color(0x88111122) else Color.Transparent)) {
-                            FaIcon(
-                                FaIcons.Check,
-                                tint = textDarkColor,
-                                modifier = Modifier.scale(scale)
-                            )
-                        }
+                    )
 
+                    val scale: Float by animateFloatAsState(
+                        if (done.value) 1f else 0f, animationSpec = tween(
+                            durationMillis = 500,
+                            easing = LinearOutSlowInEasing
+                        )
+                    )
+
+                    IconButton(onClick = {
+                        done.value = !done.value; destination.visited = done.value; onComplete(
+                        done.value
+                    )
+                    }, modifier = Modifier
+                        .width(50.dp)
+                        .height(50.dp)
+                        .graphicsLayer {
+                            shape = RoundedCornerShape(100)
+                            clip = true
+                        }
+                        .background(if (done.value) Color(0x88111122) else Color.Transparent)) {
+                        FaIcon(
+                            FaIcons.Check,
+                            tint = textDarkColor,
+                            modifier = Modifier.scale(scale)
+                        )
                     }
-                    Column {
-                        Row {
-                            Text(
-                                destination.name,
-                                color = MaterialTheme.colors.surface,
-                                modifier = Modifier
-                                    .padding(5.dp)
-                                    .weight(1f),
-                                fontWeight = FontWeight.Bold,
-                                fontSize = textNormal,
-                                overflow = TextOverflow.Ellipsis
-                            )
-                            Text(
-                                destination.hour,
-                                color = MaterialTheme.colors.surface,
-                                modifier = Modifier.padding(5.dp),
-                                fontWeight = FontWeight.Bold,
-                                fontSize = textSmall
-                            )
-                        }
 
-                        Row {
+                }
+                Column {
+                    Row {
+                        Text(
+                            destination.name,
+                            color = colors.surface,
+                            modifier = Modifier
+                                .padding(5.dp)
+                                .weight(1f),
+                            fontWeight = FontWeight.Bold,
+                            fontSize = textNormal,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                        Text(
+                            destination.hour,
+                            color = colors.surface,
+                            modifier = Modifier.padding(5.dp),
+                            fontWeight = FontWeight.Bold,
+                            fontSize = textSmall
+                        )
+                    }
 
-                            Text(
-                                destination.description,
-                                color = MaterialTheme.colors.surface,
-                                modifier = Modifier
-                                    .padding(5.dp)
-                                    .weight(1f),
-                                fontWeight = FontWeight.Bold,
-                                fontSize = textSmall,
-                                maxLines = 1,
-                                softWrap = true,
-                                overflow = TextOverflow.Ellipsis
-                            )
-                            Text(
-                                "${destination.minutes} min",
-                                color = MaterialTheme.colors.surface,
-                                modifier = Modifier.padding(5.dp),
-                                fontSize = textSmall
-                            )
-                        }
+                    Row {
+
+                        Text(
+                            destination.description,
+                            color = colors.surface,
+                            modifier = Modifier
+                                .padding(5.dp)
+                                .weight(1f),
+                            fontWeight = FontWeight.Bold,
+                            fontSize = textSmall,
+                            maxLines = 1,
+                            softWrap = true,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                        Text(
+                            "${destination.minutes} min",
+                            color = colors.surface,
+                            modifier = Modifier.padding(5.dp),
+                            fontSize = textSmall
+                        )
                     }
                 }
             }
@@ -177,7 +172,7 @@ fun Dialog(openDialog: MutableState<Boolean>, destination: TripDestination) {
                     shape = RoundedCornerShape(cardRadius)
                     clip = true
                 }
-                .background(MaterialTheme.colors.background)
+                .background(colors.background)
                 .fillMaxWidth()
         ) {
             Box(
@@ -201,7 +196,7 @@ fun Dialog(openDialog: MutableState<Boolean>, destination: TripDestination) {
                             brush = Brush.verticalGradient(
                                 colors = listOf(
                                     Color.Transparent,
-                                    if (destination.name.isNotEmpty()) MaterialTheme.colors.surface else Color.Transparent
+                                    if (destination.name.isNotEmpty()) colors.surface else Color.Transparent
                                 )
                             )
 
@@ -243,14 +238,14 @@ fun Dialog(openDialog: MutableState<Boolean>, destination: TripDestination) {
 
             Text(
                 destination.description,
-                color = MaterialTheme.colors.surface,
+                color = colors.surface,
                 modifier = Modifier.padding(cardPadding),
                 fontSize = textNormal
             )
 
             Text(
                 "Notes",
-                color = MaterialTheme.colors.surface,
+                color = colors.surface,
                 modifier = Modifier
                     .padding(cardPadding)
                     .fillMaxWidth(),
@@ -281,7 +276,7 @@ fun Dialog(openDialog: MutableState<Boolean>, destination: TripDestination) {
 
             Text(
                 "Images",
-                color = MaterialTheme.colors.surface,
+                color = colors.surface,
                 modifier = Modifier
                     .padding(cardPadding)
                     .fillMaxWidth(),
@@ -335,7 +330,7 @@ fun Dialog(openDialog: MutableState<Boolean>, destination: TripDestination) {
 
                 FaIcon(
                     FaIcons.ClockRegular,
-                    tint = MaterialTheme.colors.surface
+                    tint = colors.surface
                 )
 
             }

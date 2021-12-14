@@ -1,7 +1,6 @@
 package com.apps.travel_app.ui.components
 
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.GenericShape
@@ -15,8 +14,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.unit.dp
-import com.apps.travel_app.ui.theme.iconLightColor
 import com.apps.travel_app.ui.theme.yellow
 import kotlin.math.cos
 import kotlin.math.sin

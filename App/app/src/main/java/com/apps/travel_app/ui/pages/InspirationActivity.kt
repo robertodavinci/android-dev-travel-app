@@ -5,14 +5,16 @@ import android.os.Bundle
 import android.preference.PreferenceManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.animation.core.*
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.MaterialTheme.colors
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment.Companion.BottomStart
@@ -22,11 +24,9 @@ import androidx.compose.ui.Alignment.Companion.TopStart
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Transparent
-import androidx.compose.ui.graphics.RadialGradientShader
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
@@ -34,11 +34,10 @@ import androidx.compose.ui.zIndex
 import com.apps.travel_app.ui.components.Heading
 import com.apps.travel_app.ui.theme.Travel_AppTheme
 import com.apps.travel_app.ui.theme.cardRadius
-import com.google.common.math.DoubleMath.roundToInt
 import com.skydoves.landscapist.glide.GlideImage
 import java.lang.Math.random
-import kotlin.*
-import kotlin.math.*
+import kotlin.math.abs
+import kotlin.math.sign
 
 
 class InspirationActivity : ComponentActivity() {
@@ -57,7 +56,6 @@ class InspirationActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize().background(colors.background)
                 ) {
                     Grid()
-                    //RotatingGlobe(modifier = Modifier.fillMaxSize())
                 }
             }
         }
@@ -81,11 +79,11 @@ fun Grid() {
     val height = Resources.getSystem().displayMetrics.heightPixels / density
     val width = Resources.getSystem().displayMetrics.widthPixels / density
 
-    var array by remember {
+    val array by remember {
         mutableStateOf(ArrayList<ArrayList<Float>>())
     }
 
-    var doubles by remember {
+    val doubles by remember {
         mutableStateOf(ArrayList<Boolean>())
     }
 

@@ -1,13 +1,7 @@
 package com.apps.travel_app.ui.pages
 
 import FaIcons
-import android.app.Activity
-import android.content.Context
-import android.content.Intent
-import android.content.SharedPreferences
 import android.preference.PreferenceManager
-import android.util.Log
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.MaterialTheme
@@ -20,14 +14,9 @@ import com.apps.travel_app.ui.components.Button
 import com.apps.travel_app.ui.components.Heading
 import com.apps.travel_app.ui.components.NiceSwitch
 import com.apps.travel_app.ui.components.NiceSwitchStates
-import com.apps.travel_app.ui.components.login.LoginActivity
 import com.apps.travel_app.ui.theme.followSystem
-import com.facebook.login.LoginManager
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
 import com.guru.fontawesomecomposelib.FaIcon
-
 
 
 @Composable

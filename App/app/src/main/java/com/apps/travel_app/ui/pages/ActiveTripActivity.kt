@@ -287,7 +287,7 @@ class ActiveTripActivity : ComponentActivity() {
                                             modifier = Modifier.padding(5.dp),
                                             background = background
                                         ) {
-                                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                            Column(horizontalAlignment = CenterHorizontally) {
                                                 Text(
                                                     (i + 1).toString(),
                                                     color = foreground,

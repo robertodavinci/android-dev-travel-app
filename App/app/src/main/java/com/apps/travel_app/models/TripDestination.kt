@@ -1,10 +1,6 @@
 package com.apps.travel_app.models
 
-import android.os.Parcel
-import android.os.Parcelable
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.room.ColumnInfo
-import com.apps.travel_app.data.rooms.Location
+
 import com.apps.travel_app.data.rooms.TripStep
 import com.guru.fontawesomecomposelib.FaIconType
 import java.lang.Exception

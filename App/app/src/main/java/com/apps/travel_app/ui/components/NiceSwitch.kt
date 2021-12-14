@@ -1,6 +1,6 @@
 package com.apps.travel_app.ui.components
 
-import androidx.compose.animation.core.LinearEasing
+import FaIcons
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween

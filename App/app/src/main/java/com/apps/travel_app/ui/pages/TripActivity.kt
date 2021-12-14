@@ -20,9 +20,11 @@ import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.Center
+import androidx.compose.ui.Alignment.Companion.TopStart
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Alignment.Companion.CenterVertically
+import androidx.compose.ui.Alignment.Companion.TopCenter
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.scale
@@ -219,7 +221,7 @@ class TripActivity : ComponentActivity() {
                 try {
                     isSaved = db.tripDao().getById(trip.id) != null
                 } catch (e: Exception) {
-                    Log.e("ERROR", e.localizedMessage)
+
                 }
             }.start()
         }
@@ -238,7 +240,7 @@ class TripActivity : ComponentActivity() {
                             .fillMaxWidth()
                             .fillMaxHeight(0.55f)
                             .background(MaterialTheme.colors.background)
-                            .wrapContentSize(Alignment.Center)
+                            .wrapContentSize(Center)
                     ) {
                         AndroidView({ mapView }) { mapView ->
                             CoroutineScope(Dispatchers.Main).launch {
@@ -271,7 +273,7 @@ class TripActivity : ComponentActivity() {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .align(Alignment.TopCenter)
+                        .align(TopCenter)
                         .height(200.dp)
                         .background(
                             brush = Brush.verticalGradient(
@@ -290,7 +292,7 @@ class TripActivity : ComponentActivity() {
                         fontSize = textHeading,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .align(Alignment.TopCenter)
+                            .align(TopCenter)
                             .padding(cardPadding)
                     )
                 }
@@ -304,7 +306,7 @@ class TripActivity : ComponentActivity() {
 
                     LazyColumn(
                         modifier = Modifier
-                            .align(Alignment.TopStart)
+                            .align(TopStart)
                             .heightIn(0.dp, 1000.dp)
                             .fillMaxWidth()
                     ) {
@@ -313,7 +315,7 @@ class TripActivity : ComponentActivity() {
                                 Button(
                                     onClick = {}, background = primaryColor, modifier = Modifier
                                         .align(
-                                            Alignment.CenterHorizontally
+                                            CenterHorizontally
                                         )
                                         .padding(5.dp)
                                 ) {
@@ -416,7 +418,7 @@ class TripActivity : ComponentActivity() {
                                         )
                                     }
                                     FlexibleRow(
-                                        alignment = Alignment.CenterHorizontally,
+                                        alignment = CenterHorizontally,
                                         modifier = Modifier
                                             .align(CenterVertically)
                                             .scale(0.8f)
@@ -458,7 +460,7 @@ class TripActivity : ComponentActivity() {
                                             modifier = Modifier.padding(5.dp),
                                             background = background
                                         ) {
-                                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                            Column(horizontalAlignment = CenterHorizontally) {
                                                 Text(
                                                     (i + 1).toString(),
                                                     color = foreground,
@@ -579,7 +581,7 @@ class TripActivity : ComponentActivity() {
                                     if (ratings.value.size <= 0) {
                                         Box(
                                             modifier = Modifier
-                                                .align(Alignment.Center)
+                                                .align(Center)
                                                 .alpha(0.5f)
                                                 .padding(50.dp)
                                         ) {
