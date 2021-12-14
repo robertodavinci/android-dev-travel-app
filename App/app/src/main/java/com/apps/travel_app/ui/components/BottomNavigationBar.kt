@@ -1,62 +1,43 @@
 package com.apps.travel_app.ui.components
 
-import android.content.Intent
+import FaIcons
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.*
+import androidx.compose.material.BottomNavigation
+import androidx.compose.material.BottomNavigationItem
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme.colors
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.Alignment.Companion.Bottom
 import androidx.compose.ui.Alignment.Companion.BottomStart
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Color.Companion.Transparent
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
-import androidx.compose.ui.input.nestedscroll.NestedScrollSource
-import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.apps.travel_app.MainActivity
 import com.apps.travel_app.models.Destination
-import com.apps.travel_app.models.MediumType
 import com.apps.travel_app.models.Trip
-import com.apps.travel_app.models.TripDestination
-import com.apps.travel_app.ui.pages.AroundMeActivity
 import com.apps.travel_app.ui.pages.Response
-import com.apps.travel_app.ui.theme.*
+import com.apps.travel_app.ui.theme.iconLightColor
+import com.apps.travel_app.ui.theme.primaryColor
 import com.apps.travel_app.ui.utils.isOnline
 import com.apps.travel_app.ui.utils.sendPostRequest
 import com.google.android.libraries.maps.model.LatLng
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.guru.fontawesomecomposelib.FaIcon
-import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -83,7 +64,6 @@ fun BottomNavigationBar(navController: NavController, mainActivity: MainActivity
     }
 
     fun Search(text: String, types: List<String> = arrayListOf()) {
-        //val region = map.value?.projection?.visibleRegion ?: return
 
         Thread {
             val points = arrayListOf(
@@ -107,35 +87,6 @@ fun BottomNavigationBar(navController: NavController, mainActivity: MainActivity
                 cities.value = response.cities
                 places.value = response.places
 
-                var index = 0
-
-                /*mainActivity.runOnUiThread {
-                    if (map.value != null) {
-                        map.value!!.clear()
-                        trips.value.forEach {
-                            addMarker(
-                                LatLng(
-                                    it.startingPoint.latitude,
-                                    it.startingPoint.longitude
-                                ), index++, it.name
-                            )
-                        }
-                        cities.value.forEach {
-                            addMarker(
-                                LatLng(it.latitude, it.longitude),
-                                index++,
-                                it.name
-                            )
-                        }
-                        places.value.forEach {
-                            addMarker(
-                                LatLng(it.latitude, it.longitude),
-                                index++,
-                                it.name
-                            )
-                        }
-                    }
-                }*/
             }
         }.start()
     }

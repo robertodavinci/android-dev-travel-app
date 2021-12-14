@@ -1,11 +1,11 @@
 package com.apps.travel_app
 
+//import com.apps.travel_app.data.room.db.DB
 import FaIcons
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.preference.PreferenceManager
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -18,8 +18,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.room.Room
-//import com.apps.travel_app.data.room.db.DB
 import com.apps.travel_app.models.Destination
 import com.apps.travel_app.models.Trip
 import com.apps.travel_app.ui.components.BottomBarItem
@@ -39,7 +37,6 @@ class MainActivity : ComponentActivity() {
     var user: User = User("","")
     private var destination: Destination? = null
     lateinit var navController: NavHostController
-    var prova: MutableState<Boolean> = mutableStateOf(true)
 
     @OptIn(ExperimentalFoundationApi::class,
         androidx.compose.animation.ExperimentalAnimationApi::class,

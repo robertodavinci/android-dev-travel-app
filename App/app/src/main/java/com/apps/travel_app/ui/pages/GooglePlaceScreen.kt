@@ -7,7 +7,6 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -30,8 +29,6 @@ import androidx.navigation.NavController
 import com.apps.travel_app.MainActivity
 import com.apps.travel_app.models.Destination
 import com.apps.travel_app.models.GooglePlace
-import com.apps.travel_app.models.Rating
-import com.apps.travel_app.models.Trip
 import com.apps.travel_app.ui.components.*
 import com.apps.travel_app.ui.theme.*
 import com.apps.travel_app.ui.utils.rememberMapViewWithLifecycle
@@ -47,8 +44,6 @@ import com.guru.fontawesomecomposelib.FaIcon
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.lang.Math.random
-import java.util.*
 
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -136,7 +131,7 @@ fun GooglePlaceScreen(
     BoxWithConstraints {
         Box(
             modifier = Modifier
-                .background(MaterialTheme.colors.background)
+                .background(colors.background)
                 .fillMaxSize()
                 .verticalScroll(scrollState)
         ) {
@@ -293,7 +288,7 @@ fun GooglePlaceScreen(
                             .background(
                                 brush = Brush.verticalGradient(
                                     colors = listOf(
-                                        MaterialTheme.colors.background,
+                                        colors.background,
                                         Color.Transparent
                                     )
                                 )
@@ -326,7 +321,7 @@ fun GooglePlaceScreen(
                         shape = RoundedCornerShape(cardRadius)
                         clip = true
                     }
-                    .background(MaterialTheme.colors.background)
+                    .background(colors.background)
                     .fillMaxWidth()
             ) {
                 Box(
@@ -351,7 +346,7 @@ fun GooglePlaceScreen(
                     } else {
                         Text(
                             "Loading...",
-                            color = MaterialTheme.colors.surface,
+                            color = colors.surface,
                             modifier = Modifier.padding(
                                 cardPadding
                             )

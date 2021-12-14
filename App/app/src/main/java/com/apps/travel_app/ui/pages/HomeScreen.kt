@@ -1,13 +1,11 @@
 package com.apps.travel_app.ui.pages
 
-import android.util.Log
-import com.apps.travel_app.R
-import androidx.compose.material.MaterialTheme
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.IconButton
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -23,12 +21,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.apps.travel_app.MainActivity
+import com.apps.travel_app.R
 import com.apps.travel_app.models.Destination
 import com.apps.travel_app.models.Trip
 import com.apps.travel_app.ui.components.*
 import com.apps.travel_app.ui.theme.cardPadding
 import com.apps.travel_app.ui.theme.textHeading
-import com.apps.travel_app.ui.utils.fireStoreDatabase
 import com.apps.travel_app.ui.utils.isOnline
 import com.apps.travel_app.ui.utils.sendPostRequest
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
