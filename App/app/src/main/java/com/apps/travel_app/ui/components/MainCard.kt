@@ -111,6 +111,7 @@ fun MainCard(
                     contentScale = if (squaredImage) ContentScale.Fit else ContentScale.Crop,
                     circularReveal = CircularReveal(duration = 700),
 
+
                     )
 
                 Column(

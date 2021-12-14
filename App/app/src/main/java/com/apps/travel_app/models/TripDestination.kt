@@ -3,7 +3,11 @@ package com.apps.travel_app.models
 import android.os.Parcel
 import android.os.Parcelable
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.room.ColumnInfo
+import com.apps.travel_app.data.rooms.Location
+import com.apps.travel_app.data.rooms.TripStep
 import com.guru.fontawesomecomposelib.FaIconType
+import java.lang.Exception
 
 class TripDestination : Destination() {
     var kmToNextDestination: Float = 0f
@@ -12,10 +16,60 @@ class TripDestination : Destination() {
     var hour: String = ""
     var minutes: Int = 0
     var visited: Boolean = false
-    var notes: ArrayList<String> = arrayListOf()
-    var images: ArrayList<String> = arrayListOf()
+    var notes: List<String> = arrayListOf()
+    var images: List<String> = arrayListOf()
+
+    fun fromLocation(tripStep: TripStep) {
+        id = tripStep.tsid.toString()
+        latitude = tripStep.latitude
+        longitude = tripStep.longitude
+        type = tripStep.type
+        thumbnailUrl = tripStep.thumbnailUrl
+        rating = tripStep.rating
+        description = tripStep.description
+        address = tripStep.address ?: ""
+        name = tripStep.name
+        kmToNextDestination = tripStep.kmToNextDestination
+        minutesToNextDestination = tripStep.minutesToNextDestination
+        mediumToNextDestination = tripStep.mediumToNextDestination
+        hour = tripStep.hour
+        minutes = tripStep.minutes
+        visited = tripStep.visited
+        notes = tripStep.notes.split("|")
+        images = tripStep.images.split("|")
+    }
 
 
+    fun toTripStep(tripId: Int, day: Int): TripStep {
+        var lid = 0
+        try {
+            lid = id.toInt()
+        } catch (e: Exception) {
+
+        }
+        return TripStep(
+            tsid = lid,
+            latitude = latitude,
+            longitude = longitude,
+            type = type,
+            thumbnailUrl = thumbnailUrl,
+            rating = rating,
+            description = description,
+            address = address,
+            name = name,
+            phone_number = null,
+            kmToNextDestination = kmToNextDestination,
+            minutesToNextDestination = minutesToNextDestination,
+            mediumToNextDestination = mediumToNextDestination,
+            hour = hour,
+            minutes = minutes,
+            visited = visited,
+            notes = notes.joinToString { "|" },
+            images = images.joinToString { "|" },
+            trip = tripId,
+            day = day
+        )
+    }
 
     companion object {
 

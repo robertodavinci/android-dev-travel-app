@@ -1,6 +1,7 @@
 package com.apps.travel_app.ui.pages
 
 import FaIcons
+import android.util.Log
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -15,6 +16,7 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.scale
@@ -24,14 +26,18 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation.NavController
+import androidx.room.Room
 import com.apps.travel_app.MainActivity
+import com.apps.travel_app.data.rooms.AppDatabase
 import com.apps.travel_app.models.Destination
 import com.apps.travel_app.models.Rating
 import com.apps.travel_app.models.Trip
 import com.apps.travel_app.ui.components.*
 import com.apps.travel_app.ui.theme.cardPadding
 import com.apps.travel_app.ui.theme.cardRadius
+import com.apps.travel_app.ui.theme.danger
 import com.apps.travel_app.ui.theme.mapStyle
+import com.apps.travel_app.ui.utils.isOnline
 import com.apps.travel_app.ui.utils.rememberMapViewWithLifecycle
 import com.apps.travel_app.ui.utils.sendPostRequest
 import com.google.android.libraries.maps.CameraUpdateFactory
@@ -45,6 +51,7 @@ import com.guru.fontawesomecomposelib.FaIcon
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.lang.Exception
 import java.lang.Math.random
 
 
@@ -56,6 +63,11 @@ fun LocationScreen(
     mainActivity: MainActivity
 ) {
 
+    val db = Room.databaseBuilder(
+        mainActivity,
+        AppDatabase::class.java, "database-name"
+    ).build()
+
     val loaded: MutableState<Boolean> = remember { mutableStateOf(false) }
     val ratings: MutableState<ArrayList<Rating>> = remember { mutableStateOf(ArrayList()) }
     val facilities: MutableState<ArrayList<Destination>> = remember { mutableStateOf(ArrayList()) }
@@ -64,6 +76,8 @@ fun LocationScreen(
     val map: MutableState<GoogleMap?> = remember { mutableStateOf(null) }
     val mapLoaded = remember { mutableStateOf(false) }
     val openMap = remember { mutableStateOf(false) }
+    var isSaved by remember { mutableStateOf(false) }
+
 
     fun mapInit() {
         map.value!!.uiSettings.isZoomControlsEnabled = false
@@ -94,19 +108,22 @@ fun LocationScreen(
 
         if (ratings.value.size <= 0) {
             Thread {
+                try {
+                    val result = ArrayList<Rating>()
 
-                val result = ArrayList<Rating>()
+                    val request = "${destionation.latitude},${destionation.longitude}"
+                    val ratingsText = sendPostRequest(request, action = "ratings")
+                    val gson = Gson()
+                    val itemType = object : TypeToken<List<Rating>>() {}.type
+                    val _ratings: List<Rating> = gson.fromJson(ratingsText, itemType)
+                    for (rating in _ratings) {
+                        rating.rating = random().toFloat() * 5f
+                        result.add(rating)
+                    }
+                    ratings.value = result
+                } catch (e: Exception) {
 
-                val request = "${destionation.latitude},${destionation.longitude}"
-                val ratingsText = sendPostRequest(request, action = "ratings")
-                val gson = Gson()
-                val itemType = object : TypeToken<List<Rating>>() {}.type
-                val _ratings: List<Rating> = gson.fromJson(ratingsText, itemType)
-                for (rating in _ratings) {
-                    rating.rating = random().toFloat() * 5f
-                    result.add(rating)
                 }
-                ratings.value = result
             }.start()
         }
     }
@@ -117,13 +134,17 @@ fun LocationScreen(
         if (facilities.value.size <= 0) {
             Thread {
 
-                val request =
-                    "{\"lat\":${destionation.latitude},\"lng\":${destionation.longitude},\"type\":\"restaurant\"}"
-                val results = sendPostRequest(request, action = "nearby")
-                val gson = Gson()
-                val itemType = object : TypeToken<List<Destination>>() {}.type
-                val result: ArrayList<Destination> = gson.fromJson(results, itemType)
-                facilities.value = result
+                try {
+                    val request =
+                        "{\"lat\":${destionation.latitude},\"lng\":${destionation.longitude},\"type\":\"restaurant\"}"
+                    val results = sendPostRequest(request, action = "nearby")
+                    val gson = Gson()
+                    val itemType = object : TypeToken<List<Destination>>() {}.type
+                    val result: ArrayList<Destination> = gson.fromJson(results, itemType)
+                    facilities.value = result
+                } catch (e: Exception) {
+
+                }
             }.start()
         }
     }
@@ -133,13 +154,17 @@ fun LocationScreen(
 
         if (trips.value.size <= 0) {
             Thread {
-                val request =
-                    "[[${destionation.latitude - 1},${destionation.longitude - 1}],[${destionation.latitude - 1},${destionation.longitude + 1}],[${destionation.latitude + 1},${destionation.longitude + 1}],[${destionation.latitude + 1},${destionation.longitude - 1}]]"
-                val results = sendPostRequest(request, action = "polygonTrips")
-                val gson = Gson()
-                val itemType = object : TypeToken<List<Trip>>() {}.type
-                val result: ArrayList<Trip> = gson.fromJson(results, itemType)
-                trips.value = result
+                try {
+                    val request =
+                        "[[${destionation.latitude - 1},${destionation.longitude - 1}],[${destionation.latitude - 1},${destionation.longitude + 1}],[${destionation.latitude + 1},${destionation.longitude + 1}],[${destionation.latitude + 1},${destionation.longitude - 1}]]"
+                    val results = sendPostRequest(request, action = "polygonTrips")
+                    val gson = Gson()
+                    val itemType = object : TypeToken<List<Trip>>() {}.type
+                    val result: ArrayList<Trip> = gson.fromJson(results, itemType)
+                    trips.value = result
+                } catch (e: Exception) {
+
+                }
             }.start()
         }
     }
@@ -158,6 +183,14 @@ fun LocationScreen(
         getRatings(destination)
         getFacilities(destination)
         getTrips(destination)
+        Thread {
+            try {
+                isSaved = db.locationDao().getById(destination.id.toInt()) != null
+            } catch (e: Exception) {
+                Log.e("ERROR", e.localizedMessage)
+            }
+        }.start()
+
     }
 
 
@@ -205,10 +238,28 @@ fun LocationScreen(
                             Text(activity)
                         }
                     }
-                    Button(onClick = { openMap.value = true },modifier = Modifier.padding(5.dp)) {
+                    Button(onClick = { openMap.value = true }, modifier = Modifier.padding(5.dp)) {
                         FaIcon(
                             FaIcons.LocationArrow,
                             tint = MaterialTheme.colors.surface
+                        )
+                    }
+                    Button(onClick = {
+                        Thread {
+                            try {
+                                if (!isSaved)
+                                    db.locationDao().insertAll(destination.toLocation())
+                                else
+                                    db.locationDao().delete(destination.toLocation())
+                                isSaved = !isSaved
+                            } catch (e: Exception) {
+
+                            }
+                        }.start()
+                    }, modifier = Modifier.padding(5.dp)) {
+                        FaIcon(
+                            if (isSaved) FaIcons.Heart else FaIcons.HeartRegular,
+                            tint = if (isSaved) danger else MaterialTheme.colors.surface
                         )
                     }
                 }
@@ -240,82 +291,88 @@ fun LocationScreen(
                     }
                 }
 
-                Heading(
-                    "Facilities"
-                )
-
-                LazyRow(
-                    modifier = Modifier.padding(cardPadding)
-                ) {
-                    items(facilities.value.size) { i ->
-
-                        val facility = facilities.value[i]
-                        val badges = arrayListOf("€".repeat(facility.priceLevel.toInt() + 1))
-                        Box(
-                            modifier = Modifier
-                                .weight(1f)
-                        ) {
-                            MainCard(
-                                destination = facility,
-                                rating = facility.rating,
-                                padding = 5.dp,
-                                shadow = 10.dp,
-                                imageMaxHeight = 100f,
-                                mainActivity = mainActivity,
-                                infoScale = 0.8f,
-                                icon = FaIcons.Google,
-                                badges = badges,
-                                isGooglePlace = true
-                            )
+                if (!isSaved && !isOnline(mainActivity)) {
+                        Box(Modifier.fillMaxSize(), contentAlignment = Center) {
+                            NetworkError()
                         }
-                    }
-                }
+                    }else {
+                    Heading(
+                        "Facilities"
+                    )
 
-                Heading(
-                    "Top ratings"
-                )
+                    LazyRow(
+                        modifier = Modifier.padding(cardPadding)
+                    ) {
+                        items(facilities.value.size) { i ->
 
-                Box(
-                    modifier = Modifier.padding(bottom = 60.dp)
-                ) {
-                    if (ratings.value.size <= 0) {
-                        Box(
-                            modifier = Modifier
-                                .align(Alignment.Center)
-                                .alpha(0.5f)
-                                .padding(50.dp)
-                        ) {
-                            Loader()
-                        }
-                    } else {
-                        Column(
-                            modifier = Modifier
-                                .padding(cardPadding)
-                        ) {
-
-                            ratings.value.forEach { rating ->
-                                RatingCard(
-                                    rating
+                            val facility = facilities.value[i]
+                            val badges = arrayListOf("€".repeat(facility.priceLevel.toInt() + 1))
+                            Box(
+                                modifier = Modifier
+                                    .weight(1f)
+                            ) {
+                                MainCard(
+                                    destination = facility,
+                                    rating = facility.rating,
+                                    padding = 5.dp,
+                                    shadow = 10.dp,
+                                    imageMaxHeight = 100f,
+                                    mainActivity = mainActivity,
+                                    infoScale = 0.8f,
+                                    icon = FaIcons.Google,
+                                    badges = badges,
+                                    isGooglePlace = true
                                 )
                             }
-
-
                         }
                     }
+
+                    Heading(
+                        "Top ratings"
+                    )
+
                     Box(
-                        modifier = Modifier
-                            .padding(cardPadding)
-                            .fillMaxWidth()
-                            .height(30.dp)
-                            .background(
-                                brush = Brush.verticalGradient(
-                                    colors = listOf(
-                                        MaterialTheme.colors.background,
-                                        Color.Transparent
+                        modifier = Modifier.padding(bottom = 60.dp)
+                    ) {
+                        if (ratings.value.size <= 0) {
+                            Box(
+                                modifier = Modifier
+                                    .align(Alignment.Center)
+                                    .alpha(0.5f)
+                                    .padding(50.dp)
+                            ) {
+                                Loader()
+                            }
+                        } else {
+                            Column(
+                                modifier = Modifier
+                                    .padding(cardPadding)
+                            ) {
+
+                                ratings.value.forEach { rating ->
+                                    RatingCard(
+                                        rating
+                                    )
+                                }
+
+
+                            }
+                        }
+                        Box(
+                            modifier = Modifier
+                                .padding(cardPadding)
+                                .fillMaxWidth()
+                                .height(30.dp)
+                                .background(
+                                    brush = Brush.verticalGradient(
+                                        colors = listOf(
+                                            MaterialTheme.colors.background,
+                                            Color.Transparent
+                                        )
                                     )
                                 )
-                            )
-                    )
+                        )
+                    }
                 }
             }
         }
@@ -379,7 +436,6 @@ fun LocationScreen(
             }
         }
     }
-
 
 }
 

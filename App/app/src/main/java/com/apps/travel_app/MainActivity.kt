@@ -161,7 +161,7 @@ class MainActivity : ComponentActivity() {
     fun MainScreen(context: Context, activity: MainActivity) {
         navController = rememberNavController()
         Scaffold(
-            bottomBar = { BottomNavigationBar(navController) }
+            bottomBar = { BottomNavigationBar(navController, this) }
         ) {
             Navigation(navController,context, activity)
         }
@@ -204,9 +204,8 @@ class MainActivity : ComponentActivity() {
         object GooglePlace : SubPages("googlePlace", FaIcons.Home, "Place")
     }
 
-
-    override fun onResume() {
-
-        super.onResume()
+    override fun onDestroy() {
+        super.onDestroy()
+        System.exit(0)
     }
 }

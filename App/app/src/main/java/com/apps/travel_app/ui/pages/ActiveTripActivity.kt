@@ -29,6 +29,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight.Companion.Bold
 import androidx.compose.ui.text.style.TextAlign
@@ -48,9 +49,7 @@ import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.google.android.libraries.maps.CameraUpdateFactory
 import com.google.android.libraries.maps.GoogleMap
 import com.google.android.libraries.maps.MapView
-import com.google.android.libraries.maps.model.LatLng
-import com.google.android.libraries.maps.model.MapStyleOptions
-import com.google.android.libraries.maps.model.MarkerOptions
+import com.google.android.libraries.maps.model.*
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.google.gson.Gson
@@ -71,10 +70,10 @@ class ActiveTripActivity : ComponentActivity() {
         val sharedPref = PreferenceManager.getDefaultSharedPreferences(this)
         val systemTheme = sharedPref.getBoolean("darkTheme", true)
 
-        val tripId = intent.getIntExtra("tripId",0)
+        val tripId = intent.getIntExtra("tripId", 0)
 
         setContent {
-            var trip: Trip? by remember {mutableStateOf(null)}
+            var trip: Trip? by remember { mutableStateOf(null) }
             Thread {
                 val request = tripId.toString()
                 val ratingsText = sendPostRequest(request, action = "trip")
@@ -112,7 +111,7 @@ class ActiveTripActivity : ComponentActivity() {
         val loadingScreen = remember { mutableStateOf(0) }
         val map: MutableState<GoogleMap?> = remember { mutableStateOf(null) }
         val mapLoaded = remember { mutableStateOf(false) }
-        var selectedDay by remember { mutableStateOf(1) }
+        var selectedDay by remember { mutableStateOf(0) }
 
         var icon: FaIconType? = null
         weatherChip(
@@ -122,7 +121,7 @@ class ActiveTripActivity : ComponentActivity() {
             icon = it
         }
 
-        var steps by remember { mutableStateOf(trip.destinationsPerDay[selectedDay - 1]) }
+        var steps by remember { mutableStateOf(trip.destinationsPerDay[selectedDay]) }
 
         fun mapInit() {
             map.value!!.uiSettings.isZoomControlsEnabled = false
@@ -146,14 +145,21 @@ class ActiveTripActivity : ComponentActivity() {
             )
 
             map.value!!.clear()
-            for ((index, step) in trip.destinationsPerDay[selectedDay - 1].withIndex()) {
+            val pattern: List<PatternItem> =
+                arrayListOf(Dot(), Gap(15f))
+            val polyline = PolylineOptions()
+                .color(primaryColor.toArgb())
+                .width(8f)
+                .pattern(pattern)
+
+            for ((index, step) in trip.destinationsPerDay[selectedDay].withIndex()) {
+                val point = LatLng(
+                    step.latitude,
+                    step.longitude
+                )
+                polyline.add(point)
                 val markerOptions = MarkerOptions()
-                    .position(
-                        LatLng(
-                            step.latitude,
-                            step.longitude
-                        )
-                    )
+                    .position(point)
                     .icon(numberedMarker(index + 1))
                     .title(step.name)
                     .zIndex(5f)
@@ -163,6 +169,7 @@ class ActiveTripActivity : ComponentActivity() {
 
                 markerPopUp(marker)
             }
+            map.value!!.addPolyline(polyline)
         }
 
         var mapView: MapView? = null
@@ -272,7 +279,11 @@ class ActiveTripActivity : ComponentActivity() {
                                         val foreground =
                                             if (i == selectedDay) White else colors.surface
                                         Button(
-                                            onClick = { selectedDay = i },
+                                            onClick = {
+                                                selectedDay = i
+                                                if (selectedDay < trip.destinationsPerDay.size)
+                                                    steps = trip.destinationsPerDay[selectedDay]
+                                            },
                                             modifier = Modifier.padding(5.dp),
                                             background = background
                                         ) {

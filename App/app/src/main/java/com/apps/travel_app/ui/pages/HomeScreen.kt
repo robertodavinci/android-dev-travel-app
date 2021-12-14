@@ -1,5 +1,6 @@
 package com.apps.travel_app.ui.pages
 
+import android.util.Log
 import com.apps.travel_app.R
 import androidx.compose.material.MaterialTheme
 import androidx.compose.foundation.background
@@ -24,12 +25,11 @@ import androidx.navigation.NavController
 import com.apps.travel_app.MainActivity
 import com.apps.travel_app.models.Destination
 import com.apps.travel_app.models.Trip
-import com.apps.travel_app.ui.components.Heading
-import com.apps.travel_app.ui.components.Loader
-import com.apps.travel_app.ui.components.MainCard
-import com.apps.travel_app.ui.components.TripCard
+import com.apps.travel_app.ui.components.*
 import com.apps.travel_app.ui.theme.cardPadding
 import com.apps.travel_app.ui.theme.textHeading
+import com.apps.travel_app.ui.utils.fireStoreDatabase
+import com.apps.travel_app.ui.utils.isOnline
 import com.apps.travel_app.ui.utils.sendPostRequest
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.google.android.libraries.maps.model.LatLng
@@ -53,6 +53,82 @@ fun HomeScreen(navController: NavController, mainActivity: MainActivity) {
 
     images = remember { mutableStateOf(false) }
     trips = remember { mutableStateOf(ArrayList()) }
+
+
+    fun getActiveTrip(){
+        Thread {
+            val request = "125"
+            val tripText = sendPostRequest(request, action = "trip")
+            if (!tripText.isNullOrEmpty()) {
+                val gson = Gson()
+                val itemType = object : TypeToken<Trip>() {}.type
+                val trip: Trip = gson.fromJson(tripText, itemType)
+                mainActivity.runOnUiThread {
+                    activeTrip.value = trip
+                }
+            }
+        }.start()
+    }
+
+    fun getImages() {
+        images.value = true
+
+        if (trips.value.size <= 0) {
+            Thread {
+                val result = ArrayList<Destination>()
+                val points = arrayListOf(
+                    LatLng(0.0, 0.0),
+                    LatLng(80.0, 0.0),
+                    LatLng(80.0, 20.0),
+                    LatLng(0.0, 20.0),
+                    LatLng(0.0, 0.0)
+                )
+                val request = points.joinToString(",", "[", "]") { e ->
+                    "[${e.latitude},${e.longitude}]"
+                }
+                val citiesText = sendPostRequest(request, action = "polygonCities")
+                if (!citiesText.isNullOrEmpty()) {
+                    val gson = Gson()
+                    val itemType = object : TypeToken<List<Destination>>() {}.type
+                    val cities: List<Destination> = gson.fromJson(citiesText, itemType)
+                    for (city in cities) {
+
+                        city.rating = random().toFloat() * 5f
+                        result.add(city)
+                    }
+
+                    mainActivity.runOnUiThread {
+                        trips.value = result
+                    }
+                }
+            }.start()/*
+        fireStoreDatabase.collection("destinations")
+                .get()
+                .addOnSuccessListener { querySnapshot ->
+                    val result = ArrayList<Destination>()
+                    querySnapshot.forEach { document ->
+                        val destination = Destination()
+
+                        destination.id = document.get("id").toString()
+                        destination.name = document.get("name").toString()
+                        destination.rating = (document.get("rating") as Double).toFloat()
+                        destination.latitude = (document.get("latitude") as Double)
+                        destination.longitude = (document.get("longitude") as Double)
+                        destination.thumbnailUrl = document.get("thumbnail_url").toString()
+                        result.add(destination)
+
+
+                    }
+                    trips.value = result
+                }
+                .addOnFailureListener { exception ->
+                    Log.w("c", "Error getting documents $exception")
+                }
+*/
+
+        }
+    }
+
 
     if (!images.value) {
         getImages()
@@ -127,132 +203,93 @@ fun HomeScreen(navController: NavController, mainActivity: MainActivity) {
         }
 
 
+        if (!isOnline(mainActivity)) {
+            NetworkError()
+        } else {
 
-        Heading(
-            "Top trips"
-        )
+            Heading(
+                "Top destinations"
+            )
 
-        Box(
-            modifier = Modifier.padding(bottom = 40.dp)
-        ) {
-            if (trips.value.size <= 0) {
-                Box(
-                    modifier = Modifier
-                        .align(Alignment.Center)
-                        .alpha(0.5f)
-                        .padding(50.dp)
-                ) {
-                    Loader()
-                }
-            } else {
-                LazyColumn(
-                    modifier = Modifier
-                        .padding(cardPadding)
-                ) {
-                    val loadedTrips = ArrayList<Destination>()
-                    item(trips.value.size) {
-                        trips.value.forEachIndexed { index, trip ->
-                            if (!loadedTrips.contains(trip)) {
-                                loadedTrips.add(trip)
-                                Row {
-                                    Box(
-                                        modifier = Modifier
-                                            .weight(1f)
-                                            .heightIn(0.dp, 120.dp)
-                                    ) {
-                                        MainCard(
-                                            destination = trip,
-                                            rating = trip.rating,
-                                            padding = 5.dp,
-                                            shadow = 10.dp,
-                                            mainActivity = mainActivity
-                                        )
-                                    }
-                                    if (trip.rating <= 2.5f && index < trips.value.size - 1) {
-                                        val trip2 = trips.value[index + 1]
-                                        loadedTrips.add(trip2)
+            Box(
+                modifier = Modifier.padding(bottom = 40.dp)
+            ) {
+                if (trips.value.size <= 0) {
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                            .alpha(0.5f)
+                            .padding(50.dp)
+                    ) {
+                        Loader()
+                    }
+                } else {
+                    LazyColumn(
+                        modifier = Modifier
+                            .padding(cardPadding)
+                    ) {
+                        val loadedTrips = ArrayList<Destination>()
+                        item(trips.value.size) {
+                            trips.value.forEachIndexed { index, trip ->
+                                if (!loadedTrips.contains(trip)) {
+                                    loadedTrips.add(trip)
+                                    Row {
                                         Box(
                                             modifier = Modifier
                                                 .weight(1f)
                                                 .heightIn(0.dp, 120.dp)
                                         ) {
                                             MainCard(
-                                                destination = trip2,
-                                                rating = trip2.rating,
+                                                destination = trip,
+                                                rating = trip.rating,
                                                 padding = 5.dp,
                                                 shadow = 10.dp,
                                                 mainActivity = mainActivity
                                             )
                                         }
+                                        if (trip.rating <= 2.5f && index < trips.value.size - 1) {
+                                            val trip2 = trips.value[index + 1]
+                                            loadedTrips.add(trip2)
+                                            Box(
+                                                modifier = Modifier
+                                                    .weight(1f)
+                                                    .heightIn(0.dp, 120.dp)
+                                            ) {
+                                                MainCard(
+                                                    destination = trip2,
+                                                    rating = trip2.rating,
+                                                    padding = 5.dp,
+                                                    shadow = 10.dp,
+                                                    mainActivity = mainActivity
+                                                )
+                                            }
+                                        }
                                     }
                                 }
                             }
                         }
+                        item {
+                            Spacer(Modifier.height(100.dp))
+                        }
                     }
-
                 }
-            }
-            Box(
-                modifier = Modifier
-                    .padding(cardPadding)
-                    .fillMaxWidth()
-                    .height(30.dp)
-                    .background(
-                        brush = Brush.verticalGradient(
-                            colors = listOf(
-                                MaterialTheme.colors.background,
-                                Color.Transparent
+                Box(
+                    modifier = Modifier
+                        .padding(cardPadding)
+                        .fillMaxWidth()
+                        .height(30.dp)
+                        .background(
+                            brush = Brush.verticalGradient(
+                                colors = listOf(
+                                    MaterialTheme.colors.background,
+                                    Color.Transparent
+                                )
                             )
                         )
-                    )
-            )
+                )
+            }
         }
 
-    }
-}
-
-fun getActiveTrip(){
-    Thread {
-        val request = "125"
-        val tripText = sendPostRequest(request, action = "trip")
-        if (!tripText.isNullOrEmpty()) {
-            val gson = Gson()
-            val itemType = object : TypeToken<Trip>() {}.type
-            val trip: Trip = gson.fromJson(tripText, itemType)
-            activeTrip.value = trip
-        }
-    }.start()
-}
-
-fun getImages() {
-    images.value = true
-
-    if (trips.value.size <= 0) {
-        Thread {
-            val result = ArrayList<Destination>()
-            val points = arrayListOf(
-                LatLng(0.0, 0.0),
-                LatLng(80.0, 0.0),
-                LatLng(80.0, 20.0),
-                LatLng(0.0, 20.0),
-                LatLng(0.0, 0.0)
-            )
-            val request = points.joinToString(",", "[", "]") { e ->
-                "[${e.latitude},${e.longitude}]"
-            }
-            val citiesText = sendPostRequest(request, action = "polygonCities")
-            if (!citiesText.isNullOrEmpty()) {
-                val gson = Gson()
-                val itemType = object : TypeToken<List<Destination>>() {}.type
-                val cities: List<Destination> = gson.fromJson(citiesText, itemType)
-                for (city in cities) {
-
-                    city.rating = random().toFloat() * 5f
-                    result.add(city)
-                }
-                trips.value = result
-            }
-        }.start()
     }
 }
 

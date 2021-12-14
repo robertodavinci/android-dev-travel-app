@@ -6,7 +6,7 @@ sealed class BottomBarItem(var route: String, var icon: FaIconType, var title: S
     object Home : BottomBarItem("home", FaIcons.Home, "Home")
     object Map : BottomBarItem("map",  FaIcons.GlobeEurope, "Map")
     object Trips : BottomBarItem("trips",  FaIcons.MapPin, "Trips")
-    object Explore : BottomBarItem("explore",  FaIcons.MapRegular, "Explore")
+    object Explore : BottomBarItem("explore",  FaIcons.LightbulbRegular, "Explore")
     object Profile : BottomBarItem("profile",  FaIcons.UserAstronaut, "Profile")
     object Facebook : BottomBarItem("facebookLogin",  FaIcons.Facebook, "Facebook")
     object Google : BottomBarItem("googleLogin",  FaIcons.Google, "Google")

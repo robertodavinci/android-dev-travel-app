@@ -19,7 +19,7 @@ import com.apps.travel_app.ui.theme.contrastColor
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun Button(
-    onClick: () -> Unit,
+    onClick: () -> Unit = {},
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     elevation: Dp = 0.dp,

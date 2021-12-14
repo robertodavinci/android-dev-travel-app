@@ -7,6 +7,8 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.GridCells
 import androidx.compose.foundation.lazy.LazyColumn
@@ -17,13 +19,20 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.MaterialTheme.colors
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.Center
+import androidx.compose.ui.Alignment.Companion.CenterStart
+import androidx.compose.ui.Alignment.Companion.TopCenter
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -38,6 +47,7 @@ import com.apps.travel_app.models.Trip
 import com.apps.travel_app.ui.components.Heading
 import com.apps.travel_app.ui.components.MainCard
 import com.apps.travel_app.ui.components.TripCard
+import com.apps.travel_app.ui.components.login.LoginActivity
 import com.apps.travel_app.ui.theme.*
 import com.apps.travel_app.ui.utils.markerPopUp
 import com.apps.travel_app.ui.utils.numberedMarker
@@ -54,6 +64,8 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.guru.fontawesomecomposelib.FaIcon
 import com.guru.fontawesomecomposelib.FaIconType
+import com.skydoves.landscapist.CircularReveal
+import com.skydoves.landscapist.glide.GlideImage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -212,317 +224,140 @@ fun ExploreScreen(navController: NavController, mainActivity: MainActivity) {
         color = colors.background
     )
 
-    var searchTerm by remember { mutableStateOf("") }
-
-    val result = places.value.size > 0 || trips.value.size > 0 || cities.value.size > 0
-
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(if (!result) Color(0x44000000) else colors.background)
-            ,
-        verticalArrangement = if (!result) Arrangement.Center else Arrangement.Top
-    ) {
-        Column(
-            modifier = Modifier.padding(cardPadding).graphicsLayer {
-                shape = RoundedCornerShape(cardRadius)
-                clip = true
-            }.background(colors.background)
+            .background(colors.background),
+
         ) {
-            if (mapView != null && mapVisible) {
-                Card(
-                    modifier = Modifier
-                        .height(200.dp)
-                        .padding(cardPadding),
-                    elevation = cardElevation,
-                    shape = RoundedCornerShape(
-                        cardRadius
-                    )
-                ) {
-                    Box {
-                        AndroidView({ mapView }) { mapView ->
-                            CoroutineScope(Dispatchers.Main).launch {
-                                if (!mapLoaded.value) {
-                                    mapView.getMapAsync { mMap ->
-                                        if (!mapLoaded.value) {
-                                            map.value = mMap
-                                            mapInit()
-                                            mapLoaded.value = true
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        Text(
-                            modifier = Modifier
-                                .align(Center)
-                                .background(Color(0x44000000)),
-                            color = colors.surface,
-                            text = "Drag to choose an area"
-                        )
-                    }
-                }
-
-            } else if (mapView == null) {
-                Text(
-                    "Loading...",
-                    color = colors.surface,
-                    modifier = Modifier.padding(
-                        cardPadding
-                    )
-                )
-                loadingScreen.value++
-            }
-            Row(
+        Heading(
+            "Take a deep breath...",
+            color = Color.White,
+            modifier = Modifier.padding(cardPadding)
+        )
+        Text(
+            "Just a moment for you to get inspired by the wonder of our world",
+            color = White,
+            modifier = Modifier
+                .padding(cardPadding)
+                .fillMaxWidth(),
+            textAlign = TextAlign.Center,
+            fontSize = textSmall
+        )
+        Heading(
+            "... and make it yours",
+            color = Color.White,
+            modifier = Modifier.padding(cardPadding)
+        )
+        Row( verticalAlignment = Alignment.CenterVertically) {
+            Card(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .background(colors.background)
-                    .padding(cardPadding),
-                horizontalArrangement = Arrangement.SpaceBetween
+                    .padding(cardPadding)
+                    .weight(1f)
+                    .heightIn(0.dp, 150.dp),
+                elevation = cardElevation,
+                shape = RoundedCornerShape(cardRadius)
             ) {
-
-                TextField(
-                    value = searchTerm, onValueChange = { searchTerm = it },
-                    shape = RoundedCornerShape(cardRadius),
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .weight(1f),
-                    colors = TextFieldDefaults.textFieldColors(
-                        focusedIndicatorColor = Color.Transparent,
-                        disabledIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Transparent,
-                        backgroundColor = colors.background,
-                    ),
-                    placeholder = {
-                        Text(
-                            "Search",
-                            color = colors.surface,
-                            modifier = Modifier.alpha(0.5f)
-                        )
-                    },
-                    trailingIcon = {
-                        Row {
-                            IconButton(onClick = {
-                                openFilters = true
-                            }) {
-                                FaIcon(FaIcons.Filter, tint = colors.surface)
-                            }
-                            IconButton(onClick = {
-                                Search(
-                                    searchTerm,
-                                    types = filters
-                                )
-                            }) {
-                                FaIcon(FaIcons.Search, tint = colors.surface)
-                            }
-                            IconButton(onClick = {
-                                val intent = Intent(mainActivity, AroundMeActivity::class.java)
-                                startActivity(mainActivity, intent, null)
-                            }) {
-                                FaIcon(FaIcons.StreetView, tint = colors.surface)
-                            }
+                        .pointerInput(Unit) {
+                            detectTapGestures(
+                                onTap = {
+                                    val intent =
+                                        Intent(mainActivity, InspirationActivity::class.java)
+                                    startActivity(mainActivity, intent, null)
+                                }
+                            )
                         }
-                    },
-                    singleLine = true,
-                    textStyle = TextStyle(
-                        color = colors.surface,
-                        fontWeight = FontWeight.Bold
-                    ),
-                )
+                ) {
+                    GlideImage(
+                        modifier = Modifier.fillMaxSize(),
+                        imageModel = "https://safeitaly.org/travel/3.png?n=1",
+                        contentScale = ContentScale.Crop,
+                    )
+                    Heading(
+                        "Map drawing",
+                        modifier = Modifier
+                            .align(CenterStart)
+                            .padding(cardPadding),
+                        color = Color.White
+                    )
+                }
+
             }
         }
-        LazyColumn {
-            if (places.value.size > 0) {
-                item {
-                    Heading("Places")
-                }
-            }
-            val loaded = arrayListOf<Destination>()
-            item {
-                places.value.forEachIndexed { index, place ->
-                    if (!loaded.contains(place)) {
-                        loaded.add(place)
-                        Row {
-                            Box(
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .heightIn(0.dp, 120.dp)
-                            ) {
-                                MainCard(
-                                    infoScale = 0.6f,
-                                    destination = place,
-                                    rating = place.rating,
-                                    mainActivity = mainActivity,
-                                    icon = FaIcons.Google,
-                                    imageMaxHeight = 120f,
-                                    imageMinHeight = 120f,
-                                    isGooglePlace = true
-                                )
-                            }
-                            if (index < places.value.size - 1) {
-                                val place2 = places.value[index + 1]
-                                loaded.add(place2)
-                                Box(
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .heightIn(0.dp, 120.dp)
-                                ) {
-                                    MainCard(
-                                        infoScale = 0.6f,
-                                        destination = place2,
-                                        rating = place2.rating,
-                                        mainActivity = mainActivity,
-                                        icon = FaIcons.Google,
-                                        imageMaxHeight = 150f,
-                                        imageMinHeight = 120f,
-                                        isGooglePlace = true
-                                    )
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            if (trips.value.size > 0) {
-                item {
-                    Heading("Trips")
-                }
-            }
-            val loadedTrips = arrayListOf<Trip>()
-            item {
-                trips.value.forEachIndexed { index, trip ->
-                    if (!loadedTrips.contains(trip)) {
-                        loadedTrips.add(trip)
-                        Row {
-                            Box(
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .heightIn(0.dp, 120.dp)
-                            ) {
-                                TripCard(
-                                    trip = trip,
-                                    rating = trip.rating,
-                                    imageMaxHeight = 150f,
-                                    infoScale = 0.6f,
-                                )
-                            }
-                            if (index < trips.value.size - 1) {
-                                val trip2 = trips.value[index + 1]
-                                loadedTrips.add(trip2)
-                                Box(
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .heightIn(0.dp, 120.dp)
-                                ) {
-                                    TripCard(
-                                        infoScale = 0.6f,
-                                        trip = trip2,
-                                        rating = trip2.rating,
-                                        imageMaxHeight = 150f
-                                    )
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            if (cities.value.size > 0) {
-                item {
-                    Heading("Destinations")
-                }
-            }
-            loaded.clear()
-            item {
-                cities.value.forEachIndexed { index, city ->
-                    if (!loaded.contains(city)) {
-                        loaded.add(city)
-                        Row {
-                            Box(
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .heightIn(0.dp, 120.dp)
-                            ) {
-                                MainCard(
-                                    destination = city,
-                                    rating = city.rating,
-                                    mainActivity = mainActivity,
-                                    icon = FaIcons.Google,
-                                    imageMaxHeight = 150f,
-                                    infoScale = 0.6f,
-                                )
-                            }
-                            if (index < cities.value.size - 1) {
-                                val place2 = cities.value[index + 1]
-                                loaded.add(place2)
-                                Box(
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .heightIn(0.dp, 120.dp)
-                                ) {
-                                    MainCard(
-                                        infoScale = 0.6f,
-                                        destination = place2,
-                                        rating = place2.rating,
-                                        mainActivity = mainActivity,
-                                        icon = FaIcons.Google,
-                                        imageMaxHeight = 150f
-                                    )
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            item {
-                Spacer(modifier = Modifier.height(65.dp))
-            }
-
-
-        }
-
-    }
-
-    val scale: Float by animateFloatAsState(
-        if (openFilters) 1f else 0f, animationSpec = tween(
-            durationMillis = 500,
-            easing = LinearOutSlowInEasing
-        )
-    )
-    if (openFilters) {
-
-        Dialog(
-            onDismissRequest = {
-                openFilters = false
-            },
-
-            ) {
-            LazyVerticalGrid(
-                cells = GridCells.Fixed(5),
+        Row( verticalAlignment = Alignment.CenterVertically) {
+            Card(
                 modifier = Modifier
-                    .scale(scale)
-                    .height(200.dp)
-                    .padding(0.dp)
-                    .graphicsLayer {
-                        shape = RoundedCornerShape(cardRadius)
-                        clip = true
-                    }
-                    .background(colors.background)
-                    .fillMaxWidth()
+                    .padding(cardPadding)
+                    .weight(1f)
+                    .heightIn(0.dp, 150.dp),
+                elevation = cardElevation,
+                shape = RoundedCornerShape(cardRadius)
             ) {
-                items(filterIcons) { filter ->
-                    com.apps.travel_app.ui.components.Button(
-                        onClick = {
-                            if (filters.contains(filter.name))
-                                filters.remove(filter.name)
-                            else
-                                filters.add(filter.name)
-                        },
-                        modifier = Modifier.padding(5.dp),
-                        background = if (filters.contains(filter.name)) primaryColor else colors.onBackground
-                    ) {
-                        FaIcon(faIcon = filter.icon, tint = colors.surface)
-                    }
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .pointerInput(Unit) {
+                            detectTapGestures (
+                                onTap = {
+                                    val intent = Intent(mainActivity, InspirationActivity::class.java)
+                                    startActivity(mainActivity, intent, null)
+                                }
+                            )
+                        }
+                ) {
+                    GlideImage(
+                        modifier = Modifier.fillMaxSize(),
+                        imageModel = "https://safeitaly.org/travel/2.png?n=1",
+                        contentScale = ContentScale.Crop,
+                    )
+                    Heading(
+                        "The wall",
+                        modifier = Modifier
+                            .align(CenterStart)
+                            .padding(cardPadding),
+                        color = Color.White
+                    )
                 }
+
+            }
+
+            Card(
+                modifier = Modifier
+                    .padding(cardPadding)
+                    .weight(1f)
+                    .heightIn(0.dp, 150.dp),
+                elevation = cardElevation,
+                shape = RoundedCornerShape(cardRadius)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .pointerInput(Unit) {
+                            detectTapGestures (
+                                onTap = {
+                                    val intent = Intent(mainActivity, AroundMeActivity::class.java)
+                                    startActivity(mainActivity, intent, null)
+                                }
+                            )
+                        }
+                ) {
+                    GlideImage(
+                        modifier = Modifier.fillMaxSize(),
+                        imageModel = "https://safeitaly.org/travel/1.png?n=1",
+                        contentScale = ContentScale.Crop,
+                    )
+                    Heading(
+                        "Around you",
+                        modifier = Modifier
+                            .align(CenterStart)
+                            .padding(cardPadding),
+                        color = Color.White
+                    )
+                }
+
             }
         }
     }

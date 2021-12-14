@@ -1,10 +1,8 @@
 package com.apps.travel_app.models
 
-import android.os.Build
-import android.os.Parcel
-import android.os.Parcelable
 import androidx.compose.ui.graphics.ImageBitmap
-import java.util.*
+import com.apps.travel_app.data.rooms.Location
+import java.lang.Exception
 
 open class Destination() {
     var id: String = ""
@@ -20,6 +18,37 @@ open class Destination() {
     var isOpen: Boolean = false
     var address: String = ""
 
+    open fun fromLocation(location: Location) {
+        id = location.lid.toString()
+        latitude = location.latitude
+        longitude = location.longitude
+        type = location.type
+        thumbnailUrl = location.thumbnailUrl
+        rating = location.rating
+        description = location.description
+        address = location.address ?: ""
+        name = location.name
+    }
 
+    fun toLocation(): Location {
+        var lid = 0
+        try {
+            lid = id.toInt()
+        } catch (e: Exception) {
+
+        }
+        return Location(
+            lid = lid,
+            latitude = latitude,
+            longitude = longitude,
+            type = type,
+            thumbnailUrl = thumbnailUrl,
+            rating = rating,
+            description = description,
+            address = address,
+            name = name,
+            phone_number = null
+        )
+    }
 
 }

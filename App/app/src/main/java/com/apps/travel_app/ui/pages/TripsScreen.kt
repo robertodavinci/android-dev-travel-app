@@ -1,36 +1,32 @@
 package com.apps.travel_app.ui.pages
 
+import FaIcons
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.Center
-import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Color.Companion.Black
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.room.Room
 import com.apps.travel_app.MainActivity
+import com.apps.travel_app.data.rooms.AppDatabase
+import com.apps.travel_app.data.rooms.Location
+import com.apps.travel_app.data.rooms.Trip
 import com.apps.travel_app.models.Destination
-import com.apps.travel_app.models.Trip
 import com.apps.travel_app.ui.components.Button
 import com.apps.travel_app.ui.components.Heading
 import com.apps.travel_app.ui.components.MainCard
 import com.apps.travel_app.ui.components.TripCard
-import com.apps.travel_app.ui.theme.*
+import com.apps.travel_app.ui.theme.cardPadding
+import com.apps.travel_app.ui.theme.primaryColor
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.guru.fontawesomecomposelib.FaIcon
 
@@ -41,26 +37,43 @@ fun TripsScreen(mainActivity: MainActivity) {
     systemUiController.setSystemBarsColor(
         color = primaryColor
     )
+
+    val db = Room.databaseBuilder(
+        mainActivity,
+        AppDatabase::class.java, "database-name"
+    ).build()
+
     val saved = remember {
         mutableStateOf(
-            arrayListOf(
-                Destination(),
-                Destination(),
-                Destination(),
-                Trip()
-            )
+            ArrayList<Destination>()
         )
     }
-    val yours = remember {
+    val savedTrips = remember {
         mutableStateOf(
-            arrayListOf(
-                Trip(),
-                Destination(),
-                Destination(),
-                Trip()
-            )
+            ArrayList<com.apps.travel_app.models.Trip>()
         )
     }
+
+    Thread {
+        val locations = db.locationDao().getAll() as ArrayList<Location>
+        val savedLocations = arrayListOf<Destination>()
+        locations.forEach {
+            val destination = Destination()
+            destination.fromLocation(it)
+            savedLocations.add(destination)
+        }
+        val trips = db.tripDao().getAll() as ArrayList<Trip>
+        val finalSavedTrips = arrayListOf<com.apps.travel_app.models.Trip>()
+        trips.forEach {
+            val trip = com.apps.travel_app.models.Trip()
+            trip.fromTripDb(it)
+            finalSavedTrips.add(trip)
+        }
+        mainActivity.runOnUiThread {
+            saved.value = savedLocations
+            savedTrips.value = finalSavedTrips
+        }
+    }.start()
 
     Column(modifier = Modifier.background(MaterialTheme.colors.background)) {
 
@@ -112,62 +125,20 @@ fun TripsScreen(mainActivity: MainActivity) {
 
                     Column {
                         saved.value.forEach { destination ->
-                            if (destination is Destination) {
-                                MainCard(
-                                    destination = destination,
-                                    rating = destination.rating,
-                                    mainActivity = mainActivity,
-                                    imageMaxHeight = 100f
-                                )
-                            } else if (destination is Trip) {
-                                TripCard(
-                                    trip = destination,
-                                    rating = destination.rating,
-                                    mainActivity = mainActivity,
-                                    imageMaxHeight = 100f
-                                )
-                            }
-                        }
-                    }
-
-                    Row(horizontalArrangement = Arrangement.SpaceBetween) {
-                        Heading(
-                            "Your trips", modifier = Modifier
-                                .weight(1f)
-                                .align(CenterVertically)
-                        )
-                        IconButton(
-                            onClick = {},
-                            modifier = Modifier
-                                .padding(end = cardPadding)
-                                .size(20.dp)
-                                .align(CenterVertically)
-                        ) {
-                            FaIcon(
-                                FaIcons.Plus,
-                                tint = MaterialTheme.colors.surface,
-                                size = 18.dp
+                            MainCard(
+                                destination = destination,
+                                rating = destination.rating,
+                                mainActivity = mainActivity,
+                                imageMaxHeight = 100f
                             )
                         }
-                    }
-
-                    Column {
-                        yours.value.forEach { destination ->
-                            if (destination is Destination) {
-                                MainCard(
-                                    destination = destination,
-                                    rating = destination.rating,
-                                    mainActivity = mainActivity,
-                                    imageMaxHeight = 100f
-                                )
-                            } else if (destination is Trip) {
-                                TripCard(
-                                    trip = destination,
-                                    rating = destination.rating,
-                                    mainActivity = mainActivity,
-                                    imageMaxHeight = 100f
-                                )
-                            }
+                        savedTrips.value.forEach { trip ->
+                            TripCard(
+                                trip = trip,
+                                rating = trip.rating,
+                                mainActivity = mainActivity,
+                                imageMaxHeight = 100f
+                            )
                         }
                     }
 
