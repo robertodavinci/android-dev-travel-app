@@ -6,6 +6,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.MaterialTheme.colors
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -177,18 +178,21 @@ fun HomeScreen(navController: NavController, mainActivity: MainActivity) {
         }
 
         if (activeTrip.value == null) {
-            val destination = Destination()
-            destination.name = "Milan"
-            destination.thumbnailUrl =
-                "https://www.welcometoitalia.com/wp-content/uploads/2020/10/galleria_Milan.jpg"
-            MainCard(
-                destination = destination,
-                rating = 3.5f,
-                badges = arrayListOf("Cultural", "Youth"),
-                views = 206,
-                mainActivity = mainActivity,
-                imageMaxHeight = 200f
-            )
+
+            Column(Modifier.padding(cardPadding)) {
+                Text(
+                    "Explore new",
+                    color = colors.surface,
+                    fontSize = textHeading,
+                    fontWeight = FontWeight.SemiBold
+                )
+                Text(
+                    "Experience",
+                    color = colors.surface,
+                    fontSize = textHeading * 1.5,
+                    fontWeight = FontWeight.ExtraBold
+                )
+            }
         } else {
             Heading("Active trip")
             TripCard(
