@@ -1,7 +1,7 @@
 package com.apps.travel_app.models
 
 import androidx.compose.ui.graphics.ImageBitmap
-import com.apps.travel_app.data.rooms.Location
+import com.apps.travel_app.data.room.entity.Location
 import java.lang.Exception
 
 open class Destination() {

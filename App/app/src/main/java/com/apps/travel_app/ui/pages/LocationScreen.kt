@@ -1,7 +1,6 @@
 package com.apps.travel_app.ui.pages
 
 import FaIcons
-import android.util.Log
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -28,7 +27,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation.NavController
 import androidx.room.Room
 import com.apps.travel_app.MainActivity
-import com.apps.travel_app.data.rooms.AppDatabase
+import com.apps.travel_app.data.room.AppDatabase
 import com.apps.travel_app.models.Destination
 import com.apps.travel_app.models.Rating
 import com.apps.travel_app.models.Trip

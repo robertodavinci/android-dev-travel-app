@@ -1,7 +1,7 @@
 package com.apps.travel_app.models
 
 
-import com.apps.travel_app.data.rooms.TripStep
+import com.apps.travel_app.data.room.TripStep
 import com.guru.fontawesomecomposelib.FaIconType
 import java.lang.Exception
 

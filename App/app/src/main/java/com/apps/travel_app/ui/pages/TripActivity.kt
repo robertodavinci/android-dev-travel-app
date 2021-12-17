@@ -39,7 +39,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.room.Room
-import com.apps.travel_app.data.rooms.AppDatabase
+import com.apps.travel_app.data.room.AppDatabase
 import com.apps.travel_app.models.MediumType
 import com.apps.travel_app.models.Rating
 import com.apps.travel_app.models.Trip

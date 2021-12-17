@@ -1,9 +1,9 @@
 package com.apps.travel_app.models
 
 import androidx.compose.ui.graphics.ImageBitmap
-import com.apps.travel_app.data.rooms.Trip
-import com.apps.travel_app.data.rooms.TripAndDays
-import com.apps.travel_app.data.rooms.TripStep
+import com.apps.travel_app.data.room.Trip
+import com.apps.travel_app.data.room.TripAndDays
+import com.apps.travel_app.data.room.TripStep
 
 
 class Trip() {
