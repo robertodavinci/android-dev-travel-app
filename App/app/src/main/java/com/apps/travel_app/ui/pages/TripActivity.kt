@@ -296,7 +296,7 @@ class TripActivity : ComponentActivity() {
                             .padding(cardPadding)
                     )
                 }
-                FullHeightBottomSheet(body = { _ ->
+                FullHeightBottomSheet(body = {
 
                     val maxHeight: Float by animateFloatAsState(
                         if (open.value) 250f else 100f, animationSpec = tween(

@@ -1,9 +1,9 @@
 package com.apps.travel_app.models
 
 import androidx.compose.ui.graphics.ImageBitmap
-import com.apps.travel_app.data.room.Trip
-import com.apps.travel_app.data.room.TripAndDays
-import com.apps.travel_app.data.room.TripStep
+import com.apps.travel_app.data.room.entity.Trip
+import com.apps.travel_app.data.room.entity.TripAndDays
+import com.apps.travel_app.data.room.entity.TripStep
 
 
 class Trip() {
@@ -33,7 +33,7 @@ class Trip() {
     }
 
     fun toTripDb(startingtripId: Int): Trip {
-        return Trip(
+        return com.apps.travel_app.data.room.entity.Trip(
             tid = id,
             attributes = attributes.joinToString("|"),
             creator = creator,
@@ -47,7 +47,7 @@ class Trip() {
         )
     }
 
-    fun fromTripDb(trip: Trip) {
+    fun fromTripDb(trip: com.apps.travel_app.data.room.entity.Trip) {
         id = trip.tid
         attributes = trip.attributes.split("|")
         creator = trip.creator

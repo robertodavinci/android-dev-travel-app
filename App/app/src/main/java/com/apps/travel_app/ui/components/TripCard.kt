@@ -1,4 +1,5 @@
 package com.apps.travel_app.ui.components
+
 import FaIcons
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
@@ -20,14 +21,17 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.apps.travel_app.MainActivity
+import com.apps.travel_app.R
 import com.apps.travel_app.models.Trip
 import com.apps.travel_app.ui.theme.*
 import com.guru.fontawesomecomposelib.FaIcon
@@ -49,7 +53,8 @@ fun TripCard(
     radius: Dp = cardRadius,
     icon: FaIconType? = null,
     imageMaxHeight: Float = Float.POSITIVE_INFINITY,
-    active: Boolean = false
+    active: Boolean = false,
+    onClick: () -> Unit = {}
 ) {
 
     val openDialog = remember { mutableStateOf(false) }
@@ -74,6 +79,7 @@ fun TripCard(
                     .pointerInput(Unit) {
                         detectTapGestures(
                             onTap = {
+                                onClick()
                                 mainActivity?.setTrip(trip, active)
                             }
                         )
@@ -85,12 +91,13 @@ fun TripCard(
                 if (squaredImage)
                     modifier.aspectRatio(1f)
                 GlideImage(
-                    imageModel = trip.thumbnailUrl ?: trip.thumbnail,
+                    imageModel = trip.thumbnailUrl.ifEmpty { R.drawable.blur },
                     modifier = modifier,
                     contentScale = if (squaredImage) ContentScale.Fit else ContentScale.Crop,
                     circularReveal = CircularReveal(duration = 700),
+                    error = painterResource(id = R.drawable.blur),
 
-                    )
+                )
 
                 Column(
                     modifier = Modifier
@@ -160,26 +167,28 @@ fun TripCard(
                         }
                     }
                 }
-
             }
 
-            if (badges.isNotEmpty()) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .wrapContentHeight()
-                        .padding(cardPadding)
-                ) {
-                    badges.forEach { badge ->
-                        Badge(
-                            text = badge
-                        )
-                        Spacer(modifier = Modifier.width(5.dp))
-                    }
+        }
+
+        if (badges.isNotEmpty()) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight()
+                    .padding(cardPadding)
+            ) {
+                badges.forEach { badge ->
+                    Badge(
+                        text = badge
+                    )
+                    Spacer(modifier = Modifier.width(5.dp))
                 }
             }
         }
     }
+
+
     val scale: Float by animateFloatAsState(
         if (openDialog.value) 1f else 0f, animationSpec = tween(
             durationMillis = 500,
@@ -212,7 +221,8 @@ fun TripCard(
                     GlideImage(
                         imageModel = trip.thumbnailUrl ?: trip.thumbnail,
                         modifier = Modifier
-                            .fillMaxWidth().height(200.dp),
+                            .fillMaxWidth()
+                            .height(200.dp),
                         circularReveal = CircularReveal(duration = 700),
 
                         )

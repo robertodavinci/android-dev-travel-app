@@ -18,8 +18,8 @@ import androidx.compose.ui.unit.dp
 import androidx.room.Room
 import com.apps.travel_app.MainActivity
 import com.apps.travel_app.data.room.AppDatabase
-import com.apps.travel_app.data.room.Location
-import com.apps.travel_app.data.room.Trip
+import com.apps.travel_app.data.room.entity.Location
+import com.apps.travel_app.data.room.entity.Trip
 import com.apps.travel_app.models.Destination
 import com.apps.travel_app.ui.components.Button
 import com.apps.travel_app.ui.components.Heading

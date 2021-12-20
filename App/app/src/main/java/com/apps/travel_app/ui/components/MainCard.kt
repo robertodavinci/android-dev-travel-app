@@ -21,19 +21,23 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.apps.travel_app.MainActivity
+import com.apps.travel_app.R
 import com.apps.travel_app.models.Destination
 import com.apps.travel_app.ui.theme.*
+import com.apps.travel_app.ui.utils.getBitmapFromURL
 import com.guru.fontawesomecomposelib.FaIcon
 import com.guru.fontawesomecomposelib.FaIconType
 import com.skydoves.landscapist.CircularReveal
@@ -55,7 +59,8 @@ fun MainCard(
     imageMaxHeight: Float = Float.POSITIVE_INFINITY,
     imageMinHeight: Float = 0f,
     isGooglePlace: Boolean = false,
-    clickable: Boolean = true
+    clickable: Boolean = true,
+    onClick: () -> Unit = {}
 ) {
 
 
@@ -90,6 +95,7 @@ fun MainCard(
                                 )
                                 },
                                 onTap = {
+                                    onClick()
                                     if (isGooglePlace) {
                                         mainActivity.setGooglePlace(destination, true)
                                     } else {
@@ -106,12 +112,11 @@ fun MainCard(
                 if (squaredImage)
                     modifier.aspectRatio(1f)
                 GlideImage(
-                    imageModel = destination.thumbnailUrl,
+                    imageModel = destination.thumbnailUrl.ifEmpty { R.drawable.blur },
                     modifier = modifier,
                     contentScale = if (squaredImage) ContentScale.Fit else ContentScale.Crop,
                     circularReveal = CircularReveal(duration = 700),
-
-
+                    error = painterResource(id = R.drawable.blur),
                     )
 
                 Column(

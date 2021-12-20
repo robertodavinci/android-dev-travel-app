@@ -73,12 +73,12 @@ fun ExploreScreen(navController: NavController, mainActivity: MainActivity) {
         ) {
         Heading(
             "Take a deep breath...",
-            color = White,
+            color = colors.surface,
             modifier = Modifier.padding(cardPadding)
         )
         Text(
             "Just a moment for you to get inspired by the wonder of our world",
-            color = White,
+            color = colors.surface,
             modifier = Modifier
                 .padding(cardPadding)
                 .fillMaxWidth(),
@@ -87,7 +87,7 @@ fun ExploreScreen(navController: NavController, mainActivity: MainActivity) {
         )
         Heading(
             "... and make it yours",
-            color = White,
+            color = colors.surface,
             modifier = Modifier.padding(cardPadding)
         )
         Row( verticalAlignment = Alignment.CenterVertically) {
@@ -105,16 +105,23 @@ fun ExploreScreen(navController: NavController, mainActivity: MainActivity) {
                         .pointerInput(Unit) {
                             detectTapGestures(
                                 onTap = {
-                                    val intent =
-                                        Intent(mainActivity, InspirationActivity::class.java)
-                                    startActivity(mainActivity, intent, null)
+                                    navController.navigate("Map") {
+
+                                        navController.graph.startDestinationRoute?.let { route ->
+                                            popUpTo(route) {
+                                                saveState = true
+                                            }
+                                        }
+                                        launchSingleTop = true
+                                        restoreState = true
+                                    }
                                 }
                             )
                         }
                 ) {
                     GlideImage(
                         modifier = Modifier.fillMaxSize(),
-                        imageModel = "https://safeitaly.org/travel/3.png?n=1",
+                        imageModel = "https://braintrustinteractive.s3.amazonaws.com/wp-content/uploads/background-blur-gradient.png",
                         contentScale = ContentScale.Crop,
                     )
                     Heading(
@@ -151,7 +158,7 @@ fun ExploreScreen(navController: NavController, mainActivity: MainActivity) {
                 ) {
                     GlideImage(
                         modifier = Modifier.fillMaxSize(),
-                        imageModel = "https://safeitaly.org/travel/2.png?n=1",
+                        imageModel = "https://free4kwallpapers.com/uploads/originals/2019/08/28/gradient-blur-wallpaper.jpg",
                         contentScale = ContentScale.Crop,
                     )
                     Heading(
@@ -187,7 +194,7 @@ fun ExploreScreen(navController: NavController, mainActivity: MainActivity) {
                 ) {
                     GlideImage(
                         modifier = Modifier.fillMaxSize(),
-                        imageModel = "https://safeitaly.org/travel/1.png?n=1",
+                        imageModel = "https://www.brazilcouncil.org/wp-content/uploads/2021/07/istockphoto-1212284111-170667a.jpg",
                         contentScale = ContentScale.Crop,
                     )
                     Heading(

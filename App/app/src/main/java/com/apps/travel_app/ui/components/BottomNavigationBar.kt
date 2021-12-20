@@ -1,14 +1,20 @@
 package com.apps.travel_app.ui.components
 
 import FaIcons
+import android.app.Activity
+import android.view.View
+import android.view.inputmethod.InputMethodManager
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.ExperimentalMaterialApi
@@ -19,8 +25,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.BottomStart
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.semantics.SemanticsProperties.ImeAction
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -39,7 +53,8 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.guru.fontawesomecomposelib.FaIcon
 
-@OptIn(ExperimentalMaterialApi::class)
+
+@OptIn(ExperimentalMaterialApi::class, androidx.compose.ui.ExperimentalComposeUiApi::class)
 @Composable
 fun BottomNavigationBar(navController: NavController, mainActivity: MainActivity) {
 
@@ -63,19 +78,12 @@ fun BottomNavigationBar(navController: NavController, mainActivity: MainActivity
         mutableStateOf(ArrayList<Destination>())
     }
 
+    val localFocusManager = LocalFocusManager.current
     fun Search(text: String, types: List<String> = arrayListOf()) {
 
         Thread {
-            val points = arrayListOf(
-                LatLng(0.0, 0.0),
-                LatLng(80.0, 0.0),
-                LatLng(80.0, 20.0),
-                LatLng(0.0, 20.0),
-                LatLng(0.0, 0.0)
-            )
-            val request = "{\"area\":" + points.joinToString(",", "[", "]") { e ->
-                "[${e.latitude},${e.longitude}]"
-            } + ", \"text\": \"$text\", \"type\": \"" + types.joinToString("|").lowercase() + "\"}"
+
+            val request = "{\"text\": \"$text\", \"type\": \"" + types.joinToString("|").lowercase() + "\"}"
             println(request)
             val resultText = sendPostRequest(request, action = "search")
             if (!resultText.isNullOrEmpty()) {
@@ -91,11 +99,15 @@ fun BottomNavigationBar(navController: NavController, mainActivity: MainActivity
         }.start()
     }
 
+    val keyboardController = LocalSoftwareKeyboardController.current
     Box {
-
         FullHeightBottomSheet(mH = 370, background = colors.onBackground) { status ->
             if (status == States.COLLAPSED) {
                 searchTerm = ""
+                DisposableEffect(Unit) {
+                    localFocusManager.clearFocus()
+                    onDispose { }
+                }
             }
             Column(
                 modifier = Modifier
@@ -108,23 +120,33 @@ fun BottomNavigationBar(navController: NavController, mainActivity: MainActivity
                         shape = RoundedCornerShape(30)
                         clip = true
                     }
-                    .background(colors.background), verticalAlignment = Alignment.CenterVertically) {
+                    .background(Color(0x33000022)), verticalAlignment = Alignment.CenterVertically) {
                     BasicTextField(
+                        keyboardOptions = KeyboardOptions(imeAction = androidx.compose.ui.text.input.ImeAction.Done),
+                        keyboardActions = KeyboardActions(
+                            onDone = {Search(searchTerm);keyboardController?.hide()}),
                         value = searchTerm, onValueChange = { searchTerm = it },
                         modifier = Modifier
                             .padding(start = 10.dp, end = 10.dp)
                             .fillMaxWidth()
-                            .weight(1f),
+                            .weight(1f)
+                            .onFocusChanged {
+                                if (it.isFocused) {
+                                    ChangeState(States.EXPANDED)
+                                }
+                            },
                         singleLine = true,
                         textStyle = TextStyle(
                             color = colors.surface,
                             fontWeight = FontWeight.Bold
                         ),
+                        cursorBrush = SolidColor(colors.surface)
                     )
                     IconButton(onClick = {
                         Search(
                             searchTerm
                         )
+                        keyboardController?.hide()
                     }) {
                         FaIcon(FaIcons.Search, tint = iconLightColor)
                     }
@@ -164,7 +186,10 @@ fun BottomNavigationBar(navController: NavController, mainActivity: MainActivity
                                                 icon = FaIcons.Google,
                                                 imageMaxHeight = 120f,
                                                 imageMinHeight = 120f,
-                                                isGooglePlace = true
+                                                isGooglePlace = true,
+                                                onClick = {
+                                                    ChangeState(States.COLLAPSED)
+                                                }
                                             )
                                         }
                                         if (index < places.value.size - 1) {
@@ -183,7 +208,10 @@ fun BottomNavigationBar(navController: NavController, mainActivity: MainActivity
                                                     icon = FaIcons.Google,
                                                     imageMaxHeight = 150f,
                                                     imageMinHeight = 120f,
-                                                    isGooglePlace = true
+                                                    isGooglePlace = true,
+                                                    onClick = {
+                                                        ChangeState(States.COLLAPSED)
+                                                    }
                                                 )
                                             }
                                         }
@@ -212,6 +240,10 @@ fun BottomNavigationBar(navController: NavController, mainActivity: MainActivity
                                                 rating = trip.rating,
                                                 imageMaxHeight = 150f,
                                                 infoScale = 0.6f,
+                                                onClick = {
+
+                                                    ChangeState(States.COLLAPSED)
+                                                }
                                             )
                                         }
                                         if (index < trips.value.size - 1) {
@@ -226,7 +258,11 @@ fun BottomNavigationBar(navController: NavController, mainActivity: MainActivity
                                                     infoScale = 0.6f,
                                                     trip = trip2,
                                                     rating = trip2.rating,
-                                                    imageMaxHeight = 150f
+                                                    imageMaxHeight = 150f,
+                                                    onClick = {
+
+                                                        ChangeState(States.COLLAPSED)
+                                                    }
                                                 )
                                             }
                                         }
@@ -257,6 +293,10 @@ fun BottomNavigationBar(navController: NavController, mainActivity: MainActivity
                                                 icon = FaIcons.Google,
                                                 imageMaxHeight = 150f,
                                                 infoScale = 0.6f,
+                                                onClick = {
+
+                                                    ChangeState(States.COLLAPSED)
+                                                }
                                             )
                                         }
                                         if (index < cities.value.size - 1) {
@@ -273,7 +313,11 @@ fun BottomNavigationBar(navController: NavController, mainActivity: MainActivity
                                                     rating = place2.rating,
                                                     mainActivity = mainActivity,
                                                     icon = FaIcons.Google,
-                                                    imageMaxHeight = 150f
+                                                    imageMaxHeight = 150f,
+                                                    onClick = {
+
+                                                        ChangeState(States.COLLAPSED)
+                                                    }
                                                 )
                                             }
                                         }
@@ -286,6 +330,8 @@ fun BottomNavigationBar(navController: NavController, mainActivity: MainActivity
                     }
                 }
             }
+
+
 
 
         }
@@ -360,6 +406,8 @@ fun BottomNavigationBar(navController: NavController, mainActivity: MainActivity
 
             }
         }
+
+
     }
 }
 
