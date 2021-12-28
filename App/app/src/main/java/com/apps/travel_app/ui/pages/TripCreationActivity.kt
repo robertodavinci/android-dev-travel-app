@@ -23,12 +23,10 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.MaterialTheme.colors
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.BottomEnd
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Alignment.Companion.Start
-import androidx.compose.ui.Alignment.Companion.TopStart
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.rotate
@@ -56,7 +54,6 @@ import com.apps.travel_app.ui.components.TripStepCard
 import com.apps.travel_app.ui.theme.*
 import com.apps.travel_app.ui.utils.sendPostRequest
 import com.apps.travel_app.user
-import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.storage.FirebaseStorage
 import com.google.gson.Gson
@@ -559,7 +556,7 @@ class TripCreationActivity : ComponentActivity() {
                                     var uploadTask = mountainImagesRef.putBytes(data)
                                     uploadTask.addOnFailureListener {
                                         upload()
-                                    }.addOnSuccessListener { taskSnapshot ->
+                                    }.addOnSuccessListener {
                                         storageRef.child(path).downloadUrl.addOnSuccessListener {
                                             upload(it.toString())
                                         }

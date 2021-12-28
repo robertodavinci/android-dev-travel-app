@@ -1,7 +1,6 @@
 package com.apps.travel_app.ui.components
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
@@ -13,16 +12,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.apps.travel_app.ui.theme.cardRadius
-import com.apps.travel_app.ui.theme.cardlightBackground
 import com.apps.travel_app.ui.theme.contrastColor
-import com.apps.travel_app.ui.theme.danger
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun Button(
-    onClick: () -> Unit = {},
     modifier: Modifier = Modifier,
+    onClick: () -> Unit = {},
     enabled: Boolean = true,
     elevation: Dp = 0.dp,
     contentPadding: PaddingValues = ButtonDefaults.ContentPadding,

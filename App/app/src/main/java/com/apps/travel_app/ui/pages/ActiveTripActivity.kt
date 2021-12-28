@@ -45,7 +45,6 @@ import com.apps.travel_app.ui.utils.markerPopUp
 import com.apps.travel_app.ui.utils.numberedMarker
 import com.apps.travel_app.ui.utils.rememberMapViewWithLifecycle
 import com.apps.travel_app.ui.utils.sendPostRequest
-import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.google.android.libraries.maps.CameraUpdateFactory
 import com.google.android.libraries.maps.GoogleMap
 import com.google.android.libraries.maps.MapView

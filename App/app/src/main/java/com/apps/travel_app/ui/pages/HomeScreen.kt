@@ -2,25 +2,18 @@ package com.apps.travel_app.ui.pages
 
 import android.graphics.Bitmap
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.MaterialTheme.colors
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.hapticfeedback.HapticFeedbackType
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.AnnotatedString
@@ -34,8 +27,10 @@ import com.apps.travel_app.MainActivity
 import com.apps.travel_app.R
 import com.apps.travel_app.models.Destination
 import com.apps.travel_app.models.Trip
-import com.apps.travel_app.ui.components.*
-import com.apps.travel_app.ui.theme.Shapes
+import com.apps.travel_app.ui.components.Heading
+import com.apps.travel_app.ui.components.Loader
+import com.apps.travel_app.ui.components.MainCard
+import com.apps.travel_app.ui.components.NetworkError
 import com.apps.travel_app.ui.theme.cardPadding
 import com.apps.travel_app.ui.theme.pacifico
 import com.apps.travel_app.ui.theme.textHeading
@@ -43,13 +38,10 @@ import com.apps.travel_app.ui.utils.getTriangularMask
 import com.apps.travel_app.ui.utils.isOnline
 import com.apps.travel_app.ui.utils.sendPostRequest
 import com.apps.travel_app.user
-import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.google.android.libraries.maps.model.LatLng
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import com.skydoves.landscapist.CircularReveal
 import com.skydoves.landscapist.glide.GlideImage
-import java.lang.Math.random
 
 lateinit var trips: MutableState<ArrayList<Destination>>
 var activeTrip: MutableState<Trip?> = mutableStateOf(null)

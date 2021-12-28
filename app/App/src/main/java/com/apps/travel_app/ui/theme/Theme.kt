@@ -38,7 +38,7 @@ var mapStyle = R.raw.style
 
 
 @Composable
-fun Travel_AppTheme(systemTheme: Boolean = true, content: @Composable() () -> Unit) {
+fun Travel_AppTheme(systemTheme: Boolean = true, content: @Composable () -> Unit) {
 
 
     val colors = if (isSystemInDarkTheme() && systemTheme) {
@@ -70,7 +70,7 @@ fun Travel_AppTheme(systemTheme: Boolean = true, content: @Composable() () -> Un
 }
 
 @Composable
-fun MainActivity_Travel_AppTheme(systemTheme: Boolean = true, content: @Composable() () -> Unit) {
+fun MainActivity_Travel_AppTheme(systemTheme: Boolean = true, content: @Composable () -> Unit) {
     followSystem = remember { mutableStateOf(systemTheme)}
     Travel_AppTheme(systemTheme = followSystem.value, content = content)
 }

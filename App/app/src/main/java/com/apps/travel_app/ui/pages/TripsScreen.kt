@@ -14,7 +14,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color.Companion.Transparent
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.style.TextAlign
@@ -25,13 +24,15 @@ import com.apps.travel_app.data.room.AppDatabase
 import com.apps.travel_app.data.room.entity.Location
 import com.apps.travel_app.data.room.entity.Trip
 import com.apps.travel_app.models.Destination
-import com.apps.travel_app.ui.components.*
+import com.apps.travel_app.ui.components.Button
+import com.apps.travel_app.ui.components.Heading
+import com.apps.travel_app.ui.components.MainCard
+import com.apps.travel_app.ui.components.TripCard
 import com.apps.travel_app.ui.theme.cardPadding
 import com.apps.travel_app.ui.theme.cardRadius
 import com.apps.travel_app.ui.theme.danger
 import com.apps.travel_app.ui.theme.primaryColor
 import com.apps.travel_app.user
-import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.guru.fontawesomecomposelib.FaIcon
 
 @OptIn(ExperimentalMaterialApi::class)

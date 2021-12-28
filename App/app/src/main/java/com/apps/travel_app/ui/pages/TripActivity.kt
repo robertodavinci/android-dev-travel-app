@@ -12,22 +12,20 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement.SpaceBetween
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.IconButton
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.MaterialTheme.colors
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment.Companion.Center
-import androidx.compose.ui.Alignment.Companion.TopStart
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Alignment.Companion.TopCenter
+import androidx.compose.ui.Alignment.Companion.TopStart
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.scale
@@ -36,7 +34,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight.Companion.Bold
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -51,7 +48,6 @@ import com.apps.travel_app.ui.components.*
 import com.apps.travel_app.ui.theme.*
 import com.apps.travel_app.ui.utils.*
 import com.apps.travel_app.user
-import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.google.android.libraries.maps.CameraUpdateFactory
 import com.google.android.libraries.maps.GoogleMap
 import com.google.android.libraries.maps.MapView
@@ -63,7 +59,6 @@ import com.skydoves.landscapist.glide.GlideImage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.lang.Exception
 import java.lang.Math.random
 
 class TripActivity : ComponentActivity() {
@@ -353,7 +348,7 @@ class TripActivity : ComponentActivity() {
                     ) {
                         FaIcon(
                             if (isSaved) FaIcons.Heart else FaIcons.HeartRegular,
-                            tint = if (isSaved) danger else MaterialTheme.colors.surface
+                            tint = if (isSaved) danger else colors.surface
                         )
                     }
                 }, body = {
@@ -433,19 +428,19 @@ class TripActivity : ComponentActivity() {
                                 ) {
                                     Text(
                                         "Created by ${trip.creator} on ${trip.creationDate}",
-                                        color = MaterialTheme.colors.surface,
+                                        color = colors.surface,
                                         fontSize = textExtraSmall
                                     )
                                     Text(
                                         "Perfect during ${trip.season}",
-                                        color = MaterialTheme.colors.surface,
+                                        color = colors.surface,
                                         fontSize = textExtraSmall
                                     )
                                 }
 
                                 Text(
                                     trip.description,
-                                    color = MaterialTheme.colors.surface,
+                                    color = colors.surface,
                                     fontSize = textSmall,
                                     fontWeight = Bold,
                                     modifier = Modifier.padding(cardPadding)
@@ -486,9 +481,9 @@ class TripActivity : ComponentActivity() {
                                 ) {
                                     items(trip.destinationsPerDay.size) { i ->
                                         val background =
-                                            if (i == selectedDay) primaryColor else MaterialTheme.colors.onBackground
+                                            if (i == selectedDay) primaryColor else colors.onBackground
                                         val foreground =
-                                            if (i == selectedDay) White else MaterialTheme.colors.surface
+                                            if (i == selectedDay) White else colors.surface
                                         Button(
                                             onClick = {
                                                 selectedDay = i
@@ -600,7 +595,7 @@ class TripActivity : ComponentActivity() {
                                                                 FaIcon(
                                                                     FaIcons.Plus,
                                                                     size = 18.dp,
-                                                                    tint = MaterialTheme.colors.surface,
+                                                                    tint = colors.surface,
                                                                 )
                                                             }
                                                         }

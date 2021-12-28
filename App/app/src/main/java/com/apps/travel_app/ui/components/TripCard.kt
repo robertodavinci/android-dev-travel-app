@@ -21,7 +21,6 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -58,7 +57,6 @@ fun TripCard(
 ) {
 
     val openDialog = remember { mutableStateOf(false) }
-    val haptic = LocalHapticFeedback.current
 
     Card(
         modifier = Modifier
@@ -220,7 +218,7 @@ fun TripCard(
                         .fillMaxWidth()
                 ) {
                     GlideImage(
-                        imageModel = trip.thumbnailUrl ?: trip.thumbnail,
+                        imageModel = trip.thumbnailUrl,
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(200.dp),

@@ -1,9 +1,9 @@
 package com.apps.travel_app.ui.pages
 
+import FaIcons
 import android.content.res.Resources
 import android.os.Bundle
 import android.preference.PreferenceManager
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.core.LinearEasing
@@ -38,14 +38,11 @@ import com.apps.travel_app.ui.components.Button
 import com.apps.travel_app.ui.components.Heading
 import com.apps.travel_app.ui.theme.Travel_AppTheme
 import com.apps.travel_app.ui.theme.cardRadius
-import com.apps.travel_app.ui.theme.danger
 import com.apps.travel_app.ui.utils.sendPostRequest
-import com.google.android.libraries.maps.model.LatLng
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.guru.fontawesomecomposelib.FaIcon
 import com.skydoves.landscapist.glide.GlideImage
-import java.lang.Exception
 import java.lang.Math.random
 import kotlin.math.abs
 import kotlin.math.sign
@@ -53,7 +50,7 @@ import kotlin.math.sign
 
 class InspirationActivity : ComponentActivity() {
 
-    private var thumbs: MutableList<String> = mutableListOf<String>()
+    private var thumbs: MutableList<String> = mutableListOf()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

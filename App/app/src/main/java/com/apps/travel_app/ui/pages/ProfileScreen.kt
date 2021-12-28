@@ -17,7 +17,6 @@ import com.apps.travel_app.ui.components.NiceSwitch
 import com.apps.travel_app.ui.components.NiceSwitchStates
 import com.apps.travel_app.ui.theme.cardPadding
 import com.apps.travel_app.ui.theme.followSystem
-import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.messaging.FirebaseMessaging
 import com.guru.fontawesomecomposelib.FaIcon
@@ -44,18 +43,18 @@ fun ProfileScreen(activity: MainActivity) {
         Spacer(Modifier.height(cardPadding * 2))
         Heading("General settings")
 
-        NiceSwitch(followSystem.value, onChecked = {
+        NiceSwitch(checked = followSystem.value, onChecked = {
             followSystem.value = it
             with(sharedPref.edit()) {
                 putBoolean("darkTheme", it)
                 apply()
             }
-        }, NiceSwitchStates(FaIcons.MoonRegular, FaIcons.SunRegular), label = "Theme")
+        }, states = NiceSwitchStates(T = FaIcons.MoonRegular, F = FaIcons.SunRegular), label = "Theme")
 
         Heading("Astronaut preferences")
 
 
-        NiceSwitch(sharedPref.getBoolean("receiveNotification", false), onChecked = {
+        NiceSwitch(checked = sharedPref.getBoolean("receiveNotification", false), onChecked = {
             if (it) {
                 FirebaseMessaging.getInstance().subscribeToTopic(firebaseId.toString()).addOnCompleteListener {
                     Log.d("FCM","Subscribed")
@@ -69,7 +68,7 @@ fun ProfileScreen(activity: MainActivity) {
                 putBoolean("receiveNotification", it)
                 apply()
             }
-        }, NiceSwitchStates(FaIcons.BellRegular, FaIcons.BellSlashRegular), label = "Receive personal notification")
+        }, states =  NiceSwitchStates(FaIcons.BellRegular, FaIcons.BellSlashRegular), label = "Receive personal notification")
 
 
         Button(onClick = {
