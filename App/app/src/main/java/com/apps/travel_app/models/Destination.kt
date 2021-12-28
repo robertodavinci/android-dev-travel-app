@@ -31,14 +31,9 @@ open class Destination() {
     }
 
     fun toLocation(): Location {
-        var lid = 0
-        try {
-            lid = id.toInt()
-        } catch (e: Exception) {
 
-        }
         return Location(
-            lid = lid,
+            lid = id,
             latitude = latitude,
             longitude = longitude,
             type = type,
@@ -47,7 +42,8 @@ open class Destination() {
             description = description,
             address = address,
             name = name,
-            phone_number = null
+            phone_number = null,
+            saved = false
         )
     }
 

@@ -100,10 +100,10 @@ class ActiveTripActivity : ComponentActivity() {
         trip: Trip
     ) {
 
-        val systemUiController = rememberSystemUiController()
+       /* val systemUiController = rememberSystemUiController()
         systemUiController.setSystemBarsColor(
-            color = textLightColor
-        )
+            color = colors.background
+        )*/
 
         var isCompleted by remember { mutableStateOf(false) }
         val open: MutableState<Boolean> = remember { mutableStateOf(false) }
@@ -177,7 +177,7 @@ class ActiveTripActivity : ComponentActivity() {
             mapView = rememberMapViewWithLifecycle()
 
         BoxWithConstraints {
-            Box(modifier = Modifier.fillMaxSize()) {
+            Box(modifier = Modifier.fillMaxSize().background(colors.background)) {
 
                 if (mapView != null) {
                     Column(
@@ -223,7 +223,7 @@ class ActiveTripActivity : ComponentActivity() {
                         .background(
                             brush = Brush.verticalGradient(
                                 colors = listOf(
-                                    textLightColor,
+                                    colors.background,
                                     Color.Transparent
                                 )
                             )

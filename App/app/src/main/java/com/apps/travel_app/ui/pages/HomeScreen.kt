@@ -1,6 +1,9 @@
 package com.apps.travel_app.ui.pages
 
+import android.graphics.Bitmap
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -8,17 +11,23 @@ import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.MaterialTheme.colors
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign.Companion.Center
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.apps.travel_app.MainActivity
@@ -26,14 +35,19 @@ import com.apps.travel_app.R
 import com.apps.travel_app.models.Destination
 import com.apps.travel_app.models.Trip
 import com.apps.travel_app.ui.components.*
+import com.apps.travel_app.ui.theme.Shapes
 import com.apps.travel_app.ui.theme.cardPadding
+import com.apps.travel_app.ui.theme.pacifico
 import com.apps.travel_app.ui.theme.textHeading
+import com.apps.travel_app.ui.utils.getTriangularMask
 import com.apps.travel_app.ui.utils.isOnline
 import com.apps.travel_app.ui.utils.sendPostRequest
+import com.apps.travel_app.user
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.google.android.libraries.maps.model.LatLng
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import com.skydoves.landscapist.CircularReveal
 import com.skydoves.landscapist.glide.GlideImage
 import java.lang.Math.random
 
@@ -44,17 +58,17 @@ var images: MutableState<Boolean> = mutableStateOf(false)
 @Composable
 fun HomeScreen(navController: NavController, mainActivity: MainActivity) {
 
-
+/*
     val systemUiController = rememberSystemUiController()
     systemUiController.setSystemBarsColor(
         color = MaterialTheme.colors.background
-    )
+    )*/
 
     images = remember { mutableStateOf(false) }
     trips = remember { mutableStateOf(ArrayList()) }
 
 
-    fun getActiveTrip(){
+    fun getActiveTrip() {
         Thread {
             val request = "125"
             val tripText = sendPostRequest(request, action = "trip")
@@ -91,8 +105,6 @@ fun HomeScreen(navController: NavController, mainActivity: MainActivity) {
                     val itemType = object : TypeToken<List<Destination>>() {}.type
                     val cities: List<Destination> = gson.fromJson(citiesText, itemType)
                     for (city in cities) {
-
-                        city.rating = random().toFloat() * 5f
                         result.add(city)
                     }
 
@@ -100,31 +112,7 @@ fun HomeScreen(navController: NavController, mainActivity: MainActivity) {
                         trips.value = result
                     }
                 }
-            }.start()/*
-        fireStoreDatabase.collection("destinations")
-                .get()
-                .addOnSuccessListener { querySnapshot ->
-                    val result = ArrayList<Destination>()
-                    querySnapshot.forEach { document ->
-                        val destination = Destination()
-
-                        destination.id = document.get("id").toString()
-                        destination.name = document.get("name").toString()
-                        destination.rating = (document.get("rating") as Double).toFloat()
-                        destination.latitude = (document.get("latitude") as Double)
-                        destination.longitude = (document.get("longitude") as Double)
-                        destination.thumbnailUrl = document.get("thumbnail_url").toString()
-                        result.add(destination)
-
-
-                    }
-                    trips.value = result
-                }
-                .addOnFailureListener { exception ->
-                    Log.w("c", "Error getting documents $exception")
-                }
-*/
-
+            }.start()
         }
     }
 
@@ -134,104 +122,163 @@ fun HomeScreen(navController: NavController, mainActivity: MainActivity) {
         getActiveTrip()
     }
 
-    Column(
+    LazyColumn(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colors.background)
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(end = cardPadding, start = cardPadding, top = cardPadding, bottom = 10.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(
-                text = "Hi ${mainActivity.user.displayName ?: mainActivity.user.email}",
-                fontSize = textHeading,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colors.surface
-            )
-            IconButton(onClick = {
-                navController.navigate("profile") {
-                    navController.graph.startDestinationRoute?.let { route ->
-                        popUpTo(route) {
-                            saveState = true
-                        }
-                    }
-                    launchSingleTop = true
-                    restoreState = true
+        item {
+
+
+            if (activeTrip.value != null) {
+                var experienceImage: Bitmap? by remember { mutableStateOf(null) }
+                var imageRequired by remember {
+                    mutableStateOf(false)
+                }
+                if (!imageRequired) {
+                    imageRequired = true
+                    Thread {
+                        experienceImage = getTriangularMask(
+                            "https://www.limontasport.com/wp-content/uploads/2016/03/landscape-test.jpg",
+                            true
+                        )
+                    }.start()
                 }
 
-            }) {
-                GlideImage(
-                    imageModel = R.mipmap.icon,
-                    contentDescription = "",
+                Box(
                     modifier = Modifier
-                        .width(40.dp)
-                        .height(40.dp)
-                        .graphicsLayer {
-                            shape = RoundedCornerShape(100)
-                            clip = true
-                        }
-                )
-            }
-        }
+                        .fillMaxWidth()
+                ) {
 
-        if (activeTrip.value == null) {
-
-            Column(Modifier.padding(cardPadding)) {
-                Text(
-                    "Explore new",
-                    color = colors.surface,
-                    fontSize = textHeading,
-                    fontWeight = FontWeight.SemiBold
-                )
-                Text(
-                    "Experience",
-                    color = colors.surface,
-                    fontSize = textHeading * 1.5,
-                    fontWeight = FontWeight.ExtraBold
-                )
-            }
-        } else {
-            Heading("Active trip")
-            TripCard(
-                trip = activeTrip.value!!,
-                rating = 4.8f,
-                imageMaxHeight = 200f,
-                mainActivity = mainActivity,
-                active = true
-            )
-        }
-
-
-        if (!isOnline(mainActivity)) {
-            NetworkError()
-        } else {
-
-            Heading(
-                "Top destinations"
-            )
-
-            Box(
-                modifier = Modifier.padding(bottom = 40.dp)
-            ) {
-                if (trips.value.size <= 0) {
-                    Box(
-                        modifier = Modifier
-                            .align(Alignment.Center)
-                            .alpha(0.5f)
-                            .padding(50.dp)
-                    ) {
-                        Loader()
+                    val modifier = Modifier
+                        .fillMaxWidth()
+                        .height(300.dp)
+                    if (experienceImage != null) {
+                        GlideImage(
+                            imageModel = experienceImage,
+                            modifier = modifier,
+                            contentScale = ContentScale.Crop,
+                            error = painterResource(id = R.drawable.blur),
+                        )
                     }
-                } else {
-                    LazyColumn(
-                        modifier = Modifier
-                            .padding(cardPadding)
-                    ) {
-                        val loadedTrips = ArrayList<Destination>()
-                        item(trips.value.size) {
+                    Column(
+                        Modifier
+                            .fillMaxSize()
+                            .height(300.dp)
+                            .align(Alignment.Center),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+
+                        ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(
+                                    end = cardPadding,
+                                    start = cardPadding,
+                                    top = cardPadding * 2,
+                                    bottom = 10.dp
+                                ),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            val text = with(AnnotatedString.Builder("")) {
+                                pushStyle(SpanStyle(fontStyle = FontStyle.Italic))
+                                append("Hi,")
+                                pop()
+                                pushStyle(SpanStyle(fontFamily = pacifico))
+                                append(user.displayName ?: user.email)
+                                toAnnotatedString()
+                            }
+                            Text(
+                                text = text,
+                                fontSize = textHeading,
+                                color = Color.White
+                            )
+                            IconButton(onClick = {
+                                navController.navigate("profile") {
+                                    navController.graph.startDestinationRoute?.let { route ->
+                                        popUpTo(route) {
+                                            saveState = true
+                                        }
+                                    }
+                                    launchSingleTop = true
+                                    restoreState = true
+                                }
+
+                            }) {
+                                GlideImage(
+                                    imageModel = R.mipmap.icon,
+                                    contentDescription = "",
+                                    modifier = Modifier
+                                        .width(40.dp)
+                                        .height(40.dp)
+                                        .graphicsLayer {
+                                            shape = RoundedCornerShape(100)
+                                            clip = true
+                                        }
+                                )
+                            }
+                        }
+                        Column(Modifier.weight(1f), verticalArrangement = Arrangement.Center) {
+                            Text(
+                                modifier = Modifier.fillMaxWidth(),
+                                text = "Explore new",
+                                color = Color.White,
+                                textAlign = Center,
+                                fontSize = textHeading,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                            Text(
+                                modifier = Modifier.fillMaxWidth(),
+                                text = "Experiences",
+                                color = Color.White,
+                                textAlign = Center,
+                                fontFamily = pacifico,
+                                fontSize = textHeading * 1.5,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
+                }
+
+            } else {
+                /* Heading("Active trip")
+                 TripCard(
+                     trip = activeTrip.value!!,
+                     rating = 4.8f,
+                     imageMaxHeight = 400f,
+                     mainActivity = mainActivity,
+                     active = true
+                 )*/
+            }
+
+
+            if (!isOnline(mainActivity)) {
+                NetworkError()
+            } else {
+                Spacer(Modifier.height(15.dp))
+                Heading(
+                    "Top destinations"
+                )
+
+                Box(
+                    modifier = Modifier.padding(bottom = 40.dp)
+                ) {
+                    if (trips.value.size <= 0) {
+                        Box(
+                            modifier = Modifier
+                                .align(Alignment.Center)
+                                .alpha(0.5f)
+                                .padding(50.dp)
+                        ) {
+                            Loader()
+                        }
+                    } else {
+                        Column(
+                            modifier = Modifier
+                                .padding(cardPadding)
+                        ) {
+                            val loadedTrips = ArrayList<Destination>()
+
                             trips.value.forEachIndexed { index, trip ->
                                 if (!loadedTrips.contains(trip)) {
                                     loadedTrips.add(trip)
@@ -269,31 +316,19 @@ fun HomeScreen(navController: NavController, mainActivity: MainActivity) {
                                     }
                                 }
                             }
+                            Spacer(Modifier.height(120.dp))
                         }
-                        item {
-                            Spacer(Modifier.height(100.dp))
-                        }
+
+
                     }
                 }
-                Box(
-                    modifier = Modifier
-                        .padding(cardPadding)
-                        .fillMaxWidth()
-                        .height(30.dp)
-                        .background(
-                            brush = Brush.verticalGradient(
-                                colors = listOf(
-                                    MaterialTheme.colors.background,
-                                    Color.Transparent
-                                )
-                            )
-                        )
-                )
+
             }
         }
-
     }
+
 }
+
 
 
 

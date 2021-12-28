@@ -12,6 +12,9 @@ import androidx.compose.foundation.layout.Arrangement.SpaceBetween
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Card
 import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
@@ -21,11 +24,16 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign.Companion.Center
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -36,7 +44,12 @@ import com.skydoves.landscapist.CircularReveal
 import com.skydoves.landscapist.glide.GlideImage
 
 @Composable
-fun TripStepCard(destination: TripDestination, index: Int, onComplete: (Boolean) -> Unit = {}) {
+fun TripStepCard(
+    destination: TripDestination,
+    index: Int,
+    onComplete: (Boolean) -> Unit = {},
+    changeable: Boolean = false
+) {
 
     val openDialog = remember { mutableStateOf(false) }
     val done = remember { mutableStateOf(false) }
@@ -115,42 +128,51 @@ fun TripStepCard(destination: TripDestination, index: Int, onComplete: (Boolean)
                             fontSize = textNormal,
                             overflow = TextOverflow.Ellipsis
                         )
-                        Text(
-                            destination.hour,
-                            color = colors.surface,
-                            modifier = Modifier.padding(5.dp),
-                            fontWeight = FontWeight.Bold,
-                            fontSize = textSmall
-                        )
+                        if (destination.hour.isNotEmpty()) {
+                            Text(
+                                destination.hour,
+                                color = colors.surface,
+                                modifier = Modifier.padding(5.dp),
+                                fontWeight = FontWeight.Bold,
+                                fontSize = textSmall
+                            )
+                        }
                     }
 
                     Row {
-
-                        Text(
-                            destination.description,
-                            color = colors.surface,
-                            modifier = Modifier
-                                .padding(5.dp)
-                                .weight(1f),
-                            fontWeight = FontWeight.Bold,
-                            fontSize = textSmall,
-                            maxLines = 1,
-                            softWrap = true,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                        Text(
-                            "${destination.minutes} min",
-                            color = colors.surface,
-                            modifier = Modifier.padding(5.dp),
-                            fontSize = textSmall
-                        )
+                        if (destination.description.isNotEmpty()) {
+                            Text(
+                                destination.description,
+                                color = colors.surface,
+                                modifier = Modifier
+                                    .padding(5.dp)
+                                    .weight(1f),
+                                fontWeight = FontWeight.Bold,
+                                fontSize = textSmall,
+                                maxLines = 1,
+                                softWrap = true,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
+                        if (destination.minutes > 0) {
+                            Text(
+                                "${destination.minutes} min",
+                                color = colors.surface,
+                                modifier = Modifier.padding(5.dp),
+                                fontSize = textSmall
+                            )
+                        }
                     }
                 }
             }
         }
 
         if (openDialog.value) {
-            Dialog(openDialog, destination)
+            if (changeable) {
+                EditDialog(openDialog, destination)
+            } else {
+                Dialog(openDialog, destination)
+            }
         }
 
     }
@@ -162,6 +184,204 @@ fun Dialog(openDialog: MutableState<Boolean>, destination: TripDestination) {
     androidx.compose.ui.window.Dialog(
         onDismissRequest = {
             openDialog.value = false
+        },
+
+        ) {
+        Column(
+            modifier = Modifier
+                .padding(0.dp)
+                .graphicsLayer {
+                    shape = RoundedCornerShape(cardRadius)
+                    clip = true
+                }
+                .background(colors.background)
+                .fillMaxWidth(), verticalArrangement = Arrangement.Center
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+            ) {
+                GlideImage(
+                    imageModel = destination.thumbnailUrl,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(200.dp),
+                    circularReveal = CircularReveal(duration = 700),
+
+                    )
+
+                Column(
+                    modifier = Modifier
+                        .align(Alignment.BottomStart)
+                        .fillMaxWidth()
+                        .background(
+                            brush = Brush.verticalGradient(
+                                colors = listOf(
+                                    Color.Transparent,
+                                    if (destination.name.isNotEmpty()) colors.background else Color.Transparent
+                                )
+                            )
+
+                        )
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = destination.name,
+                            Modifier
+                                .padding(start = cardPadding)
+                                .fillMaxWidth(),
+                            color = Color.White,
+                            fontSize = textHeading,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                    if (destination.rating > 0) {
+                        Row(
+                            modifier = Modifier.padding(
+                                bottom = cardPadding,
+                                start = cardPadding
+                            )
+                        ) {
+                            RatingBar(
+                                rating = destination.rating,
+                                modifier = Modifier
+                                    .height(15.dp),
+                                emptyColor = Color(0x88FFFFFF)
+                            )
+                        }
+                    }
+                }
+
+            }
+
+            Text(
+                destination.description,
+                color = colors.surface,
+                modifier = Modifier.padding(cardPadding),
+                fontSize = textNormal
+            )
+
+            if (destination.notes.isNotEmpty()) {
+                Text(
+                    "Notes",
+                    color = colors.surface,
+                    modifier = Modifier
+                        .padding(cardPadding)
+                        .fillMaxWidth(),
+                    textAlign = Center,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = textNormal
+                )
+
+                LazyRow(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(cardPadding)
+                ) {
+                    items(destination.notes) {
+                        Card(
+                            modifier = Modifier
+                                .background(colors.background)
+                                .width(150.dp)
+                                .padding(end = 5.dp), shape = RoundedCornerShape(20)
+                        ) {
+                            FaIcon(FaIcons.StickyNote, size = 13.dp, tint = colors.surface)
+                            Spacer(modifier = Modifier.width(5.dp))
+                            Text(it, color = colors.surface, fontSize = textSmall)
+                        }
+                    }
+                }
+            }
+
+            if (destination.images.isNotEmpty()) {
+
+                Text(
+                    "Images",
+                    color = colors.surface,
+                    modifier = Modifier
+                        .padding(cardPadding)
+                        .fillMaxWidth(),
+                    textAlign = Center,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = textNormal
+                )
+
+                LazyRow(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(cardPadding)
+                ) {
+                    items(destination.images) {
+                        GlideImage(
+                            imageModel = it,
+                            modifier = Modifier
+                                .size(50.dp)
+                                .padding(end = 5.dp)
+                                .graphicsLayer {
+                                    shape = RoundedCornerShape(10.dp)
+                                    clip = true
+                                })
+                    }
+                }
+            }
+
+            Row(
+                horizontalArrangement = SpaceBetween,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(cardPadding)
+            ) {
+                Button(onClick = { /*TODO*/ }) {
+                    Text("Add note", color = colors.surface)
+                }
+                Button(onClick = { /*TODO*/ }) {
+                    Text("Add image", color = colors.surface)
+                }
+            }
+
+            Row(
+                horizontalArrangement = SpaceBetween,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(cardPadding)
+            ) {
+                FaIcon(
+                    FaIcons.Heart,
+                    tint = danger
+                )
+
+                FaIcon(
+                    FaIcons.ClockRegular,
+                    tint = colors.surface
+                )
+
+            }
+        }
+
+    }
+}
+
+@Composable
+fun EditDialog(openDialog: MutableState<Boolean>, destination: TripDestination) {
+    var description by remember {
+        mutableStateOf(destination.description)
+    }
+    var hour by remember {
+        mutableStateOf(destination.hour)
+    }
+    var minutes by remember {
+        mutableStateOf(destination.minutes.toString())
+    }
+    androidx.compose.ui.window.Dialog(
+        onDismissRequest = {
+            openDialog.value = false
+            destination.description = description
+            destination.hour = hour
+            destination.minutes = minutes.toIntOrNull() ?: 0
         },
 
         ) {
@@ -217,123 +437,56 @@ fun Dialog(openDialog: MutableState<Boolean>, destination: TripDestination) {
                             fontWeight = FontWeight.Bold
                         )
                     }
-                    if (destination.rating > 0) {
-                        Row(
-                            modifier = Modifier.padding(
-                                bottom = cardPadding,
-                                start = cardPadding
-                            )
-                        ) {
-                            RatingBar(
-                                rating = destination.rating,
-                                modifier = Modifier
-                                    .height(15.dp),
-                                emptyColor = Color(0x88FFFFFF)
-                            )
-                        }
-                    }
+
                 }
 
             }
 
-            Text(
-                destination.description,
-                color = colors.surface,
-                modifier = Modifier.padding(cardPadding),
-                fontSize = textNormal
+            Heading("Description")
+
+            BasicTextField(
+                value = description, onValueChange = { description = it },
+                singleLine = true,
+                textStyle = TextStyle(
+                    color = colors.surface,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = Center
+                ),
+                modifier = Modifier.padding(cardPadding).fillMaxWidth(),
+                cursorBrush = SolidColor(colors.surface)
             )
 
-            Text(
-                "Notes",
-                color = colors.surface,
-                modifier = Modifier
-                    .padding(cardPadding)
-                    .fillMaxWidth(),
-                textAlign = Center,
-                fontWeight = FontWeight.Bold,
-                fontSize = textNormal
+            Heading("Arrival hour")
+
+            BasicTextField(
+                value = hour, onValueChange = { hour = it },
+                singleLine = true,
+                textStyle = TextStyle(
+                    color = colors.surface,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = Center
+                ),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                modifier = Modifier.padding(cardPadding).fillMaxWidth(),
+                cursorBrush = SolidColor(colors.surface)
             )
 
-            LazyRow(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(cardPadding)
-            ) {
-                items(destination.notes) {
-                    Card(
-                        modifier = Modifier
-                            .background(colors.background)
-                            .width(150.dp)
-                            .padding(end = 5.dp)
-, shape = RoundedCornerShape(20)
-                    ) {
-                        FaIcon(FaIcons.StickyNote, size = 13.dp, tint = colors.surface)
-                        Spacer(modifier = Modifier.width(5.dp))
-                        Text(it, color = colors.surface, fontSize = textSmall)
-                    }
-                }
-            }
+            Heading("Minutes of visit duration")
 
-            Text(
-                "Images",
-                color = colors.surface,
-                modifier = Modifier
-                    .padding(cardPadding)
-                    .fillMaxWidth(),
-                textAlign = Center,
-                fontWeight = FontWeight.Bold,
-                fontSize = textNormal
+            BasicTextField(
+                value = minutes, onValueChange = { minutes = it },
+                singleLine = true,
+                textStyle = TextStyle(
+                    color = colors.surface,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = Center
+                ),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                modifier = Modifier.padding(cardPadding).fillMaxWidth(),
+                cursorBrush = SolidColor(colors.surface)
             )
 
-            LazyRow(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(cardPadding)
-            ) {
-                items(destination.images) {
-                    GlideImage(
-                        imageModel = it,
-                        modifier = Modifier
-                            .size(50.dp)
-                            .padding(end = 5.dp)
-                            .graphicsLayer {
-                                shape = RoundedCornerShape(10.dp)
-                                clip = true
-                            })
-                }
-            }
 
-            Row(
-                horizontalArrangement = SpaceBetween,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(cardPadding)
-            ) {
-                Button(onClick = { /*TODO*/ }) {
-                    Text("Add note", color = colors.surface)
-                }
-                Button(onClick = { /*TODO*/ }) {
-                    Text("Add image", color = colors.surface)
-                }
-            }
-
-            Row(
-                horizontalArrangement = SpaceBetween,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(cardPadding)
-            ) {
-                FaIcon(
-                    FaIcons.Heart,
-                    tint = danger
-                )
-
-                FaIcon(
-                    FaIcons.ClockRegular,
-                    tint = colors.surface
-                )
-
-            }
         }
 
     }

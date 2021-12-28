@@ -30,6 +30,7 @@ import com.apps.travel_app.MainActivity
 import com.apps.travel_app.models.Destination
 import com.apps.travel_app.ui.components.DestinationCard
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.MaterialTheme.colors
 import com.apps.travel_app.ui.theme.*
 import com.apps.travel_app.ui.utils.*
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
@@ -85,8 +86,8 @@ class MapScreen {
 
             val points = line(polygonOpt.points)
             val polygonOpt2 = PolygonOptions()
-                .strokeColor(Color.parseColor("#FF808ea7"))
-                .fillColor(Color.parseColor("#88808ea7"))
+                .strokeColor(Color.parseColor("#FF0083FF"))
+                .fillColor(Color.parseColor("#550083FF"))
             for (point in points) {
                 map.value?.clear()
                 polygonOpt2.add(point)
@@ -146,8 +147,8 @@ class MapScreen {
             polygonOpt = PolygonOptions()
             polygonOpt.add(screenCoordinatesToLatLng(position, map.value))
             polygonOpt
-                .strokeColor(Color.parseColor("#FF808ea7"))
-                .fillColor(Color.parseColor("#88808ea7"))
+                .strokeColor(Color.parseColor("#FF0083FF"))
+                .fillColor(Color.parseColor("#550083FF"))
             map.value?.addPolygon(polygonOpt)
         }
 
@@ -194,10 +195,10 @@ class MapScreen {
         }
 
 
-        val systemUiController = rememberSystemUiController()
+       /* val systemUiController = rememberSystemUiController()
         systemUiController.setSystemBarsColor(
-            color = textLightColor
-        )
+            color = colors.background
+        )*/
 
         var mapView: MapView? = null
         if (loadingScreen.value > 5)
@@ -229,31 +230,16 @@ class MapScreen {
                 }
             }
 
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .align(Alignment.TopCenter)
-                    .height(200.dp)
-                    .background(
-                        brush = Brush.verticalGradient(
-                            colors = listOf(
-                                textLightColor,
-                                Transparent
-                            )
-                        )
-                    )
-            )
-
             Text(
                 text = "\uD83C\uDF0D Spin & pin",
-                color = White,
+                color = colors.surface,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center,
                 fontSize = textHeading,
                 modifier = Modifier
                     .fillMaxWidth()
                     .align(Alignment.TopCenter)
-                    .padding(cardPadding)
+                    .padding(cardPadding * 2)
             )
             if (drawingEnabled.value) {
                 Box(
@@ -302,7 +288,7 @@ class MapScreen {
                         }) {
                         FaIcon(
                             faIcon = FaIcons.HandPointUpRegular,
-                            tint = if (drawingEnabled.value) MaterialTheme.colors.surface else iconLightColor
+                            tint = if (drawingEnabled.value) primaryColor else iconLightColor
                         )
                     }
 

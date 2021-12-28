@@ -60,11 +60,11 @@ fun ExploreScreen(navController: NavController, mainActivity: MainActivity) {
 
 
 
-    val systemUiController = rememberSystemUiController()
+   /* val systemUiController = rememberSystemUiController()
     systemUiController.setSystemBarsColor(
         color = colors.background
     )
-
+*/
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -74,7 +74,7 @@ fun ExploreScreen(navController: NavController, mainActivity: MainActivity) {
         Heading(
             "Take a deep breath...",
             color = colors.surface,
-            modifier = Modifier.padding(cardPadding)
+            modifier = Modifier.padding(cardPadding * 2)
         )
         Text(
             "Just a moment for you to get inspired by the wonder of our world",

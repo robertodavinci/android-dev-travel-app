@@ -44,6 +44,7 @@ import com.apps.travel_app.MainActivity
 import com.apps.travel_app.models.Destination
 import com.apps.travel_app.models.Trip
 import com.apps.travel_app.ui.pages.Response
+import com.apps.travel_app.ui.theme.cardPadding
 import com.apps.travel_app.ui.theme.iconLightColor
 import com.apps.travel_app.ui.theme.primaryColor
 import com.apps.travel_app.ui.utils.isOnline
@@ -83,7 +84,7 @@ fun BottomNavigationBar(navController: NavController, mainActivity: MainActivity
 
         Thread {
 
-            val request = "{\"text\": \"$text\", \"type\": \"" + types.joinToString("|").lowercase() + "\"}"
+            val request = "{\"text\": \"$text\"}"
             println(request)
             val resultText = sendPostRequest(request, action = "search")
             if (!resultText.isNullOrEmpty()) {
@@ -101,7 +102,7 @@ fun BottomNavigationBar(navController: NavController, mainActivity: MainActivity
 
     val keyboardController = LocalSoftwareKeyboardController.current
     Box {
-        FullHeightBottomSheet(mH = 370, background = colors.onBackground) { status ->
+        FullHeightBottomSheet(mH = 320, background = colors.onBackground, MH = 200) { status ->
             if (status == States.COLLAPSED) {
                 searchTerm = ""
                 DisposableEffect(Unit) {
@@ -112,15 +113,17 @@ fun BottomNavigationBar(navController: NavController, mainActivity: MainActivity
             Column(
                 modifier = Modifier
                     .height(1000.dp)
-                    .fillMaxWidth()
+                    .fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Row(modifier = Modifier
-                    .padding(10.dp)
+                    .padding(7.dp)
+                    .fillMaxWidth(0.95f)
                     .graphicsLayer {
-                        shape = RoundedCornerShape(30)
+                        shape = RoundedCornerShape(100)
                         clip = true
                     }
-                    .background(Color(0x33000022)), verticalAlignment = Alignment.CenterVertically) {
+                    .background(Color(0x15000022)), verticalAlignment = Alignment.CenterVertically) {
                     BasicTextField(
                         keyboardOptions = KeyboardOptions(imeAction = androidx.compose.ui.text.input.ImeAction.Done),
                         keyboardActions = KeyboardActions(
@@ -340,7 +343,7 @@ fun BottomNavigationBar(navController: NavController, mainActivity: MainActivity
             contentColor = colors.surface,
             elevation = 0.dp,
             modifier = Modifier
-                .height(60.dp)
+                .height(80.dp)
                 .align(BottomStart)
         ) {
             val navBackStackEntry by navController.currentBackStackEntryAsState()

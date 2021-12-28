@@ -19,7 +19,8 @@ class Trip() {
     var description : String =""
     var season: String = ""
     var creationDate: String = ""
-    var mine: Boolean = false
+    var sharedWith: List<String> = arrayListOf()
+    var creatorId: String = ""
 
     fun getTripStep(tripId: Int): List<TripStep> {
         val steps = arrayListOf<TripStep>()
@@ -32,7 +33,7 @@ class Trip() {
         return steps
     }
 
-    fun toTripDb(startingtripId: Int): Trip {
+    fun toTripDb(startingtripId: String): Trip {
         return com.apps.travel_app.data.room.entity.Trip(
             tid = id,
             attributes = attributes.joinToString("|"),
@@ -44,12 +45,15 @@ class Trip() {
             creationDate = creationDate,
             name = name,
             starting_location = startingtripId,
+            sharedWith = sharedWith.joinToString("|"),
+            creator_id = creatorId
         )
     }
 
     fun fromTripDb(trip: com.apps.travel_app.data.room.entity.Trip) {
         id = trip.tid
         attributes = trip.attributes.split("|")
+        sharedWith = trip.sharedWith.split("|")
         creator = trip.creator
         season = trip.season
         thumbnailUrl = trip.thumbnailUrl
@@ -57,11 +61,13 @@ class Trip() {
         description = trip.description
         creationDate = trip.creationDate ?: ""
         name = trip.name
+        creatorId = trip.creator_id
     }
 
     fun fromTripDb(trip: TripAndDays) {
         id = trip.trip.tid
         attributes = trip.trip.attributes.split("|")
+        sharedWith = trip.trip.sharedWith.split("|")
         creator = trip.trip.creator
         season = trip.trip.season
         thumbnailUrl = trip.trip.thumbnailUrl
@@ -70,6 +76,7 @@ class Trip() {
         creationDate = trip.trip.creationDate ?: ""
         name = trip.trip.name
         startingPoint = Destination()
+        creatorId = trip.trip.creator_id
         startingPoint.fromLocation(trip.startingPoint)
         val steps = arrayListOf(ArrayList<TripDestination>())
         trip.days.forEach {

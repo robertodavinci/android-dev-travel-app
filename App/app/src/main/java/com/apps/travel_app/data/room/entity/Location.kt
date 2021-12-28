@@ -6,7 +6,7 @@ import androidx.room.PrimaryKey
 
 @Entity
 data class Location(
-    @PrimaryKey val lid: Int,
+    @PrimaryKey val lid: String,
     @ColumnInfo(name = "name") var name: String,
     @ColumnInfo(name = "latitude") var latitude: Double,
     @ColumnInfo(name = "longitude") var longitude: Double,
@@ -15,5 +15,6 @@ data class Location(
     @ColumnInfo(name = "rating") var rating: Float,
     @ColumnInfo(name = "description") var description: String,
     @ColumnInfo(name = "address") var address: String?,
-    @ColumnInfo(name = "phone_number") var phone_number: String?
+    @ColumnInfo(name = "phone_number") var phone_number: String?,
+    @ColumnInfo(name = "saved") var saved: Boolean
 )

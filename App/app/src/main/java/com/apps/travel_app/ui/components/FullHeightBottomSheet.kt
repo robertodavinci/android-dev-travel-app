@@ -14,7 +14,10 @@ import androidx.compose.material.*
 import androidx.compose.material.MaterialTheme.colors
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.Center
+import androidx.compose.ui.Alignment.Companion.CenterEnd
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
+import androidx.compose.ui.Alignment.Companion.TopEnd
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.geometry.Offset
@@ -27,6 +30,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import com.apps.travel_app.ui.theme.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -48,6 +52,8 @@ fun ChangeState(state: States) {
 @Composable
 fun FullHeightBottomSheet(
     mH: Int = 0,
+    MH: Int = 0,
+    button: @Composable (() -> Unit)? = null,
     background: Color = colors.background,
     body: @Composable (States) -> Unit
 ) {
@@ -135,28 +141,34 @@ fun FullHeightBottomSheet(
                 )
             }
     ) {
+
+
+
         Column(
             Modifier
                 .swipeable(
                     state = swipeableState,
                     orientation = Orientation.Vertical,
                     anchors = mapOf(
-                        0f to States.EXPANDED,
+                        MH.toFloat() to States.EXPANDED,
                         maxHeight.toFloat() to States.COLLAPSED,
                     )
                 )
                 .graphicsLayer {
                     shape = RoundedCornerShape(
-                        cardRadius
+                        cardRadius * 2
                     )
                     clip = true
-                    shadowElevation = 2f
+                    shadowElevation = 200f
                 }
                 .background(
                     background
                 )
                 .nestedScroll(connection)
         ) {
+
+
+
             Box(modifier = Modifier
                 .padding(10.dp)
                 .graphicsLayer {
@@ -168,6 +180,7 @@ fun FullHeightBottomSheet(
                 .width(70.dp)
                 .align(CenterHorizontally)
                 .alpha(0.5f))
+
             Box(
                 Modifier
                     .fillMaxWidth()
@@ -176,6 +189,13 @@ fun FullHeightBottomSheet(
                 body(swipeableState.currentValue)
             }
         }
-
+        if (button != null) {
+            Box(
+                modifier = Modifier.fillMaxWidth().offset(x = (-30).dp, y = (20 + -swipeableState.offset.value / maxHeight * 40).dp),
+                contentAlignment = TopEnd
+            ) {
+                button()
+            }
+        }
     }
 }

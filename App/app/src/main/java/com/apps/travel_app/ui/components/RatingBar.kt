@@ -23,7 +23,7 @@ fun RatingBar(
     rating: Float,
     modifier: Modifier = Modifier,
     color: Color = yellow,
-    emptyColor: Color = MaterialTheme.colors.surface,
+    emptyColor: Color = Color(0x22000022),
     enabled: Boolean = false,
     onChange: (Float) -> Unit = {}
 ) {

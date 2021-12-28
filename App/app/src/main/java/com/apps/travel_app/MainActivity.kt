@@ -4,16 +4,22 @@ package com.apps.travel_app
 import FaIcons
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.preference.PreferenceManager
+import android.util.Log
+import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -27,14 +33,19 @@ import com.apps.travel_app.ui.components.login.User
 import com.apps.travel_app.ui.pages.*
 import com.apps.travel_app.ui.theme.MainActivity_Travel_AppTheme
 import com.facebook.login.LoginManager
+import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.messaging.FirebaseMessaging
 import com.guru.fontawesomecomposelib.FaIconType
+
+
+var user: User = User("","")
 
 class MainActivity : ComponentActivity() {
 
-    var user: User = User("","")
+
     private var destination: Destination? = null
     lateinit var navController: NavHostController
 
@@ -50,6 +61,18 @@ class MainActivity : ComponentActivity() {
         auth.signOut()
         val intent = Intent(this, LoginActivity::class.java)
         startActivity(intent)
+    }
+
+    fun goHome() {
+        navController.navigate(BottomBarItem.Home.route) {
+            navController.graph.startDestinationRoute?.let { route ->
+                popUpTo(route) {
+                    saveState = true
+                }
+            }
+            launchSingleTop = true
+            restoreState = true
+        }
     }
 
     fun setGooglePlace(destination: Destination, openScreen: Boolean = false) {
@@ -108,6 +131,15 @@ class MainActivity : ComponentActivity() {
         user.displayName = auth.currentUser?.displayName
         user.email = auth.currentUser?.email.toString()
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            window.setDecorFitsSystemWindows(false)
+        } else {
+            window.setFlags(
+                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
+            )
+        }
+
 
         // maybe do this Async way - Room DB creation
       /*  val db = Room.databaseBuilder(
@@ -141,7 +173,9 @@ class MainActivity : ComponentActivity() {
                 Log.w("Firestore", "Error adding document", e)
             }
 */
-
+        FirebaseMessaging.getInstance().subscribeToTopic("all").addOnCompleteListener {
+            Log.d("FCM","Subscribed")
+        }
 
         val sharedPref = PreferenceManager.getDefaultSharedPreferences(this)
         val systemTheme = sharedPref.getBoolean("darkTheme", true)
@@ -168,7 +202,7 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun Navigation(navController: NavHostController, context: Context, activity: MainActivity) {
         val mapScreen = remember{ mutableStateOf(MapScreen())}
-        NavHost(navController, startDestination = BottomBarItem.Home.route) {
+        NavHost(navController, startDestination = BottomBarItem.Home.route, modifier = Modifier.padding(bottom = 120.dp)) {
             composable(BottomBarItem.Home.route) {
                 HomeScreen(navController, activity)
             }

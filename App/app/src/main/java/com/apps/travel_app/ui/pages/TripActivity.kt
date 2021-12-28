@@ -1,9 +1,11 @@
 package com.apps.travel_app.ui.pages
 
 import FaIcons
+import android.os.Build
 import android.os.Bundle
 import android.preference.PreferenceManager
 import android.util.Log
+import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.core.animateFloatAsState
@@ -18,6 +20,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.MaterialTheme.colors
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment.Companion.Center
@@ -47,6 +50,7 @@ import com.apps.travel_app.models.TripDestination
 import com.apps.travel_app.ui.components.*
 import com.apps.travel_app.ui.theme.*
 import com.apps.travel_app.ui.utils.*
+import com.apps.travel_app.user
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.google.android.libraries.maps.CameraUpdateFactory
 import com.google.android.libraries.maps.GoogleMap
@@ -55,6 +59,7 @@ import com.google.android.libraries.maps.model.*
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.guru.fontawesomecomposelib.FaIcon
+import com.skydoves.landscapist.glide.GlideImage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -64,9 +69,17 @@ import java.lang.Math.random
 class TripActivity : ComponentActivity() {
 
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            window.setDecorFitsSystemWindows(false)
+        } else {
+            window.setFlags(
+                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
+            )
+        }
 
         val intent = intent
 
@@ -126,10 +139,10 @@ class TripActivity : ComponentActivity() {
             AppDatabase::class.java, "database-name"
         ).build()
 
-        val systemUiController = rememberSystemUiController()
+        /*val systemUiController = rememberSystemUiController()
         systemUiController.setSystemBarsColor(
-            color = textLightColor
-        )
+            color = colors.background
+        )*/
 
         val open: MutableState<Boolean> = remember { mutableStateOf(false) }
         val loaded: MutableState<Boolean> = remember { mutableStateOf(false) }
@@ -140,7 +153,7 @@ class TripActivity : ComponentActivity() {
         var selectedDay by remember { mutableStateOf(0) }
         var isSaved by remember { mutableStateOf(false) }
 
-        var steps by remember { mutableStateOf(trip.destinationsPerDay[selectedDay]) }
+        var steps by remember { mutableStateOf(if (selectedDay < trip.destinationsPerDay.size) trip.destinationsPerDay[selectedDay] else ArrayList()) }
 
         fun mapInit() {
             map.value!!.uiSettings.isZoomControlsEnabled = false
@@ -232,14 +245,16 @@ class TripActivity : ComponentActivity() {
             mapView = rememberMapViewWithLifecycle()
 
         BoxWithConstraints {
-            Box(modifier = Modifier.fillMaxSize()) {
+            Box(modifier = Modifier
+                .fillMaxSize()
+                .background(colors.background)) {
 
                 if (mapView != null) {
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
                             .fillMaxHeight(0.55f)
-                            .background(MaterialTheme.colors.background)
+                            .background(colors.background)
                             .wrapContentSize(Center)
                     ) {
                         AndroidView({ mapView }) { mapView ->
@@ -278,7 +293,7 @@ class TripActivity : ComponentActivity() {
                         .background(
                             brush = Brush.verticalGradient(
                                 colors = listOf(
-                                    textLightColor,
+                                    colors.background,
                                     Color.Transparent
                                 )
                             )
@@ -293,10 +308,55 @@ class TripActivity : ComponentActivity() {
                         modifier = Modifier
                             .fillMaxWidth()
                             .align(TopCenter)
-                            .padding(cardPadding)
+                            .padding(vertical = cardPadding * 2, horizontal = cardPadding)
                     )
                 }
-                FullHeightBottomSheet(body = {
+                FullHeightBottomSheet(button = {
+                    Button(
+                        onClick = {
+                            Thread {
+                                try {
+                                    if (!isSaved) {
+                                        db.locationDao()
+                                            .insertAll(trip.startingPoint.toLocation())
+                                        val tripId = db.tripDao()
+                                            .insertAll(trip.toTripDb(trip.startingPoint.id))[0]
+
+                                        val tripDao = db.tripStepDao()
+                                        trip.getTripStep(tripId.toInt()).forEach {
+                                            tripDao.insertAll(it)
+                                        }
+
+                                    } else {
+                                        db.locationDao()
+                                            .delete(trip.startingPoint.toLocation())
+                                        trip.getTripStep(trip.id).forEach {
+                                            db.tripStepDao().delete(it)
+                                        }
+
+                                        db.tripDao().deleteById(trip.id)
+                                    }
+                                    isSaved = !isSaved
+                                } catch (e: Exception) {
+                                    Log.e("ERROR", e.localizedMessage)
+                                }
+                            }.start()
+                        },
+                        modifier = Modifier
+                            .size(40.dp),
+                        contentPadding = PaddingValues(
+                            start = 2.dp,
+                            top = 2.dp,
+                            end = 2.dp,
+                            bottom = 2.dp
+                        )
+                    ) {
+                        FaIcon(
+                            if (isSaved) FaIcons.Heart else FaIcons.HeartRegular,
+                            tint = if (isSaved) danger else MaterialTheme.colors.surface
+                        )
+                    }
+                }, body = {
 
                     val maxHeight: Float by animateFloatAsState(
                         if (open.value) 250f else 100f, animationSpec = tween(
@@ -326,20 +386,42 @@ class TripActivity : ComponentActivity() {
 
                                     }
                                 }
-                                Box(
+
+                                Row(
                                     modifier = Modifier
-                                        .heightIn(0.dp, maxHeight.dp)
-                                        .pointerInput(Unit) {
-                                            detectTapGestures(
-                                                onTap = { open.value = !open.value }
-                                            )
-                                        }
+                                        .fillMaxWidth()
+                                        .padding(start = cardPadding, end = cardPadding),
+                                    horizontalArrangement = Arrangement.Center
                                 ) {
-                                    TripCard(
-                                        trip = trip,
-                                        rating = 3.5f,
-                                        padding = cardPadding,
-                                        radius = cardRadius
+                                    GlideImage(
+                                        imageModel = trip.thumbnailUrl,
+                                        modifier = Modifier
+                                            .size(80.dp)
+                                            .padding(10.dp)
+                                            .graphicsLayer {
+                                                shape = RoundedCornerShape(20)
+                                                clip = true
+                                            }
+                                    )
+                                    GlideImage(
+                                        imageModel = trip.thumbnailUrl,
+                                        modifier = Modifier
+                                            .size(80.dp)
+                                            .padding(10.dp)
+                                            .graphicsLayer {
+                                                shape = RoundedCornerShape(20)
+                                                clip = true
+                                            }
+                                    )
+                                    GlideImage(
+                                        imageModel = trip.thumbnailUrl,
+                                        modifier = Modifier
+                                            .size(80.dp)
+                                            .padding(10.dp)
+                                            .graphicsLayer {
+                                                shape = RoundedCornerShape(20)
+                                                clip = true
+                                            }
                                     )
                                 }
 
@@ -372,51 +454,7 @@ class TripActivity : ComponentActivity() {
                                 Row(
                                     modifier = Modifier.padding(cardPadding / 3)
                                 ) {
-                                    Button(
-                                        onClick = {
-                                            Thread {
-                                                try {
-                                                    if (!isSaved) {
-                                                        val startingPointId = db.locationDao()
-                                                            .insertAll(trip.startingPoint.toLocation())[0]
-                                                        val tripId = db.tripDao()
-                                                            .insertAll(trip.toTripDb(startingPointId.toInt()))[0]
 
-                                                        val tripDao = db.tripStepDao()
-                                                        trip.getTripStep(tripId.toInt()).forEach {
-                                                            tripDao.insertAll(it)
-                                                        }
-
-                                                    } else {
-                                                        db.locationDao()
-                                                            .delete(trip.startingPoint.toLocation())
-                                                        trip.getTripStep(trip.id).forEach {
-                                                            db.tripStepDao().delete(it)
-                                                        }
-
-                                                        db.tripDao().deleteById(trip.id)
-                                                    }
-                                                    isSaved = !isSaved
-                                                } catch (e: Exception) {
-                                                    Log.e("ERROR", e.localizedMessage)
-                                                }
-                                            }.start()
-                                        },
-                                        modifier = Modifier
-                                            .align(CenterVertically)
-                                            .size(40.dp),
-                                        contentPadding = PaddingValues(
-                                            start = 2.dp,
-                                            top = 2.dp,
-                                            end = 2.dp,
-                                            bottom = 2.dp
-                                        )
-                                    ) {
-                                        FaIcon(
-                                            if (isSaved) FaIcons.Heart else FaIcons.HeartRegular,
-                                            tint = if (isSaved) danger else MaterialTheme.colors.surface
-                                        )
-                                    }
                                     FlexibleRow(
                                         alignment = CenterHorizontally,
                                         modifier = Modifier
@@ -424,7 +462,10 @@ class TripActivity : ComponentActivity() {
                                             .scale(0.8f)
                                             .weight(1f)
                                     ) {
-                                        Button(onClick = {}, modifier = Modifier.padding(5.dp)) {
+                                        Button(
+                                            onClick = {},
+                                            modifier = Modifier.padding(5.dp)
+                                        ) {
                                             Text("${trip.destinationsPerDay.size} Day${if (trip.destinationsPerDay.size > 1) "s" else ""}")
                                         }
                                         trip.attributes.forEach { activity ->
@@ -436,9 +477,6 @@ class TripActivity : ComponentActivity() {
                                             }
                                         }
                                     }
-                                    Spacer(
-                                        modifier = Modifier.size(40.dp)
-                                    )
                                 }
 
 
@@ -483,7 +521,7 @@ class TripActivity : ComponentActivity() {
                                             shape = RoundedCornerShape(cardRadius)
                                             clip = true
                                         }
-                                        .background(MaterialTheme.colors.onBackground)
+                                        .background(colors.onBackground)
                                 ) {
                                     Column(
                                         modifier = Modifier.padding(10.dp)
@@ -497,7 +535,7 @@ class TripActivity : ComponentActivity() {
                                                         .width(2.dp)
                                                         .height(25.dp)
                                                         .background(
-                                                            MaterialTheme.colors.surface
+                                                            colors.surface
                                                         )
                                                 )
                                             }
@@ -509,7 +547,7 @@ class TripActivity : ComponentActivity() {
                                                         .width(2.dp)
                                                         .height(25.dp)
                                                         .background(
-                                                            MaterialTheme.colors.surface
+                                                            colors.surface
                                                         )
                                                 )
                                                 if (place.mediumToNextDestination != null) {
@@ -530,19 +568,21 @@ class TripActivity : ComponentActivity() {
                                                             )
                                                         ) {
                                                             FaIcon(
-                                                                MediumType.mediumTypeToIcon(place.mediumToNextDestination!!),
-                                                                tint = MaterialTheme.colors.surface
+                                                                MediumType.mediumTypeToIcon(
+                                                                    place.mediumToNextDestination!!
+                                                                ),
+                                                                tint = colors.surface
                                                             )
                                                             Text(
                                                                 "${place.minutesToNextDestination.toInt()} minutes (${place.kmToNextDestination} km)",
-                                                                color = MaterialTheme.colors.surface,
+                                                                color = colors.surface,
                                                                 fontSize = textSmall,
                                                                 modifier = Modifier
                                                                     .padding(start = 20.dp)
                                                                     .align(CenterVertically)
                                                             )
                                                         }
-                                                        if (trip.mine) {
+                                                        if (trip.sharedWith.contains(user.email)) {
                                                             IconButton(
                                                                 onClick = {
                                                                     val _steps =
@@ -607,15 +647,16 @@ class TripActivity : ComponentActivity() {
                         }
                     }
                 })
-
             }
 
         }
 
-
     }
 
+
 }
+
+
 
 
 

@@ -2,6 +2,7 @@ package com.apps.travel_app.ui.pages
 
 import FaIcons
 import android.preference.PreferenceManager
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.MaterialTheme
@@ -14,8 +15,11 @@ import com.apps.travel_app.ui.components.Button
 import com.apps.travel_app.ui.components.Heading
 import com.apps.travel_app.ui.components.NiceSwitch
 import com.apps.travel_app.ui.components.NiceSwitchStates
+import com.apps.travel_app.ui.theme.cardPadding
 import com.apps.travel_app.ui.theme.followSystem
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.messaging.FirebaseMessaging
 import com.guru.fontawesomecomposelib.FaIcon
 
 
@@ -23,22 +27,25 @@ import com.guru.fontawesomecomposelib.FaIcon
 fun ProfileScreen(activity: MainActivity) {
 
 
-    val systemUiController = rememberSystemUiController()
+   /* val systemUiController = rememberSystemUiController()
     systemUiController.setSystemBarsColor(
         color = MaterialTheme.colors.background
-    )
+    )*/
+
+    val firebaseId = FirebaseAuth.getInstance().currentUser?.uid
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colors.background)
+            .padding(cardPadding)
     ) {
-
+        val sharedPref = PreferenceManager.getDefaultSharedPreferences(activity)
+        Spacer(Modifier.height(cardPadding * 2))
         Heading("General settings")
 
         NiceSwitch(followSystem.value, onChecked = {
             followSystem.value = it
-            val sharedPref = PreferenceManager.getDefaultSharedPreferences(activity)
             with(sharedPref.edit()) {
                 putBoolean("darkTheme", it)
                 apply()
@@ -48,14 +55,21 @@ fun ProfileScreen(activity: MainActivity) {
         Heading("Astronaut preferences")
 
 
-        NiceSwitch(true, onChecked = { }, NiceSwitchStates(FaIcons.Tractor, FaIcons.City))
-        NiceSwitch(
-            true,
-            onChecked = { },
-            NiceSwitchStates(FaIcons.WineGlass, FaIcons.ShoppingBasket)
-        )
-        NiceSwitch(true, onChecked = { }, NiceSwitchStates(FaIcons.Mountain, FaIcons.Water))
-        NiceSwitch(true, onChecked = { }, NiceSwitchStates(FaIcons.FootballBall, FaIcons.Book))
+        NiceSwitch(sharedPref.getBoolean("receiveNotification", false), onChecked = {
+            if (it) {
+                FirebaseMessaging.getInstance().subscribeToTopic(firebaseId.toString()).addOnCompleteListener {
+                    Log.d("FCM","Subscribed")
+                }
+            } else {
+                FirebaseMessaging.getInstance().unsubscribeFromTopic(firebaseId.toString()).addOnCompleteListener {
+                    Log.d("FCM","Unsubscribed")
+                }
+            }
+            with(sharedPref.edit()) {
+                putBoolean("receiveNotification", it)
+                apply()
+            }
+        }, NiceSwitchStates(FaIcons.BellRegular, FaIcons.BellSlashRegular), label = "Receive personal notification")
 
 
         Button(onClick = {

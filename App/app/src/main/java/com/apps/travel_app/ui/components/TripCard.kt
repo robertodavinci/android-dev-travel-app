@@ -107,7 +107,8 @@ fun TripCard(
                             brush = Brush.verticalGradient(
                                 colors = listOf(
                                     Color.Transparent,
-                                    if (trip.name.isNotEmpty()) textLightColor else Color.Transparent
+                                    if (trip.name.isNotEmpty()) Color(0xAA111122) else Color.Transparent,
+                                    if (trip.name.isNotEmpty()) Color(0xAA111122) else Color.Transparent
                                 )
                             )
 

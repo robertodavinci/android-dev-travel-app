@@ -18,6 +18,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -117,7 +118,7 @@ fun MainCard(
                     contentScale = if (squaredImage) ContentScale.Fit else ContentScale.Crop,
                     circularReveal = CircularReveal(duration = 700),
                     error = painterResource(id = R.drawable.blur),
-                    )
+                )
 
                 Column(
                     modifier = Modifier
@@ -126,15 +127,15 @@ fun MainCard(
                             brush = Brush.verticalGradient(
                                 colors = listOf(
                                     Color.Transparent,
-                                    if (destination.name.isNotEmpty()) textLightColor else Color.Transparent
+                                    if (destination.name.isNotEmpty()) Color(0xAA111122) else Color.Transparent,
+                                    if (destination.name.isNotEmpty()) Color(0xAA111122) else Color.Transparent
                                 )
                             )
 
-                        )
-                        .fillMaxWidth()
+                        ).fillMaxWidth()
+
                 ) {
                     Row(
-                        modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -153,26 +154,11 @@ fun MainCard(
                                 .padding(start = cardPadding * infoScale)
                                 .fillMaxWidth(),
                             color = Color.White,
-                            fontSize = textHeading * infoScale,
+                            fontSize = textNormal * infoScale,
                             fontWeight = FontWeight.Bold,
                             overflow = TextOverflow.Ellipsis,
                             maxLines = 1
                         )
-
-                        Row(
-                            modifier = Modifier.padding(5.dp)
-                        ) {
-                            if (views > 0) {
-                                FaIcon(FaIcons.EyeRegular, tint = Color.White)
-                                Text(
-                                    text = views.toString(),
-                                    color = Color.White,
-                                    fontSize = textSmall * infoScale,
-                                    modifier = Modifier.padding(5.dp),
-                                    fontWeight = FontWeight.SemiBold
-                                )
-                            }
-                        }
 
                     }
                     if (rating > 0) {
@@ -242,7 +228,7 @@ fun MainCard(
                         .fillMaxWidth()
                 ) {
                     GlideImage(
-                        imageModel = destination.thumbnailUrl ,
+                        imageModel = destination.thumbnailUrl,
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(200.dp),
@@ -301,7 +287,7 @@ fun MainCard(
                                         .graphicsLayer {
                                             shadowElevation = 3f
                                         },
-                                    emptyColor = Color(0x88FFFFFF)
+                                    emptyColor = Color(0x00000000)
                                 )
                             }
                         }

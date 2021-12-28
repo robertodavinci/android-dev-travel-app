@@ -52,11 +52,12 @@ fun Travel_AppTheme(systemTheme: Boolean = true, content: @Composable() () -> Un
     val systemUiController = rememberSystemUiController()
     if(isSystemInDarkTheme() && systemTheme){
         systemUiController.setSystemBarsColor(
-            color = darkBackground // TODO: dark theme status bar color
+            color = Color.Transparent // TODO: dark theme status bar color
         )
     }else{
         systemUiController.setSystemBarsColor(
-            color = lightBackground
+            color = Color.Transparent,
+            darkIcons = true
         )
     }
 

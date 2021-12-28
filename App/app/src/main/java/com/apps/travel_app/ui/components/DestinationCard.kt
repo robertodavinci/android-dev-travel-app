@@ -13,6 +13,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -24,7 +26,12 @@ import com.skydoves.landscapist.glide.GlideImage
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun DestinationCard(modifier: Modifier = Modifier, destination: Destination?, open: Boolean = false, maxHeightValue: Float = 130f) {
+fun DestinationCard(
+    modifier: Modifier = Modifier,
+    destination: Destination?,
+    open: Boolean = false,
+    maxHeightValue: Float = 130f
+) {
 
     val maxHeight: Float by animateFloatAsState(
         if (open) maxHeightValue else 0f, animationSpec = tween(
@@ -55,8 +62,14 @@ fun DestinationCard(modifier: Modifier = Modifier, destination: Destination?, op
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .fillMaxHeight()
+
                     .widthIn(0.dp, maxHeightValue.dp)
+                    .padding(7.dp)
                     .align(Alignment.CenterVertically)
+                    .graphicsLayer {
+                        shape = RoundedCornerShape(20)
+                        clip = true
+                    }
             )
 
             Column(
@@ -73,7 +86,7 @@ fun DestinationCard(modifier: Modifier = Modifier, destination: Destination?, op
                         .align(Alignment.Start)
                 )
                 Text(
-                    text = "Second Level",
+                    text = destination?.description ?: "",
                     color = MaterialTheme.colors.surface,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Start,
@@ -81,6 +94,16 @@ fun DestinationCard(modifier: Modifier = Modifier, destination: Destination?, op
                     modifier = Modifier
                         .fillMaxWidth()
                 )
+                if (destination?.rating ?: 0f > 0) {
+
+                    RatingBar(
+                        rating = destination?.rating ?: 0f,
+                        modifier = Modifier
+                            .height(15.dp),
+                        emptyColor = Color(0x88FFFFFF)
+                    )
+
+                }
             }
         }
     }

@@ -1,6 +1,9 @@
 package com.apps.travel_app.ui.utils
 
 import android.graphics.*
+import android.graphics.Color.WHITE
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 
 
 fun getCroppedBitmap(
@@ -9,14 +12,14 @@ fun getCroppedBitmap(
     height: Int = bitmap.height,
     border: Float = 0f
 ): Bitmap? {
-    var usedBitmap = getResizedBitmap(cropToSquare(bitmap), width, height) ?: return null
+    val usedBitmap = getResizedBitmap(cropToSquare(bitmap), width, height) ?: return null
     val output = Bitmap.createBitmap(
         width,
         height, Bitmap.Config.ARGB_8888
     )
 
     val canvas = Canvas(output)
-    val color = Color.WHITE
+    val color = WHITE
     val paint = Paint()
     val rect = Rect(0, 0, usedBitmap.width, usedBitmap.height)
     paint.isAntiAlias = true
@@ -32,10 +35,15 @@ fun getCroppedBitmap(
         val paintStroke = Paint(Paint.ANTI_ALIAS_FLAG)
         paintStroke.style = Paint.Style.STROKE
         paintStroke.strokeWidth = border
-        paintStroke.color = Color.WHITE
+        paintStroke.color = WHITE
         val offset = border / 2f
         canvas.drawArc(
-            RectF(offset, offset, output.width.toFloat() - offset, output.height.toFloat() - offset),
+            RectF(
+                offset,
+                offset,
+                output.width.toFloat() - offset,
+                output.height.toFloat() - offset
+            ),
             0f,
             360f,
             true,
@@ -77,4 +85,62 @@ fun getDominantColor(bitmap: Bitmap?): Int {
     val color = newBitmap.getPixel(0, 0)
     newBitmap.recycle()
     return color
+}
+
+fun getTriangularMask(
+    url: String,
+    darken: Boolean = false
+): Bitmap? {
+    val bitmap = getBitmapFromURL(url)
+
+    if (bitmap != null) {
+        val w = bitmap.width
+        val h = bitmap.height
+        val output = Bitmap.createBitmap(
+            w,
+            h + 10, Bitmap.Config.ARGB_8888
+        )
+
+        val canvas = Canvas(output)
+        val color = WHITE
+        val paint = Paint()
+        val rect = Rect(0, 0, w, h)
+        paint.isAntiAlias = true
+        canvas.drawARGB(0, 0, 0, 0)
+        paint.color = color
+        val path = Path()
+        path.reset()
+        //path.moveTo(0f, 0f)
+        path.moveTo(0f, 0f)
+        path.lineTo(0f, 3f * h / 4)
+        path.lineTo(w / 2f, h.toFloat())
+        path.lineTo(w.toFloat(), 3f * h / 4)
+        path.lineTo(w.toFloat(), 0f)
+
+        /*path.moveTo(0f, 0f)
+        path.lineTo(0f, 3f * h / 4)
+        path.lineTo(w.toFloat(), h.toFloat())
+        path.lineTo(w.toFloat(), 0f)*/
+        canvas.drawPath(path, paint)
+        paint.xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_IN)
+        canvas.drawBitmap(bitmap, rect, rect, paint)
+        if (darken) {
+            val paintDark = Paint()
+            paintDark.isAntiAlias = true
+            paintDark.color = Color(0x66111122).toArgb()
+            canvas.drawPath(path, paintDark)
+        }
+        val paintStroke = Paint(Paint.ANTI_ALIAS_FLAG)
+        paintStroke.style = Paint.Style.STROKE
+        paintStroke.strokeWidth = 15f
+        paintStroke.color = WHITE
+
+        canvas.drawPath(
+            path,
+            paintStroke
+        )
+
+        return output
+    }
+    return null
 }

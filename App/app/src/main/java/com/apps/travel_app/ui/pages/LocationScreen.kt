@@ -135,7 +135,7 @@ fun LocationScreen(
 
                 try {
                     val request =
-                        "{\"lat\":${destionation.latitude},\"lng\":${destionation.longitude},\"type\":\"restaurant\"}"
+                        "{\"lat\":${destionation.latitude},\"lng\":${destionation.longitude}}"
                     val results = sendPostRequest(request, action = "nearby")
                     val gson = Gson()
                     val itemType = object : TypeToken<List<Destination>>() {}.type
@@ -168,23 +168,17 @@ fun LocationScreen(
         }
     }
 
-    val activities = arrayListOf(
-        "What to do",
-        "Where to stay",
-        "Where to eat",
-        "Crowd-less",
-        "1-day trip",
-        "Nearby"
-    ).toList()
+    val activities = arrayListOf<String>()
 
 
     if (!loaded.value) {
+        activities.add(destination.type)
         getRatings(destination)
         getFacilities(destination)
         getTrips(destination)
         Thread {
             try {
-                isSaved = db.locationDao().getById(destination.id.toInt()) != null
+                isSaved = db.locationDao().getSavedById(destination.id) != null
             } catch (e: Exception) {
             }
         }.start()
@@ -245,10 +239,16 @@ fun LocationScreen(
                     Button(onClick = {
                         Thread {
                             try {
-                                if (!isSaved)
-                                    db.locationDao().insertAll(destination.toLocation())
-                                else
-                                    db.locationDao().delete(destination.toLocation())
+                                if (!isSaved) {
+                                    val location = destination.toLocation()
+                                    location.saved = true
+                                    db.locationDao().insertAll(location)
+
+                                } else {
+                                    val location = destination.toLocation()
+                                    location.saved = false
+                                    db.locationDao().delete(location)
+                                }
                                 isSaved = !isSaved
                             } catch (e: Exception) {
 
@@ -261,10 +261,11 @@ fun LocationScreen(
                         )
                     }
                 }
-
-                Heading(
-                    "Top trips"
-                )
+                if (trips.value.size > 0) {
+                    Heading(
+                        "Trips"
+                    )
+                }
 
                 LazyRow(
                     modifier = Modifier.padding(cardPadding)
@@ -290,13 +291,15 @@ fun LocationScreen(
                 }
 
                 if (!isSaved && !isOnline(mainActivity)) {
-                        Box(Modifier.fillMaxSize(), contentAlignment = Center) {
-                            NetworkError()
-                        }
-                    }else {
-                    Heading(
-                        "Facilities"
-                    )
+                    Box(Modifier.fillMaxSize(), contentAlignment = Center) {
+                        NetworkError()
+                    }
+                } else {
+                    if (facilities.value.size > 0) {
+                        Heading(
+                            "Attractions"
+                        )
+                    }
 
                     LazyRow(
                         modifier = Modifier.padding(cardPadding)
@@ -318,30 +321,22 @@ fun LocationScreen(
                                     mainActivity = mainActivity,
                                     infoScale = 0.8f,
                                     icon = FaIcons.Google,
-                                    badges = badges,
+                                    //badges = badges,
                                     isGooglePlace = true
                                 )
                             }
                         }
                     }
-
-                    Heading(
-                        "Top ratings"
-                    )
+                    if (ratings.value.size > 0) {
+                        Heading(
+                            "Ratings"
+                        )
+                    }
 
                     Box(
                         modifier = Modifier.padding(bottom = 60.dp)
                     ) {
-                        if (ratings.value.size <= 0) {
-                            Box(
-                                modifier = Modifier
-                                    .align(Center)
-                                    .alpha(0.5f)
-                                    .padding(50.dp)
-                            ) {
-                                Loader()
-                            }
-                        } else {
+
                             Column(
                                 modifier = Modifier
                                     .padding(cardPadding)
@@ -355,7 +350,7 @@ fun LocationScreen(
 
 
                             }
-                        }
+
                         Box(
                             modifier = Modifier
                                 .padding(cardPadding)

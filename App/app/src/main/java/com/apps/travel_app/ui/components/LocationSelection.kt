@@ -17,6 +17,8 @@ import androidx.compose.foundation.lazy.GridCells
 import androidx.compose.foundation.lazy.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.MaterialTheme.colors
 import androidx.compose.runtime.*
@@ -40,7 +42,9 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.window.Dialog
 import androidx.core.content.ContextCompat
 import com.apps.travel_app.models.Trip
@@ -61,7 +65,9 @@ import kotlinx.coroutines.launch
 
 val destinations = HashMap<Int, Destination>()
 
-@OptIn(ExperimentalMaterialApi::class, androidx.compose.foundation.ExperimentalFoundationApi::class)
+@OptIn(ExperimentalMaterialApi::class, androidx.compose.foundation.ExperimentalFoundationApi::class,
+    androidx.compose.ui.ExperimentalComposeUiApi::class
+)
 @Composable
 fun LocationSelection(
     context: Context,
@@ -76,7 +82,8 @@ fun LocationSelection(
     val mapView: MutableState<MapView?> = remember { mutableStateOf(null) }
     val mapLoaded = remember { mutableStateOf(false) }
     val destinationSelected = remember { mutableStateOf(false) }
-    val drawingEnabled = remember { mutableStateOf(false) }
+    var startingPointSelected by remember { mutableStateOf(false) }
+    var stepAdded by remember { mutableStateOf(false) }
 
     var searchTerm by remember { mutableStateOf("") }
 
@@ -103,7 +110,7 @@ fun LocationSelection(
         markerPopUp(marker)
     }
 
-    fun search(text: String) {
+    fun Search(text: String) {
         val region = map.value?.projection?.visibleRegion ?: return
 
         Thread {
@@ -116,7 +123,7 @@ fun LocationSelection(
             )
             val request = "{\"area\":" + points.joinToString(",", "[", "]") { e ->
                 "[${e.latitude},${e.longitude}]"
-            } + ", \"text\": \"$text\", \"type\": \"\"}"
+            } + ", \"text\": \"$text\"}"
             println(request)
             val resultText = sendPostRequest(request, action = "search")
             if (!resultText.isNullOrEmpty()) {
@@ -153,27 +160,10 @@ fun LocationSelection(
         }.start()
     }
 
-    fun switchTo3D() {
-        if (map.value != null) {
-            val cameraPosition: CameraPosition = CameraPosition.Builder()
-                .target(map.value!!.cameraPosition.target)
-                .tilt(if (map.value!!.cameraPosition.tilt > 0f) 30f else 0f)
-                .build()
-            map.value?.animateCamera(
-                CameraUpdateFactory.newCameraPosition(
-                    cameraPosition
-                )
-            )
-        }
-    }
-
-    fun toggleDrawing() {
-        destinationSelected.value = false
-        drawingEnabled.value = !drawingEnabled.value
-        map.value?.uiSettings?.isScrollGesturesEnabled = !drawingEnabled.value
-    }
 
     fun markerClick(marker: Marker): Boolean {
+        startingPointSelected = false
+        stepAdded = false
         val destination = destinations[marker.hashCode()]
         if (destination != null) {
             currentDestination.value = destination
@@ -181,6 +171,7 @@ fun LocationSelection(
             return true
         }
         destinationSelected.value = false
+
         return false
     }
 
@@ -251,18 +242,21 @@ fun LocationSelection(
                     )
                 )
         )
-
+        val keyboardController = LocalSoftwareKeyboardController.current
         Column(
             modifier = Modifier
                 .align(Alignment.TopCenter)
                 .fillMaxWidth()
-                .padding(cardPadding)
+                .padding(vertical = cardPadding * 2, horizontal = cardPadding)
         ) {
             Row {
                 IconButton(onClick = { onBack() }) {
                     FaIcon(FaIcons.ArrowLeft, tint = colors.surface)
                 }
                 TextField(
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                    keyboardActions = KeyboardActions(
+                        onDone = {Search(searchTerm);keyboardController?.hide()}),
                     value = searchTerm, onValueChange = { searchTerm = it },
                     shape = RoundedCornerShape(cardRadius),
                     modifier = Modifier
@@ -282,9 +276,10 @@ fun LocationSelection(
                     },
                     trailingIcon = {
                         IconButton(onClick = {
-                            search(
+                            Search(
                                 searchTerm
                             )
+                            keyboardController?.hide()
                         }) {
                             FaIcon(FaIcons.Search, tint = colors.surface)
                         }
@@ -396,16 +391,18 @@ fun LocationSelection(
                         .padding(cardPadding),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Button(onClick = {
+                    com.apps.travel_app.ui.components.Button(onClick = {
                         onStartingPointSelected(currentDestination.value)
-                    }) {
-                        Text("Set as starting point", color = colors.surface)
+                        startingPointSelected = true
+                    },background = if (startingPointSelected) success else primaryColor) {
+                        Text("Set as starting point", color = White)
                     }
                     Spacer(modifier = Modifier.padding(5.dp))
-                    Button(onClick = {
+                    com.apps.travel_app.ui.components.Button(onClick = {
                         onAddStep(currentDestination.value)
-                    }) {
-                        Text("Add as step", color = colors.surface)
+                        stepAdded = true
+                    },background = if (stepAdded) success else primaryColor) {
+                        Text("Add as step", color = White)
                     }
                 }
             }

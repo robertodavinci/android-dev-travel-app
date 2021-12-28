@@ -8,16 +8,16 @@ lateinit var followSystem: MutableState<Boolean>
 
 val primaryColor = Color(0xFF0083FF)
 val secondaryColor = Color(0xFF0460D9)
-val iconLightColor = Color(0xFF808ea7)
-val textLightColor = Color(0xFF4b5360)
-val textDarkColor = Color(0xFFCFD7E4)
+val iconLightColor = Color(0xFF79818F)
+val textLightColor = Color(0xFF50555E)
+val textDarkColor = Color(0xFFDCE0E7)
 val lightBackground = Color(0xFFFFFFFF)
-val darkBackground = Color(0xFF262638)
+val darkBackground = Color(0xFF21212C)
 val yellow = Color(0xFFFFC107)
 val danger = Color(0xFFF4364C)
 val success = Color(0xFF8CCE3F)
-val cardlightBackground = Color(0xFFF6F6FB)
-val carddarkBackground = Color(0xFF333341)
+val cardlightBackground = Color(0xFFEAEAF0)
+val carddarkBackground = Color(0xFF2F2F3D)
 
 fun contrastColor(color: Color): Color {
     val luminance = color.luminance()

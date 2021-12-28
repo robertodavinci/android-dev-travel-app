@@ -60,6 +60,7 @@ fun GooglePlaceScreen(
     val map: MutableState<GoogleMap?> = remember { mutableStateOf(null) }
     val mapLoaded = remember { mutableStateOf(false) }
     val openMap = remember { mutableStateOf(false) }
+    val id = remember { mutableStateOf("") }
 
     fun dayOfWeek(i: Int): String {
         return when (i) {
@@ -77,7 +78,7 @@ fun GooglePlaceScreen(
     fun getMoreInfo() {
         loaded.value = true
 
-        if (googlePlace.value == null) {
+        //if (googlePlace.value == null) {
             Thread {
                 val request = "{\"id\":\"${destination.id}\"}"
                 val text = sendPostRequest(request, action = "placeDetails")
@@ -86,7 +87,7 @@ fun GooglePlaceScreen(
                 val _googlePlace: GooglePlace = gson.fromJson(text, itemType)
                 googlePlace.value = _googlePlace
             }.start()
-        }
+        //}
     }
 
     fun mapInit() {
@@ -114,8 +115,10 @@ fun GooglePlaceScreen(
     }
 
 
-    if (!loaded.value) {
+    if (!loaded.value || destination.id != id.value) {
+        id.value = destination.id
         getMoreInfo()
+
     }
 
 

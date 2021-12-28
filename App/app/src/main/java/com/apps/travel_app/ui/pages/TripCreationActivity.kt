@@ -3,6 +3,7 @@ package com.apps.travel_app.ui.pages
 import FaIcons
 import android.content.Intent
 import android.graphics.Bitmap
+import android.os.Build
 import android.os.Bundle
 import android.preference.PreferenceManager
 import android.provider.MediaStore
@@ -10,6 +11,7 @@ import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.core.*
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -25,6 +27,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.BottomEnd
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Alignment.Companion.CenterVertically
+import androidx.compose.ui.Alignment.Companion.Start
+import androidx.compose.ui.Alignment.Companion.TopStart
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.rotate
@@ -39,17 +43,28 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.room.Room
+import com.apps.travel_app.data.room.AppDatabase
 import com.apps.travel_app.models.Destination
 import com.apps.travel_app.models.MediumType
+import com.apps.travel_app.models.Trip
 import com.apps.travel_app.models.TripDestination
 import com.apps.travel_app.ui.components.Button
 import com.apps.travel_app.ui.components.FlexibleRow
 import com.apps.travel_app.ui.components.Heading
 import com.apps.travel_app.ui.components.TripStepCard
 import com.apps.travel_app.ui.theme.*
+import com.apps.travel_app.ui.utils.sendPostRequest
+import com.apps.travel_app.user
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.storage.FirebaseStorage
+import com.google.gson.Gson
 import com.guru.fontawesomecomposelib.FaIcon
 import com.skydoves.landscapist.glide.GlideImage
+import java.io.ByteArrayOutputStream
+import java.text.SimpleDateFormat
+import java.util.*
 
 
 class TripCreationActivity : ComponentActivity() {
@@ -65,10 +80,20 @@ class TripCreationActivity : ComponentActivity() {
         val sharedPref = PreferenceManager.getDefaultSharedPreferences(this)
         val systemTheme = sharedPref.getBoolean("darkTheme", true)
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            window.setDecorFitsSystemWindows(false)
+        } else {
+            window.setFlags(
+                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
+            )
+        }
+
         setContent {
             thumbnail = remember {
                 mutableStateOf(null)
             }
+            var confirmed by remember {mutableStateOf(false)}
             var description by remember { mutableStateOf("") }
             var name by remember { mutableStateOf("") }
             val tags by remember { mutableStateOf(ArrayList<String>()) }
@@ -83,12 +108,49 @@ class TripCreationActivity : ComponentActivity() {
 
 
 
+
+            fun upload(thumbnailUrl: String? = null) {
+                confirmed = true
+                if (name.isEmpty() || description.isEmpty() || startingPoint.value == null) {
+                    return
+                }
+                Thread {
+                    val gson = Gson()
+                    val trip = Trip()
+                    trip.creatorId = FirebaseAuth.getInstance().currentUser?.uid.toString()
+                    trip.thumbnailUrl = thumbnailUrl ?: ""
+                    trip.startingPoint = startingPoint.value!!
+                    trip.name = name
+                    trip.description = description
+                    trip.attributes = tags
+                    val format = SimpleDateFormat("dd/MM/yyy", Locale.ITALIAN)
+                    trip.creationDate = format.format(Date())
+                    trip.creator = user.email
+                    trip.destinationsPerDay = destinations
+                    trip.sharedWith = arrayListOf(user.email)
+                    val request = gson.toJson(trip)
+                    println(request)
+                    val id = sendPostRequest(request, action = "saveTrip")
+                    trip.id = (id ?: "0").toInt()
+                    val db = Room.databaseBuilder(
+                        this,
+                        AppDatabase::class.java, "database-name"
+                    ).build()
+                    db.locationDao().insertAll(trip.startingPoint.toLocation())
+                    val tripId = db.tripDao()
+                        .insertAll(trip.toTripDb(trip.startingPoint.id))[0]
+
+                    val tripDao = db.tripStepDao()
+                    trip.getTripStep(tripId.toInt()).forEach {
+                        tripDao.insertAll(it)
+                    }
+                    finish()
+                }.start()
+            }
+
+
             Travel_AppTheme(systemTheme = systemTheme) {
 
-                val systemUiController = rememberSystemUiController()
-                systemUiController.setSystemBarsColor(
-                    color = primaryColor
-                )
                 if (locationSelection) {
                     LocationSelection(this, this, onBack = {
                         locationSelection = false
@@ -115,40 +177,47 @@ class TripCreationActivity : ComponentActivity() {
                         })
                 } else {
                     Box(modifier = Modifier.fillMaxSize()) {
+
                         Column {
-                            TextField(
-                                value = name,
-                                onValueChange = {
-                                    name = it
-                                },
-                                modifier = Modifier
-                                    .fillMaxWidth(),
-                                colors = TextFieldDefaults.textFieldColors(
-                                    focusedIndicatorColor = Color.Transparent,
-                                    disabledIndicatorColor = Color.Transparent,
-                                    unfocusedIndicatorColor = Color.Transparent,
-                                    backgroundColor = primaryColor,
-                                ),
-                                placeholder = {
-                                    Text(
-                                        "Trip name",
+                            Row (Modifier.fillMaxWidth().graphicsLayer {
+                                shape = RoundedCornerShape(bottomStart = cardRadius, bottomEnd = cardRadius)
+                                clip = true
+                            }.background(primaryColor).padding(top = cardPadding * 2)) {
+                                TextField(
+                                    value = name,
+                                    onValueChange = {
+                                        name = it
+                                    },
+                                    isError = confirmed && name.isEmpty(),
+                                    modifier = Modifier
+                                        .fillMaxWidth(),
+                                    colors = TextFieldDefaults.textFieldColors(
+                                        focusedIndicatorColor = Color.Transparent,
+                                        disabledIndicatorColor = Color.Transparent,
+                                        unfocusedIndicatorColor = Color.Transparent,
+                                        backgroundColor = Color.Transparent,
+                                    ),
+                                    placeholder = {
+                                        Text(
+                                            "Trip name",
+                                            color = White,
+                                            fontSize = textHeading,
+                                            textAlign = TextAlign.Center,
+                                            modifier = Modifier
+                                                .alpha(0.5f)
+                                                .fillMaxWidth()
+                                        )
+                                    },
+                                    singleLine = true,
+                                    textStyle = TextStyle(
                                         color = White,
+                                        fontWeight = FontWeight.Bold,
                                         fontSize = textHeading,
-                                        textAlign = TextAlign.Center,
-                                        modifier = Modifier
-                                            .alpha(0.5f)
-                                            .fillMaxWidth()
-                                    )
-                                },
-                                singleLine = true,
-                                textStyle = TextStyle(
-                                    color = White,
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = textHeading,
-                                    textAlign = TextAlign.Center
-                                ),
-                                keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences)
-                            )
+                                        textAlign = TextAlign.Center
+                                    ),
+                                    keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences)
+                                )
+                            }
                             LazyColumn(
                                 modifier = Modifier
                                     .background(colors.background)
@@ -211,6 +280,7 @@ class TripCreationActivity : ComponentActivity() {
                                         onValueChange = {
                                             description = it
                                         },
+                                        isError = confirmed && description.isEmpty(),
                                         shape = RoundedCornerShape(cardRadius),
                                         modifier = Modifier
                                             .fillMaxWidth(),
@@ -230,7 +300,6 @@ class TripCreationActivity : ComponentActivity() {
                                             )
                                         },
                                         keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
-                                        singleLine = true,
                                         textStyle = TextStyle(
                                             color = colors.surface,
                                             fontWeight = FontWeight.Bold
@@ -246,6 +315,7 @@ class TripCreationActivity : ComponentActivity() {
                                     if (startingPoint.value == null) {
                                         Button(
                                             onClick = { locationSelection = true },
+                                            border = if (confirmed) BorderStroke(2.dp, danger) else null,
                                             modifier = Modifier.padding(10.dp)
                                         ) {
                                             Row {
@@ -255,7 +325,7 @@ class TripCreationActivity : ComponentActivity() {
                                                 )
                                                 Spacer(modifier = Modifier.width(5.dp))
                                                 Text(
-                                                    "Add the central location",
+                                                    "Central location",
                                                     color = colors.surface
 
                                                 )
@@ -306,7 +376,7 @@ class TripCreationActivity : ComponentActivity() {
                                             val foreground =
                                                 if (i == selectedDay) White else colors.surface
                                             Button(
-                                                onClick = { selectedDay = i },
+                                                onClick = { selectedDay = i; stepCursor = 0 },
                                                 modifier = Modifier.padding(5.dp),
                                                 background = background
                                             ) {
@@ -334,13 +404,15 @@ class TripCreationActivity : ComponentActivity() {
                                                     destinations = destinationsPerDay
 
                                                     selectedDay = days - 1
+                                                    stepCursor = 0
                                                 },
                                                 modifier = Modifier.padding(5.dp)
                                             ) {
                                                 Column(horizontalAlignment = CenterHorizontally) {
                                                     FaIcon(
                                                         FaIcons.Plus,
-                                                        tint = colors.surface
+                                                        tint = colors.surface,
+                                                        modifier = Modifier.padding(4.dp)
                                                     )
                                                     Text(
                                                         "day",
@@ -365,7 +437,7 @@ class TripCreationActivity : ComponentActivity() {
                                                 )
                                                 Spacer(modifier = Modifier.width(5.dp))
                                                 Text(
-                                                    "Add the first step",
+                                                    "First step",
                                                     color = colors.surface
 
                                                 )
@@ -373,75 +445,79 @@ class TripCreationActivity : ComponentActivity() {
                                         }
                                     } else {
                                         destinations[selectedDay].forEachIndexed { index, place ->
-                                            if (index > 0) {
-                                                Box(
-                                                    modifier = Modifier
-                                                        .padding(start = 25.dp)
-                                                        .width(2.dp)
-                                                        .height(25.dp)
-                                                        .background(
-                                                            colors.surface
-                                                        )
-                                                )
-                                            }
-                                            TripStepCard(place, index)
-                                            if (index < destinations[selectedDay].size - 1) {
-                                                Box(
-                                                    modifier = Modifier
-                                                        .padding(start = 25.dp)
-                                                        .width(2.dp)
-                                                        .height(25.dp)
-                                                        .background(
-                                                            colors.surface
-                                                        )
-                                                )
-                                                if (place.mediumToNextDestination != null) {
-                                                    Row(
+                                            Column(horizontalAlignment = Start) {
+                                                if (index > 0) {
+                                                    Box(
                                                         modifier = Modifier
-                                                            .padding(
-                                                                start = 20.dp,
-                                                                end = 5.dp,
-                                                                top = 5.dp,
-                                                                bottom = 10.dp
+                                                            .padding(start = 25.dp)
+                                                            .width(2.dp)
+                                                            .height(25.dp)
+                                                            .background(
+                                                                colors.surface
                                                             )
-                                                            .fillMaxWidth(),
-                                                        horizontalArrangement = SpaceBetween
-                                                    ) {
+                                                    )
+                                                }
+                                                TripStepCard(place, index,changeable = true)
+                                                if (index < destinations[selectedDay].size - 1) {
+                                                    Box(
+                                                        modifier = Modifier
+                                                            .padding(start = 25.dp)
+                                                            .width(2.dp)
+                                                            .height(25.dp)
+                                                            .background(
+                                                                colors.surface
+                                                            )
+                                                    )
+                                                    if (place.mediumToNextDestination != null) {
                                                         Row(
-                                                            modifier = Modifier.align(
-                                                                CenterVertically
-                                                            )
-                                                        ) {
-                                                            FaIcon(
-                                                                MediumType.mediumTypeToIcon(place.mediumToNextDestination!!),
-                                                                tint = colors.surface
-                                                            )
-                                                            Text(
-                                                                "${place.minutesToNextDestination.toInt()} minutes (${place.kmToNextDestination} km)",
-                                                                color = colors.surface,
-                                                                fontSize = textSmall,
-                                                                modifier = Modifier
-                                                                    .padding(start = 20.dp)
-                                                                    .align(CenterVertically)
-                                                            )
-                                                        }
-                                                        IconButton(
-                                                            onClick = {
-                                                                stepCursor = index + 1
-                                                                locationSelection = true
-                                                            },
                                                             modifier = Modifier
-                                                                .size(22.dp, 22.dp)
-                                                                .align(CenterVertically)
+                                                                .padding(
+                                                                    start = 20.dp,
+                                                                    end = 5.dp,
+                                                                    top = 5.dp,
+                                                                    bottom = 10.dp
+                                                                )
+                                                                .fillMaxWidth(),
+                                                            horizontalArrangement = SpaceBetween
                                                         ) {
-                                                            FaIcon(
-                                                                FaIcons.Plus,
-                                                                size = 18.dp,
-                                                                tint = colors.surface,
-                                                            )
+                                                            Row(
+                                                                modifier = Modifier.align(
+                                                                    CenterVertically
+                                                                )
+                                                            ) {
+                                                                FaIcon(
+                                                                    MediumType.mediumTypeToIcon(
+                                                                        place.mediumToNextDestination!!
+                                                                    ),
+                                                                    tint = colors.surface
+                                                                )
+                                                                Text(
+                                                                    "${place.minutesToNextDestination.toInt()} minutes (${place.kmToNextDestination} km)",
+                                                                    color = colors.surface,
+                                                                    fontSize = textSmall,
+                                                                    modifier = Modifier
+                                                                        .padding(start = 20.dp)
+                                                                        .align(CenterVertically)
+                                                                )
+                                                            }
+                                                            IconButton(
+                                                                onClick = {
+                                                                    stepCursor = index + 1
+                                                                    locationSelection = true
+                                                                },
+                                                                modifier = Modifier
+                                                                    .size(22.dp, 22.dp)
+                                                                    .align(CenterVertically)
+                                                            ) {
+                                                                FaIcon(
+                                                                    FaIcons.Plus,
+                                                                    size = 18.dp,
+                                                                    tint = colors.surface,
+                                                                )
+                                                            }
                                                         }
-                                                    }
 
+                                                    }
                                                 }
                                             }
                                         }
@@ -469,7 +545,31 @@ class TripCreationActivity : ComponentActivity() {
                             }
                         }
                         FloatingActionButton(
-                            onClick = { /*TODO*/ },
+                            onClick = {
+                                if (thumbnail.value != null) {
+                                    val bitmap = thumbnail.value
+                                    val baos = ByteArrayOutputStream()
+                                    bitmap?.compress(Bitmap.CompressFormat.JPEG, 100, baos)
+                                    val data = baos.toByteArray()
+                                    val storage = FirebaseStorage.getInstance()
+                                    val storageRef = storage.reference
+                                    val path = "images/${Date().time}.jpg"
+                                    val mountainImagesRef = storageRef.child(path)
+
+                                    var uploadTask = mountainImagesRef.putBytes(data)
+                                    uploadTask.addOnFailureListener {
+                                        upload()
+                                    }.addOnSuccessListener { taskSnapshot ->
+                                        storageRef.child(path).downloadUrl.addOnSuccessListener {
+                                            upload(it.toString())
+                                        }
+
+                                    }
+                                } else {
+                                    upload()
+                                }
+
+                            },
                             backgroundColor = primaryColor,
                             modifier = Modifier
                                 .align(
@@ -491,6 +591,8 @@ class TripCreationActivity : ComponentActivity() {
         }
 
     }
+
+
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)

@@ -16,7 +16,7 @@ class TripDestination : Destination() {
     var images: List<String> = arrayListOf()
 
     fun fromLocation(tripStep: TripStep) {
-        id = tripStep.tsid.toString()
+        id = tripStep.tsid
         latitude = tripStep.latitude
         longitude = tripStep.longitude
         type = tripStep.type
@@ -37,14 +37,9 @@ class TripDestination : Destination() {
 
 
     fun toTripStep(tripId: Int, day: Int): TripStep {
-        var lid = 0
-        try {
-            lid = id.toInt()
-        } catch (e: Exception) {
 
-        }
         return TripStep(
-            tsid = lid,
+            tsid = id,
             latitude = latitude,
             longitude = longitude,
             type = type,

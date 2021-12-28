@@ -7,7 +7,7 @@ import com.apps.travel_app.models.MediumType
 
 @Entity
 data class TripStep(
-    @PrimaryKey val tsid: Int,
+    @PrimaryKey val tsid: String,
     @ColumnInfo(name = "name") var name: String,
     @ColumnInfo(name = "latitude") var latitude: Double,
     @ColumnInfo(name = "longitude") var longitude: Double,
