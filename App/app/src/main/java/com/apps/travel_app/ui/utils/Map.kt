@@ -118,31 +118,26 @@ fun noiseReduction(src: List<LatLng>, severity: Int = 1): ArrayList<LatLng>
     }
     for (i in src.indices)
     {
-        val start = i - severity;
-        val end = i + severity;
+        val start = i - severity
+        val end = i + severity
 
-        var sumLat = 0.0;
-        var sumLng = 0.0;
+        var sumLat = 0.0
+        var sumLng = 0.0
 
         for (j in start until end)
         {
-            sumLat += newList[Math.floorMod(j,src.size)].latitude;
-            sumLng += newList[Math.floorMod(j,src.size)].longitude;
+            sumLat += newList[Math.floorMod(j,src.size)].latitude
+            sumLng += newList[Math.floorMod(j,src.size)].longitude
         }
 
-        val avgLat = sumLat / (end - start);
-        val avgLng = sumLng / (end - start);
+        val avgLat = sumLat / (end - start)
+        val avgLng = sumLng / (end - start)
 
         newList[i] = LatLng(avgLat,avgLng)
     }
     return newList
 }
 
-
-/**
- * @param lineSegments A list of line segments representing a line
- * @return A list line segments representing the smoothed line
- */
 fun line(points: List<LatLng>): ArrayList<LatLng> {
     val smoothedLine = ArrayList<LatLng>()
     smoothedLine.add(points[0])
@@ -154,11 +149,6 @@ fun line(points: List<LatLng>): ArrayList<LatLng> {
     return smoothedLine
 }
 
-/**
- * Find the new point for a smoothed line segment
- * @param points The five points needed
- * @return The new point for the smoothed line segment
- */
 fun smoothPoint(points: List<LatLng>): LatLng {
     var avgX = 0.0
     var avgY = 0.0

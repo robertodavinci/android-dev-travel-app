@@ -29,11 +29,12 @@ class NiceSwitchStates(T: FaIconType = FaIcons.Check, F: FaIconType = FaIcons.Ti
 
 @Composable
 fun NiceSwitch(
+    modifier: Modifier = Modifier.padding(5.dp),
     checked: Boolean,
     onChecked: (Boolean) -> Unit,
     states: NiceSwitchStates = NiceSwitchStates(),
-    label: String? = null,
-    modifier: Modifier =  Modifier.padding(5.dp)
+    label: String? = null
+
 ) {
     var _checked by remember {
         mutableStateOf(checked)
@@ -129,7 +130,9 @@ fun NiceSwitch(
             Text(
                 label,
                 color = MaterialTheme.colors.surface,
-                modifier = Modifier.align(CenterVertically).padding(start = cardPadding)
+                modifier = Modifier
+                    .align(CenterVertically)
+                    .padding(start = cardPadding)
             )
         }
 

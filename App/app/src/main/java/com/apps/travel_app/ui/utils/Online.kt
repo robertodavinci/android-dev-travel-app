@@ -6,13 +6,12 @@ import android.graphics.BitmapFactory
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.util.Log
-import androidx.core.content.ContextCompat.getSystemService
 import java.io.*
 import java.net.HttpURLConnection
 import java.net.URL
 
 
-val API = "https://safeitaly.org/travel/controller.php"
+const val API = "https://safeitaly.org/travel/controller.php"
 
 fun getBitmapFromURL(src: String?): Bitmap? {
     return try {

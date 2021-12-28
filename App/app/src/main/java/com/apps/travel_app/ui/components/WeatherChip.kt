@@ -10,7 +10,7 @@ fun weatherChip(
     callback: (FaIconType?) -> Unit
 ) {
 
-    var condition = ""
+    var condition: String
     Thread {
         val request = "{\"lat\":${latitude},\"lng\":${longitude}}"
         condition = sendPostRequest(request, action = "weather") ?: ""

@@ -34,7 +34,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.BottomCenter
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
@@ -232,7 +231,7 @@ class AroundMeActivity : ComponentActivity() {
 
                     if (!manager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
                         Box(Modifier.fillMaxSize(), contentAlignment = Center) {
-                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Column(horizontalAlignment = CenterHorizontally) {
                                 FaIcon(FaIcons.MapMarker, tint = colors.surface, size = 50.dp)
                                 Heading(
                                     "Dear astronaut, we need to know your position in order to access this fantastic tool",
