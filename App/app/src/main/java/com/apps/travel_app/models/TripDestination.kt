@@ -1,7 +1,12 @@
 package com.apps.travel_app.models
 
+<<<<<<< Updated upstream
 import android.os.Parcel
 import android.os.Parcelable
+=======
+
+import com.apps.travel_app.data.room.entity.TripStep
+>>>>>>> Stashed changes
 import com.guru.fontawesomecomposelib.FaIconType
 
 class TripDestination : Destination {

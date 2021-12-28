@@ -3,6 +3,12 @@ package com.apps.travel_app.models
 import android.os.Parcel
 import android.os.Parcelable
 import androidx.compose.ui.graphics.ImageBitmap
+<<<<<<< Updated upstream
+=======
+import com.apps.travel_app.data.room.entity.Trip
+import com.apps.travel_app.data.room.entity.TripAndDays
+import com.apps.travel_app.data.room.entity.TripStep
+>>>>>>> Stashed changes
 
 class Trip() : Parcelable {
     var id: Int = 0

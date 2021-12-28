@@ -14,12 +14,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.SharedPreferencesMigration
+import androidx.datastore.preferences.preferencesDataStore
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+<<<<<<< Updated upstream
 import androidx.room.Room
 //import com.apps.travel_app.data.room.db.DB
+=======
+import com.apps.travel_app.data.room.UserPreferences
+>>>>>>> Stashed changes
 import com.apps.travel_app.models.Destination
 import com.apps.travel_app.models.Trip
 import com.apps.travel_app.ui.components.BottomBarItem
@@ -35,15 +42,25 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.guru.fontawesomecomposelib.FaIconType
+import java.util.prefs.Preferences
 
 class MainActivity : ComponentActivity() {
+
+
+    private var USER_PREFERENCES_NAME = "user_preferences"
 
     var user: User = User("","")
     private var destination: Destination? = null
     lateinit var navController: NavHostController
+<<<<<<< Updated upstream
     var prova: MutableState<Boolean> = mutableStateOf(true)
 
 
+=======
+    /*private val Context.dataStore: DataStore<UserPreferences> by preferencesDataStore(
+        name = USER_PREFERENCES_NAME
+    )*/
+>>>>>>> Stashed changes
 
 
     @OptIn(ExperimentalFoundationApi::class,
@@ -96,7 +113,6 @@ class MainActivity : ComponentActivity() {
         user.displayName = auth.currentUser?.displayName
         user.email = auth.currentUser?.email.toString()
 
-
         // maybe do this Async way - Room DB creation
       /*  val db = Room.databaseBuilder(
             applicationContext,
@@ -118,6 +134,7 @@ class MainActivity : ComponentActivity() {
             "last" to "Lovelace",
             "born" to 1815
         )
+
 
 // Add a new document with a generated ID
         db.collection("users")
@@ -142,6 +159,8 @@ class MainActivity : ComponentActivity() {
 
         val sharedPref = PreferenceManager.getDefaultSharedPreferences(this)
         val systemTheme = sharedPref.getBoolean("darkTheme", true)
+
+
 
         setContent {
             MainActivity_Travel_AppTheme(systemTheme = systemTheme) {

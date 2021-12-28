@@ -24,6 +24,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.apps.travel_app.MainActivity
+<<<<<<< Updated upstream
+=======
+import com.apps.travel_app.data.room.AppDatabase
+import com.apps.travel_app.data.room.entity.Location
+import com.apps.travel_app.data.room.entity.Trip
+>>>>>>> Stashed changes
 import com.apps.travel_app.models.Destination
 import com.apps.travel_app.models.Trip
 import com.apps.travel_app.ui.components.Button
