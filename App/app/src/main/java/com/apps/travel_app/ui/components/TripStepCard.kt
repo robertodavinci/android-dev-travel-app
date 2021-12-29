@@ -14,13 +14,12 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.Card
-import androidx.compose.material.IconButton
+import androidx.compose.material.*
 import androidx.compose.material.MaterialTheme.colors
-import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -29,12 +28,17 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign.Companion.Center
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.apps.travel_app.models.Trip
 import com.apps.travel_app.models.TripDestination
 import com.apps.travel_app.ui.theme.*
+import com.apps.travel_app.ui.utils.sendPostRequest
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import com.guru.fontawesomecomposelib.FaIcon
 import com.skydoves.landscapist.CircularReveal
 import com.skydoves.landscapist.glide.GlideImage
@@ -44,7 +48,8 @@ fun TripStepCard(
     destination: TripDestination,
     index: Int,
     onComplete: (Boolean) -> Unit = {},
-    changeable: Boolean = false
+    changeable: Boolean = false,
+    tripId: Int = 0
 ) {
 
     val openDialog = remember { mutableStateOf(false) }
@@ -167,7 +172,7 @@ fun TripStepCard(
             if (changeable) {
                 EditDialog(openDialog, destination)
             } else {
-                Dialog(openDialog, destination)
+                Dialog(openDialog, destination,tripId)
             }
         }
 
@@ -175,8 +180,11 @@ fun TripStepCard(
 }
 
 @Composable
-fun Dialog(openDialog: MutableState<Boolean>, destination: TripDestination) {
+fun Dialog(openDialog: MutableState<Boolean>, destination: TripDestination, tripId: Int) {
 
+    var note: String? by remember {
+        mutableStateOf("")
+    }
     androidx.compose.ui.window.Dialog(
         onDismissRequest = {
             openDialog.value = false
@@ -280,20 +288,23 @@ fun Dialog(openDialog: MutableState<Boolean>, destination: TripDestination) {
                 ) {
                     items(destination.notes) {
                         Card(
+                            backgroundColor = colors.onBackground,
                             modifier = Modifier
-                                .background(colors.background)
-                                .width(150.dp)
-                                .padding(end = 5.dp), shape = RoundedCornerShape(20)
+                                .widthIn(0.dp, 150.dp)
+                                .padding(end = 5.dp),
+                            shape = RoundedCornerShape(20)
                         ) {
-                            FaIcon(FaIcons.StickyNote, size = 13.dp, tint = colors.surface)
-                            Spacer(modifier = Modifier.width(5.dp))
-                            Text(it, color = colors.surface, fontSize = textSmall)
+                            Row {
+                                FaIcon(FaIcons.StickyNote, size = 13.dp, tint = colors.surface)
+                                Spacer(modifier = Modifier.width(5.dp))
+                                Text(it, color = colors.surface, fontSize = textSmall)
+                            }
                         }
                     }
                 }
             }
 
-            if (destination.images.isNotEmpty()) {
+            /*if (destination.images.isNotEmpty()) {
 
                 Text(
                     "Images",
@@ -323,38 +334,61 @@ fun Dialog(openDialog: MutableState<Boolean>, destination: TripDestination) {
                                 })
                     }
                 }
-            }
+            }*/
+            if (tripId > 0   && note != null) {
 
-            Row(
-                horizontalArrangement = SpaceBetween,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(cardPadding)
-            ) {
-                Button(onClick = { /*TODO*/ }) {
-                    Text("Add note", color = colors.surface)
-                }
-                Button(onClick = { /*TODO*/ }) {
-                    Text("Add image", color = colors.surface)
-                }
-            }
-
-            Row(
-                horizontalArrangement = SpaceBetween,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(cardPadding)
-            ) {
-                FaIcon(
-                    FaIcons.Heart,
-                    tint = danger
+                TextField(
+                    value = note!!,
+                    onValueChange = {
+                        note = it
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    colors = TextFieldDefaults.textFieldColors(
+                        focusedIndicatorColor = Color.Transparent,
+                        disabledIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent,
+                        backgroundColor = Color.Transparent,
+                    ),
+                    placeholder = {
+                        Text(
+                            "If you know the place, write a note",
+                            color = colors.surface,
+                            fontSize = textSmall,
+                            modifier = Modifier
+                                .alpha(0.5f)
+                                .fillMaxWidth()
+                        )
+                    },
+                    textStyle = TextStyle(
+                        color = colors.surface,
+                        fontSize = textSmall,
+                        fontWeight = FontWeight.Bold
+                    ),
+                    keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences)
                 )
 
-                FaIcon(
-                    FaIcons.ClockRegular,
-                    tint = colors.surface
-                )
+                Row(
+                    horizontalArrangement = SpaceBetween,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(cardPadding)
+                ) {
+                    Button(onClick = {
+                        if (note!!.isNotEmpty()) {
+                            Thread {
+                                val request =
+                                    "{\"id\":${tripId},\"step_id\":\"${destination.id}\",\"note\":\"${note}\"}"
+                                sendPostRequest(request, action = "addNote")
 
+                                note = null
+
+                            }.start()
+                        }
+                    }) {
+                        Text("Add note", color = colors.surface)
+                    }
+                }
             }
         }
 
@@ -448,7 +482,9 @@ fun EditDialog(openDialog: MutableState<Boolean>, destination: TripDestination) 
                     fontWeight = FontWeight.Bold,
                     textAlign = Center
                 ),
-                modifier = Modifier.padding(cardPadding).fillMaxWidth(),
+                modifier = Modifier
+                    .padding(cardPadding)
+                    .fillMaxWidth(),
                 cursorBrush = SolidColor(colors.surface)
             )
 
@@ -463,7 +499,9 @@ fun EditDialog(openDialog: MutableState<Boolean>, destination: TripDestination) 
                     textAlign = Center
                 ),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                modifier = Modifier.padding(cardPadding).fillMaxWidth(),
+                modifier = Modifier
+                    .padding(cardPadding)
+                    .fillMaxWidth(),
                 cursorBrush = SolidColor(colors.surface)
             )
 
@@ -478,7 +516,9 @@ fun EditDialog(openDialog: MutableState<Boolean>, destination: TripDestination) 
                     textAlign = Center
                 ),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                modifier = Modifier.padding(cardPadding).fillMaxWidth(),
+                modifier = Modifier
+                    .padding(cardPadding)
+                    .fillMaxWidth(),
                 cursorBrush = SolidColor(colors.surface)
             )
 

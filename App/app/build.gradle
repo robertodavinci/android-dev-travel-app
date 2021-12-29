@@ -101,13 +101,14 @@ dependencies {
     implementation 'com.google.firebase:firebase-firestore-ktx'
     implementation 'com.google.firebase:firebase-messaging'
 
-    implementation("androidx.room:room-runtime:$roomVersion")
+    implementation "androidx.room:room-runtime:$roomVersion"
     annotationProcessor("androidx.room:room-compiler:$roomVersion")
     kapt("androidx.room:room-compiler:$roomVersion")
-    implementation("androidx.room:room-ktx:$roomVersion")
-    implementation("androidx.room:room-rxjava3:$roomVersion")
-    implementation("androidx.room:room-guava:$roomVersion")
-    implementation("androidx.room:room-paging:2.4.0-rc01")
+    implementation "androidx.room:room-ktx:$roomVersion"
+    implementation "androidx.room:room-rxjava3:$roomVersion"
+    implementation "androidx.room:room-guava:$roomVersion"
+    implementation "androidx.room:room-paging:2.4.0"
+    implementation 'androidx.preference:preference-ktx:1.1.1'
 
     implementation("androidx.datastore:datastore-preferences-rxjava2:1.0.0")
     implementation("androidx.datastore:datastore-preferences-rxjava3:1.0.0")

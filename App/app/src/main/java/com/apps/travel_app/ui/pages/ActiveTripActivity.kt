@@ -2,7 +2,7 @@ package com.apps.travel_app.ui.pages
 
 import FaIcons
 import android.os.Bundle
-import android.preference.PreferenceManager
+import androidx.preference.PreferenceManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.core.animateFloatAsState

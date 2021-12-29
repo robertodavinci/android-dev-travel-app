@@ -12,6 +12,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.MaterialTheme.colors
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -31,10 +32,7 @@ import com.apps.travel_app.models.Destination
 import com.apps.travel_app.models.Rating
 import com.apps.travel_app.models.Trip
 import com.apps.travel_app.ui.components.*
-import com.apps.travel_app.ui.theme.cardPadding
-import com.apps.travel_app.ui.theme.cardRadius
-import com.apps.travel_app.ui.theme.danger
-import com.apps.travel_app.ui.theme.mapStyle
+import com.apps.travel_app.ui.theme.*
 import com.apps.travel_app.ui.utils.isOnline
 import com.apps.travel_app.ui.utils.rememberMapViewWithLifecycle
 import com.apps.travel_app.ui.utils.sendPostRequest
@@ -96,11 +94,9 @@ fun LocationScreen(
                 ), 12f
             )
         )
-
-        //map.value?.setOnMarkerClickListener { marker -> markerClick(marker) }
     }
 
-    fun getRatings(destionation: Destination) {
+    fun getRatings(destination: Destination) {
         loaded.value = true
 
         if (ratings.value.size <= 0) {
@@ -108,7 +104,7 @@ fun LocationScreen(
                 try {
                     val result = ArrayList<Rating>()
 
-                    val request = "${destionation.latitude},${destionation.longitude}"
+                    val request = "${destination.latitude},${destination.longitude}"
                     val ratingsText = sendPostRequest(request, action = "ratings")
                     val gson = Gson()
                     val itemType = object : TypeToken<List<Rating>>() {}.type
@@ -125,7 +121,7 @@ fun LocationScreen(
         }
     }
 
-    fun getFacilities(destionation: Destination) {
+    fun getFacilities(destination: Destination) {
         loaded.value = true
 
         if (facilities.value.size <= 0) {
@@ -133,7 +129,7 @@ fun LocationScreen(
 
                 try {
                     val request =
-                        "{\"lat\":${destionation.latitude},\"lng\":${destionation.longitude}}"
+                        "{\"lat\":${destination.latitude},\"lng\":${destination.longitude}}"
                     val results = sendPostRequest(request, action = "nearby")
                     val gson = Gson()
                     val itemType = object : TypeToken<List<Destination>>() {}.type
@@ -146,14 +142,14 @@ fun LocationScreen(
         }
     }
 
-    fun getTrips(destionation: Destination) {
+    fun getTrips(destination: Destination) {
         loaded.value = true
 
         if (trips.value.size <= 0) {
             Thread {
                 try {
                     val request =
-                        "[[${destionation.latitude - 1},${destionation.longitude - 1}],[${destionation.latitude - 1},${destionation.longitude + 1}],[${destionation.latitude + 1},${destionation.longitude + 1}],[${destionation.latitude + 1},${destionation.longitude - 1}]]"
+                        "[[${destination.latitude - 1},${destination.longitude - 1}],[${destination.latitude - 1},${destination.longitude + 1}],[${destination.latitude + 1},${destination.longitude + 1}],[${destination.latitude + 1},${destination.longitude - 1}]]"
                     val results = sendPostRequest(request, action = "polygonTrips")
                     val gson = Gson()
                     val itemType = object : TypeToken<List<Trip>>() {}.type
@@ -199,6 +195,7 @@ fun LocationScreen(
                 .background(MaterialTheme.colors.background)
                 .fillMaxSize()
                 .verticalScroll(scrollState)
+                .padding(top = cardPadding * 2)
         ) {
             Column {
 
@@ -216,6 +213,13 @@ fun LocationScreen(
                     )
                 }
 
+                Text(
+                    destination.description,
+                    color = colors.surface,
+                    fontSize = textSmall,
+                    modifier = Modifier.padding(cardPadding)
+                )
+
 
                 FlexibleRow(
                     alignment = Alignment.CenterHorizontally,
@@ -231,7 +235,7 @@ fun LocationScreen(
                     Button(onClick = { openMap.value = true }, modifier = Modifier.padding(5.dp)) {
                         FaIcon(
                             FaIcons.LocationArrow,
-                            tint = MaterialTheme.colors.surface
+                            tint = colors.surface
                         )
                     }
                     Button(onClick = {
@@ -255,7 +259,7 @@ fun LocationScreen(
                     }, modifier = Modifier.padding(5.dp)) {
                         FaIcon(
                             if (isSaved) FaIcons.Heart else FaIcons.HeartRegular,
-                            tint = if (isSaved) danger else MaterialTheme.colors.surface
+                            tint = if (isSaved) danger else colors.surface
                         )
                     }
                 }
@@ -391,7 +395,7 @@ fun LocationScreen(
                         shape = RoundedCornerShape(cardRadius)
                         clip = true
                     }
-                    .background(MaterialTheme.colors.background)
+                    .background(colors.background)
                     .fillMaxWidth()
             ) {
                 Box(
@@ -416,7 +420,7 @@ fun LocationScreen(
                     } else {
                         Text(
                             "Loading...",
-                            color = MaterialTheme.colors.surface,
+                            color = colors.surface,
                             modifier = Modifier.padding(
                                 cardPadding
                             )

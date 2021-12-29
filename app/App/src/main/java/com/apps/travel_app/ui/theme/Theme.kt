@@ -1,5 +1,9 @@
 package com.apps.travel_app.ui.theme
 
+import android.content.Context
+import android.os.Build
+import android.view.Window
+import android.view.WindowManager
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.darkColors
@@ -8,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
+import androidx.preference.PreferenceManager
 import com.apps.travel_app.R
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 
@@ -73,4 +78,19 @@ fun Travel_AppTheme(systemTheme: Boolean = true, content: @Composable () -> Unit
 fun MainActivity_Travel_AppTheme(systemTheme: Boolean = true, content: @Composable () -> Unit) {
     followSystem = remember { mutableStateOf(systemTheme)}
     Travel_AppTheme(systemTheme = followSystem.value, content = content)
+}
+
+fun requireFullscreenMode(window: Window, context: Context) {
+    window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+    val sharedPref = PreferenceManager.getDefaultSharedPreferences(context)
+    val systemTheme = sharedPref.getBoolean("darkTheme", true)
+
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        window.setDecorFitsSystemWindows(false)
+    } else {
+        window.setFlags(
+            WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+            WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
+        )
+    }
 }

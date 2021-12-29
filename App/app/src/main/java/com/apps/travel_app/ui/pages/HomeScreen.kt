@@ -121,126 +121,109 @@ fun HomeScreen(navController: NavController, mainActivity: MainActivity) {
     ) {
         item {
 
+            var experienceImage: Bitmap? by remember { mutableStateOf(null) }
 
-            if (activeTrip.value != null) {
-                var experienceImage: Bitmap? by remember { mutableStateOf(null) }
-                var imageRequired by remember {
-                    mutableStateOf(false)
+            if (experienceImage == null) {
+                experienceImage = getTriangularMask(
+                    R.drawable.landscape,
+                    true,
+                    mainActivity.resources
+                )
+            }
+
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+            ) {
+
+                val modifier = Modifier
+                    .fillMaxWidth()
+                    .height(300.dp)
+                if (experienceImage != null) {
+                    GlideImage(
+                        imageModel = experienceImage,
+                        modifier = modifier,
+                        contentScale = ContentScale.Crop,
+                        error = painterResource(id = R.drawable.blur),
+                    )
                 }
-                if (!imageRequired) {
-                    imageRequired = true
-                    Thread {
-                        experienceImage = getTriangularMask(
-                            "https://www.limontasport.com/wp-content/uploads/2016/03/landscape-test.jpg",
-                            true
-                        )
-                    }.start()
-                }
-
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                ) {
-
-                    val modifier = Modifier
-                        .fillMaxWidth()
+                Column(
+                    Modifier
+                        .fillMaxSize()
                         .height(300.dp)
-                    if (experienceImage != null) {
-                        GlideImage(
-                            imageModel = experienceImage,
-                            modifier = modifier,
-                            contentScale = ContentScale.Crop,
-                            error = painterResource(id = R.drawable.blur),
+                        .align(Alignment.Center),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+
+                    ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(
+                                end = cardPadding,
+                                start = cardPadding,
+                                top = cardPadding * 2,
+                                bottom = 10.dp
+                            ),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        val text = with(AnnotatedString.Builder("")) {
+                            pushStyle(SpanStyle(fontStyle = FontStyle.Italic))
+                            append("Hi,")
+                            pop()
+                            pushStyle(SpanStyle(fontFamily = pacifico))
+                            append(user.displayName ?: user.email)
+                            toAnnotatedString()
+                        }
+                        Text(
+                            text = text,
+                            fontSize = textHeading,
+                            color = Color.White
+                        )
+                        IconButton(onClick = {
+                            navController.navigate("profile") {
+                                navController.graph.startDestinationRoute?.let { route ->
+                                    popUpTo(route) {
+                                        saveState = true
+                                    }
+                                }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+
+                        }) {
+                            GlideImage(
+                                imageModel = R.mipmap.icon,
+                                contentDescription = "",
+                                modifier = Modifier
+                                    .width(40.dp)
+                                    .height(40.dp)
+                                    .graphicsLayer {
+                                        shape = RoundedCornerShape(100)
+                                        clip = true
+                                    }
+                            )
+                        }
+                    }
+                    Column(Modifier.weight(1f), verticalArrangement = Arrangement.Center) {
+                        Text(
+                            modifier = Modifier.fillMaxWidth(),
+                            text = "Explore new",
+                            color = Color.White,
+                            textAlign = Center,
+                            fontSize = textHeading,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                        Text(
+                            modifier = Modifier.fillMaxWidth(),
+                            text = "Experiences",
+                            color = Color.White,
+                            textAlign = Center,
+                            fontFamily = pacifico,
+                            fontSize = textHeading * 1.5,
+                            fontWeight = FontWeight.Bold
                         )
                     }
-                    Column(
-                        Modifier
-                            .fillMaxSize()
-                            .height(300.dp)
-                            .align(Alignment.Center),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-
-                        ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(
-                                    end = cardPadding,
-                                    start = cardPadding,
-                                    top = cardPadding * 2,
-                                    bottom = 10.dp
-                                ),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            val text = with(AnnotatedString.Builder("")) {
-                                pushStyle(SpanStyle(fontStyle = FontStyle.Italic))
-                                append("Hi,")
-                                pop()
-                                pushStyle(SpanStyle(fontFamily = pacifico))
-                                append(user.displayName ?: user.email)
-                                toAnnotatedString()
-                            }
-                            Text(
-                                text = text,
-                                fontSize = textHeading,
-                                color = Color.White
-                            )
-                            IconButton(onClick = {
-                                navController.navigate("profile") {
-                                    navController.graph.startDestinationRoute?.let { route ->
-                                        popUpTo(route) {
-                                            saveState = true
-                                        }
-                                    }
-                                    launchSingleTop = true
-                                    restoreState = true
-                                }
-
-                            }) {
-                                GlideImage(
-                                    imageModel = R.mipmap.icon,
-                                    contentDescription = "",
-                                    modifier = Modifier
-                                        .width(40.dp)
-                                        .height(40.dp)
-                                        .graphicsLayer {
-                                            shape = RoundedCornerShape(100)
-                                            clip = true
-                                        }
-                                )
-                            }
-                        }
-                        Column(Modifier.weight(1f), verticalArrangement = Arrangement.Center) {
-                            Text(
-                                modifier = Modifier.fillMaxWidth(),
-                                text = "Explore new",
-                                color = Color.White,
-                                textAlign = Center,
-                                fontSize = textHeading,
-                                fontWeight = FontWeight.SemiBold
-                            )
-                            Text(
-                                modifier = Modifier.fillMaxWidth(),
-                                text = "Experiences",
-                                color = Color.White,
-                                textAlign = Center,
-                                fontFamily = pacifico,
-                                fontSize = textHeading * 1.5,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
-                    }
                 }
-
-            } else {
-                /* Heading("Active trip")
-                 TripCard(
-                     trip = activeTrip.value!!,
-                     rating = 4.8f,
-                     imageMaxHeight = 400f,
-                     mainActivity = mainActivity,
-                     active = true
-                 )*/
             }
 
 

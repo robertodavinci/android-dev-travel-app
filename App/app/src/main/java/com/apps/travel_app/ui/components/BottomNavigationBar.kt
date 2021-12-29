@@ -115,7 +115,7 @@ fun BottomNavigationBar(navController: NavController, mainActivity: MainActivity
                     }
                     .background(Color(0x15000022)), verticalAlignment = Alignment.CenterVertically) {
                     BasicTextField(
-                        keyboardOptions = KeyboardOptions(imeAction = androidx.compose.ui.text.input.ImeAction.Done),
+                        keyboardOptions = KeyboardOptions(imeAction = androidx.compose.ui.text.input.ImeAction.Search),
                         keyboardActions = KeyboardActions(
                             onDone = {Search(searchTerm);keyboardController?.hide()}),
                         value = searchTerm, onValueChange = { searchTerm = it },

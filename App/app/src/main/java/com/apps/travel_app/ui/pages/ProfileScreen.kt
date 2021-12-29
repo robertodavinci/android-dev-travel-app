@@ -1,7 +1,7 @@
 package com.apps.travel_app.ui.pages
 
 import FaIcons
-import android.preference.PreferenceManager
+import androidx.preference.PreferenceManager
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*

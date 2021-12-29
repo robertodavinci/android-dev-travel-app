@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.util.Log
+import com.apps.travel_app.user
 import java.io.*
 import java.net.HttpURLConnection
 import java.net.URL
@@ -48,7 +49,7 @@ fun isOnline(context: Context): Boolean {
 }
 
 fun sendPostRequest(body: String, url: String = API, action: String = ""): String? {
-   val mURL = URL("${url}?action=${action}")
+   val mURL = URL("${url}?action=${action}&user=${user.id}&user_m=${user.email}")
 
 
 
@@ -64,7 +65,7 @@ fun sendPostRequest(body: String, url: String = API, action: String = ""): Strin
             wr.write(body)
             wr.flush()
 
-            println("URL : $url")
+            println("URL : $mURL")
             println("Response Code : $responseCode")
             BufferedReader(InputStreamReader(inputStream)).use {
                 val response = StringBuffer()

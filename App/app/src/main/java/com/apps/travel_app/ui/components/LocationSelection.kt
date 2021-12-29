@@ -237,7 +237,7 @@ fun LocationSelection(
                     FaIcon(FaIcons.ArrowLeft, tint = colors.surface)
                 }
                 TextField(
-                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
                     keyboardActions = KeyboardActions(
                         onDone = {Search(searchTerm);keyboardController?.hide()}),
                     value = searchTerm, onValueChange = { searchTerm = it },

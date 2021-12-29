@@ -15,7 +15,7 @@ import android.graphics.drawable.Animatable
 import android.graphics.drawable.Drawable
 import android.location.LocationManager
 import android.os.Bundle
-import android.preference.PreferenceManager
+import androidx.preference.PreferenceManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts

@@ -1,9 +1,10 @@
 package com.apps.travel_app.ui.pages
 
 import FaIcons
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import android.preference.PreferenceManager
+import androidx.preference.PreferenceManager
 import android.util.Log
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
@@ -12,6 +13,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement.SpaceBetween
 import androidx.compose.foundation.lazy.LazyColumn
@@ -21,6 +23,8 @@ import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme.colors
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment.Companion.BottomCenter
+import androidx.compose.ui.Alignment.Companion.BottomStart
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Alignment.Companion.CenterVertically
@@ -31,12 +35,16 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.Transparent
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight.Companion.Bold
+import androidx.compose.ui.text.font.FontWeight.Companion.ExtraBold
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.room.Room
 import com.apps.travel_app.data.room.AppDatabase
@@ -67,14 +75,7 @@ class TripActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            window.setDecorFitsSystemWindows(false)
-        } else {
-            window.setFlags(
-                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
-                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
-            )
-        }
+        requireFullscreenMode(window, this)
 
         val intent = intent
 
@@ -86,6 +87,7 @@ class TripActivity : ComponentActivity() {
 
         setContent {
             var trip: Trip? by remember { mutableStateOf(null) }
+            var phase by remember { mutableStateOf(false) }
             Thread {
                 if (isOnline(this)) {
                     val request = tripId.toString()
@@ -113,12 +115,76 @@ class TripActivity : ComponentActivity() {
             Travel_AppTheme(systemTheme = systemTheme) {
 
                 if (trip != null) {
-                    TripScreen(trip!!)
+                    if (!phase) {
+                        TripWallpaper(trip!!, next = {
+                            phase = true
+                        })
+                    } else {
+                        TripScreen(trip!!)
+                    }
                 }
             }
         }
     }
 
+    @OptIn(
+        ExperimentalFoundationApi::class,
+        androidx.compose.material.ExperimentalMaterialApi::class
+    )
+    @Composable
+    fun TripWallpaper(
+        trip: Trip,
+        next: () -> Unit
+    ) {
+        Box(Modifier.fillMaxSize()) {
+            GlideImage(imageModel = trip.thumbnailUrl)
+            Button(
+                onClick = {
+                    finish()
+                },
+                background = Transparent,
+                modifier = Modifier.padding(cardPadding * 2)
+            ) {
+                FaIcon(
+                    FaIcons.ArrowLeft,
+                    tint = White
+                )
+            }
+            Column(
+                Modifier
+                    .align(BottomStart)
+                    .padding(cardPadding * 2)
+            ) {
+                Text(
+                    trip.name,
+                    color = White,
+                    fontSize = 30.sp,
+                    fontWeight = ExtraBold
+                )
+                Text(
+                    trip.description,
+                    color = White,
+                    fontSize = textNormal
+                )
+                Button(
+                    onClick = next
+                ) {
+                    Row {
+                        Text(
+                            "More"
+                        )
+                        Spacer(Modifier.size(10.dp))
+                        FaIcon(
+                            FaIcons.ArrowRight,
+                            tint = textLightColor
+                        )
+                    }
+
+                }
+            }
+        }
+
+    }
 
     @OptIn(
         ExperimentalFoundationApi::class,
@@ -133,11 +199,6 @@ class TripActivity : ComponentActivity() {
             this,
             AppDatabase::class.java, "database-name"
         ).build()
-
-        /*val systemUiController = rememberSystemUiController()
-        systemUiController.setSystemBarsColor(
-            color = colors.background
-        )*/
 
         val open: MutableState<Boolean> = remember { mutableStateOf(false) }
         val loaded: MutableState<Boolean> = remember { mutableStateOf(false) }
@@ -240,9 +301,11 @@ class TripActivity : ComponentActivity() {
             mapView = rememberMapViewWithLifecycle()
 
         BoxWithConstraints {
-            Box(modifier = Modifier
-                .fillMaxSize()
-                .background(colors.background)) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(colors.background)
+            ) {
 
                 if (mapView != null) {
                     Column(
@@ -289,14 +352,14 @@ class TripActivity : ComponentActivity() {
                             brush = Brush.verticalGradient(
                                 colors = listOf(
                                     colors.background,
-                                    Color.Transparent
+                                    Transparent
                                 )
                             )
                         )
                 ) {
                     Text(
                         text = "\uD83C\uDF0D ${trip.name}",
-                        color = White,
+                        color = colors.surface,
                         fontWeight = Bold,
                         textAlign = TextAlign.Center,
                         fontSize = textHeading,
@@ -367,18 +430,44 @@ class TripActivity : ComponentActivity() {
                     ) {
                         item {
                             Column {
-                                Button(
-                                    onClick = {}, background = primaryColor, modifier = Modifier
-                                        .align(
-                                            CenterHorizontally
-                                        )
-                                        .padding(5.dp)
-                                ) {
-                                    Row {
-                                        FaIcon(FaIcons.Play, tint = White, size = 18.dp)
-                                        Spacer(modifier = Modifier.width(5.dp))
-                                        Text("Start", color = White)
-
+                                if (trip.creatorId != user.id) {
+                                    Button(
+                                        onClick = {}, background = primaryColor, modifier = Modifier
+                                            .align(
+                                                CenterHorizontally
+                                            )
+                                            .padding(5.dp)
+                                    ) {
+                                        Row {
+                                            FaIcon(FaIcons.CopyRegular, tint = White, size = 18.dp)
+                                            Spacer(modifier = Modifier.width(5.dp))
+                                            Text("Duplicate", color = White)
+                                        }
+                                    }
+                                    Text(
+                                        "If you want to customize this trip, copy it",
+                                        fontSize = textExtraSmall,
+                                        textAlign = TextAlign.Center,
+                                        modifier = Modifier.fillMaxWidth()
+                                    )
+                                } else {
+                                    Button(
+                                        onClick = {
+                                            val intent = Intent(baseContext, TripCreationActivity::class.java)
+                                            intent.putExtra("tripId", trip.id)
+                                            finish()
+                                            startActivity(intent)
+                                        }, background = primaryColor, modifier = Modifier
+                                            .align(
+                                                CenterHorizontally
+                                            )
+                                            .padding(5.dp)
+                                    ) {
+                                        Row {
+                                            FaIcon(FaIcons.Pen, tint = White, size = 18.dp)
+                                            Spacer(modifier = Modifier.width(5.dp))
+                                            Text("Edit", color = White)
+                                        }
                                     }
                                 }
 
@@ -534,7 +623,7 @@ class TripActivity : ComponentActivity() {
                                                         )
                                                 )
                                             }
-                                            TripStepCard(place, index)
+                                            TripStepCard(place, index, tripId = trip.id)
                                             if (index < steps.size - 1) {
                                                 Box(
                                                     modifier = Modifier

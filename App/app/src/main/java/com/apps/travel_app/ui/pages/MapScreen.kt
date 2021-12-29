@@ -47,7 +47,7 @@ import kotlinx.coroutines.launch
 
 
 class MapScreen {
-    val destinations = HashMap<Int, Destination>()
+    private val destinations = HashMap<Int, Destination>()
     @Composable
     fun MapScreen(context: Context, activity: MainActivity) {
         val center = LatLng(44.0, 10.0)
@@ -195,11 +195,6 @@ class MapScreen {
         }
 
 
-       /* val systemUiController = rememberSystemUiController()
-        systemUiController.setSystemBarsColor(
-            color = colors.background
-        )*/
-
         var mapView: MapView? = null
         if (loadingScreen.value > 5)
             mapView = rememberMapViewWithLifecycle()
@@ -269,7 +264,7 @@ class MapScreen {
             Column(
                 modifier = Modifier
                     .align(Alignment.BottomStart)
-                    .padding(bottom = 150.dp)
+                    .padding(bottom = 100.dp)
                     .fillMaxWidth()
             ) {
 
@@ -303,7 +298,7 @@ class MapScreen {
                         }) {
                         FaIcon(
                             faIcon = FaIcons.BuildingRegular,
-                            tint = MaterialTheme.colors.surface
+                            tint = colors.surface
                         )
                     }
                 }
@@ -325,7 +320,7 @@ class MapScreen {
                     Text(
                         text = "Loading...",
                         fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colors.surface,
+                        color = colors.surface,
                         modifier = Modifier.align(Alignment.CenterHorizontally),
                         textAlign = TextAlign.Center,
                         fontSize = textHeading

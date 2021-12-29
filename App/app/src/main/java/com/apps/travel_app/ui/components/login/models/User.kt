@@ -1,5 +1,6 @@
-package com.apps.travel_app.ui.components.login
+package com.apps.travel_app.ui.components.login.models
 
 data class User(
     var email: String,
-    var displayName: String?)
+    var displayName: String?,
+    var id: String)

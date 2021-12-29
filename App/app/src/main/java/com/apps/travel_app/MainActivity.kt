@@ -6,7 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import android.preference.PreferenceManager
+import androidx.preference.PreferenceManager
 import android.util.Log
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
@@ -28,7 +28,7 @@ import com.apps.travel_app.models.Trip
 import com.apps.travel_app.ui.components.BottomBarItem
 import com.apps.travel_app.ui.components.BottomNavigationBar
 import com.apps.travel_app.ui.components.login.LoginActivity
-import com.apps.travel_app.ui.components.login.User
+import com.apps.travel_app.ui.components.login.models.User
 import com.apps.travel_app.ui.pages.*
 import com.apps.travel_app.ui.theme.MainActivity_Travel_AppTheme
 import com.facebook.login.LoginManager
@@ -39,7 +39,7 @@ import com.google.firebase.messaging.FirebaseMessaging
 import com.guru.fontawesomecomposelib.FaIconType
 
 
-var user: User = User("","")
+var user: User = User("","", "")
 
 class MainActivity : ComponentActivity() {
 
@@ -128,6 +128,7 @@ class MainActivity : ComponentActivity() {
         val auth = Firebase.auth
         user.displayName = auth.currentUser?.displayName
         user.email = auth.currentUser?.email.toString()
+        user.id = auth.currentUser?.uid.toString()
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             window.setDecorFitsSystemWindows(false)

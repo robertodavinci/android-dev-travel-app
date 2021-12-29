@@ -3,13 +3,10 @@ package com.apps.travel_app.ui.pages
 import FaIcons
 import android.content.res.Resources
 import android.os.Bundle
-import android.preference.PreferenceManager
+import androidx.preference.PreferenceManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.LinearOutSlowInEasing
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -18,6 +15,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.material.MaterialTheme.colors
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment.Companion.BottomCenter
 import androidx.compose.ui.Alignment.Companion.BottomStart
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.TopEnd
@@ -35,9 +33,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.apps.travel_app.models.Destination
 import com.apps.travel_app.ui.components.Button
+import com.apps.travel_app.ui.components.DestinationCard
 import com.apps.travel_app.ui.components.Heading
 import com.apps.travel_app.ui.theme.Travel_AppTheme
 import com.apps.travel_app.ui.theme.cardRadius
+import com.apps.travel_app.ui.theme.darkBackground
+import com.apps.travel_app.ui.theme.requireFullscreenMode
 import com.apps.travel_app.ui.utils.sendPostRequest
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
@@ -50,29 +51,31 @@ import kotlin.math.sign
 
 class InspirationActivity : ComponentActivity() {
 
-    private var thumbs: MutableList<String> = mutableListOf()
+    private var destinations: MutableList<Destination> = mutableListOf()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        requireFullscreenMode(window, this)
+
         val sharedPref = PreferenceManager.getDefaultSharedPreferences(this)
         val systemTheme = sharedPref.getBoolean("darkTheme", true)
 
-            val request = "x"
+        val request = "x"
 
 
 
         setContent {
-            thumbs = remember {ArrayList<String>()}
-            var loaded by remember {mutableStateOf(false)}
-            Thread{
+            destinations = remember { ArrayList() }
+            var loaded by remember { mutableStateOf(false) }
+            Thread {
                 val citiesText = sendPostRequest(request, action = "polygonCities")
                 if (!citiesText.isNullOrEmpty()) {
                     val gson = Gson()
                     val itemType = object : TypeToken<List<Destination>>() {}.type
                     val cities: List<Destination> = gson.fromJson(citiesText, itemType)
                     for (city in cities) {
-                        thumbs.add(city.thumbnailUrl)
+                        destinations.add(city)
                     }
                     loaded = true
                 }
@@ -116,10 +119,10 @@ class InspirationActivity : ComponentActivity() {
             var i = 0
             var j = 0
             while (true) {
-                if ((j / 6) > 5)
+                if ((j / 10) > 6)
                     break
 
-                val p = random() > 0.7f && !prevDoubled && j % 6 != 0
+                val p = random() > 0.7f && !prevDoubled && j % 10 != 0
 
                 doubles.add(p)
                 prevDoubled = p
@@ -127,16 +130,16 @@ class InspirationActivity : ComponentActivity() {
                 if (p) {
                     array.add(
                         arrayListOf(
-                            (-width / 2f + (j % 6) * width / 3f),// + ((j / 10) % 2) * 40,
-                            (-height / 2f + (j / 6) * height / 6f)
+                            (-width / 2f + (j % 10) * width / 3f),// + ((j / 10) % 2) * 40,
+                            (j / 10).toFloat()
                         )
                     )
                     j += 2
                 } else {
                     array.add(
                         arrayListOf(
-                            (-width / 2f + (j % 6) * width / 3f),// + ((j / 10) % 2) * 40,
-                            (-height / 2f + (j / 6) * height / 6f)
+                            (-width / 2f + (j % 10) * width / 3f),// + ((j / 10) % 2) * 40,
+                            (j / 10).toFloat()
                         )
                     )
                     j++
@@ -148,94 +151,52 @@ class InspirationActivity : ComponentActivity() {
 
         }
 
-        var dragging by remember { mutableStateOf(false) }
+        var opened by remember { mutableStateOf(-1) }
 
-        val velocity: Float by animateFloatAsState(
-            if (!dragging) 1f else 0f, animationSpec = tween(
-                durationMillis = 2000,
-                easing = LinearEasing
+        val infiniteTransition = rememberInfiniteTransition()
+        val scroll by infiniteTransition.animateFloat(
+            initialValue = 0f,
+            targetValue = 100f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(10000, easing = LinearEasing),
+                repeatMode = RepeatMode.Reverse
             )
         )
 
-
-        var point by remember { mutableStateOf(Offset(0f, 0f)) }
-        var last by remember { mutableStateOf(Offset(0f, 0f)) }
-        var delta by remember { mutableStateOf(Offset(0f, 0f)) }
-
-        var opened by remember { mutableStateOf(-1) }
-
-        if (!dragging) {
-            delta = last * (1 - velocity * velocity)
-        }
-
-
         Box(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.fillMaxSize().background(darkBackground)
         ) {
             Box(
                 modifier = Modifier
-                    .scale(1.1f)
+                    //.scale(1.25f)
                     .rotate(-10f)
-                    .fillMaxSize()
-                    .pointerInput(Unit) {
-                        detectDragGestures(
-                            onDragStart = { position ->
-                                dragging = true
-                                point = position
-                            },
-                            onDrag = { event, _ ->
-                                delta = (event.position - point) * 0.5f
-                                point = event.position
-                            },
-                            onDragEnd = {
-                                dragging = false
-                                last = delta
-                            }
-                        )
-                    }, contentAlignment = Center
+                    .fillMaxSize(),
+                contentAlignment = Center
             ) {
                 var i = 0
                 while (i < doubles.size) {
                     val element = array[i]
 
-                    element[0] += delta.x
-                    element[1] += delta.y
+                    val m = if (element[1] % 2 == 0f) 1 else -1
+                    var x = element[0]
+                    if (scroll > -1f) {
+                        x += m
+                    }
+                    element[0] = x
 
                     val w = (if (doubles[i]) 2 else 1) * width / 3f
 
-                    if (abs(element[0]) > width) {
-                        element[0] += -sign(element[0]) * (width * 2f)
-                    }
-                    if (abs(element[1] - 1) > height * 0.5f) {
-                        element[1] += -sign(element[1]) * height * 1f
+                    if (abs(x) > width * 1.5f) {
+                        x += -sign(x) * (width * 3f)
                     }
 
-                    val index by remember { mutableStateOf(i) }
+                    val index by remember { mutableStateOf((random() * destinations.size).toInt()) }
 
-
-                    val v: Float by animateFloatAsState(
-                        if (opened == index) 1f else 0f, animationSpec = tween(
-                            durationMillis = 1000,
-                            easing = LinearOutSlowInEasing
-                        )
-                    )
-
-
-                    if (opened == index) {
-                        Box(
-                            Modifier
-                                .background(Color(0x88111122))
-                                .fillMaxSize()
-                                .zIndex(1f)
-                        )
-                    }
                     Card(
                         modifier = Modifier
-                            .offset((element[0] + w / 2 - 5).dp * (1 - v), element[1].dp * (1 - v))
-                            .width((w - 5).dp * (v + 1))
-                            .height((height / 6f - 5).dp * (v + 1))
-                            .rotate(10f * v)
-                            .zIndex(2 * v),
+                            .offset((x + w / 2 - 5).dp, (-height / 2f + element[1] * height / 6f).dp)
+                            .width((w - 5).dp)
+                            .height((height / 6f - 5).dp),
                         shape = RoundedCornerShape(cardRadius)
                     ) {
                         Column(
@@ -250,23 +211,26 @@ class InspirationActivity : ComponentActivity() {
                                     )
                                 }
                         ) {
-                            val url by remember { mutableStateOf(thumbs[(random() * thumbs.size).toInt()]) }
+                            val url by remember { mutableStateOf(destinations[index].thumbnailUrl) }
                             GlideImage(
                                 imageModel = url,
                                 contentScale = ContentScale.Crop
-
-
                             )
-
                         }
-
                     }
                     i++
 
 
                 }
             }
-            Box(
+            DestinationCard(
+                destination = if (opened != -1) destinations[opened] else null, modifier = Modifier.align(
+                    BottomCenter
+                ),
+                open = opened != -1
+            )
+
+            /*Box(
                 modifier = Modifier
                     .fillMaxSize()
             ) {
@@ -332,7 +296,7 @@ class InspirationActivity : ComponentActivity() {
                             )
                         )
                 )
-                val v: Float by animateFloatAsState(
+                /*val v: Float by animateFloatAsState(
                     if (opened > -1) 1f else 0f, animationSpec = tween(
                         durationMillis = 1000,
                         easing = LinearOutSlowInEasing
@@ -357,9 +321,9 @@ class InspirationActivity : ComponentActivity() {
                         FaIcons.Times,
                         tint = colors.surface
                     )
-                }
+                }*/
 
-            }
+            }*/
 
         }
     }

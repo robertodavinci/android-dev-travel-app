@@ -1,10 +1,28 @@
 package com.apps.travel_app.ui.utils
 
+import android.R
+import android.app.Activity
+import android.content.res.Resources
+import android.database.Cursor
 import android.graphics.*
 import android.graphics.Color.WHITE
+import android.net.Uri
+import android.provider.MediaStore
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 
+
+fun getRealPathFromURI(contentURI: Uri, activity: Activity): String? {
+    val cursor: Cursor? = activity.contentResolver
+        .query(contentURI, null, null, null, null)
+    return if (cursor == null) {
+        contentURI.path
+    } else {
+        cursor.moveToFirst()
+        val idx: Int = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA)
+        cursor.getString(idx)
+    }
+}
 
 fun getCroppedBitmap(
     bitmap: Bitmap,
@@ -88,10 +106,11 @@ fun getDominantColor(bitmap: Bitmap?): Int {
 }
 
 fun getTriangularMask(
-    url: String,
-    darken: Boolean = false
+    url: Int,
+    darken: Boolean = false,
+    res: Resources
 ): Bitmap? {
-    val bitmap = getBitmapFromURL(url)
+    val bitmap = BitmapFactory.decodeResource(res, url)
 
     if (bitmap != null) {
         val w = bitmap.width
