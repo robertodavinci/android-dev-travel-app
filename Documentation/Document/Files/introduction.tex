@@ -1,15 +1,20 @@
 \subsection{Purpose}
-\hspace{\parindent}This document provides a detailed view of the architecture and the user interface design of the ...
+\hspace{\parindent}This document provides a detailed description, mainly of the  architecture and the UI, of the 'Polaris' mobile application.\\
+'Polaris' application is a system used to enhance travelling experience through idea sharing among people, exploration of other users' travels, documentation and easy manipulation of trip destinations and ideas. The system itself is made so the user has every single information regarding his travel in one place, without having to remember or worry about any details.\\
+'Polaris' is mainly a mobile application, with a possibility of being also expanded as a web application in the future.  
 \newpage
 
 \subsection{Scope}
-\hspace{\parindent}CLup is a simple application that helps store managers with handling large crowds inside their store and store customers with planning more efficient and safe grocery shops. The target audience for this application includes every person that shops for groceries in a store, which includes almost all demographics fall into this category. 
+\hspace{\parindent}'Polaris' is an application that helps all travellers around the world to easily and efficiently manage their travels and thus enhance their travelling experience. The target audience for this application is everyone who uses a smartphone and has at least some experience in using mobile applications, as some of the patterns and application usages might not be intended for the novices in the field. Thus the target audience ranges from 15 to 50 years old, although there are no strict boundaries.\linebreak
 
-Faced with a worldwide pandemic of the COVID-19 virus countries across the world imposed strict health measures in line with the recommendations of the WHO. To combat the spread of the virus, governments introduced decrees that limited the movement of the population to a certain degree. Only essential movement, such as: going to work, grocery shopping or outdoor exercise, was deemed acceptable. Although successful in the mitigation of the disease, the act put a serious strain on society on many levels. To help reduce the stress and anxiety, many aspects of everyday life involving close contact can be considered and improved upon. 
 
-This project aims to help with, and resolve the issues surrounding grocery shopping. As we all know, grocery shopping is an essential activity which involves close contact inside the store. Since the COVID-19 virus spreads mainly through airborne particles, this activity plays a key role in its mitigation. To reduce crowding inside the stores, supermarkets need to restrict access to their store and keep the number of people inside below the optimal maximum capacity. 
+The application is mainly intended to be used when a user is planning and making their own trip and has a liberty to organize their free time and places to visit.\linebreak
 
-The main idea is to enable store customers to enter a queue from home (or wherever they find themselves) through simple interaction with the application. Besides that, the application will give customers the option to "Book a visit" to the grocery store. This feature will allow them to view available time slots for their grocery shop, book the most convenient one, and optionally indicate an approximated duration of their visit to further improve the accuracy of the waiting time estimation of the system.  
+
+Another important usage of the application is sharing trip ideas with friends and other users around the world. Planning trips by itself is a daunting and time consuming task, and with the lack of adequate applications on the market, we wanted to create something that is going to allow users to easily share and modify their previous trips and therefore improve the overall travelling experience for others. 
+\break
+The most important functions of the application are arranging a trip, finding points of interest in the area, organizing visits to those points, exploring accommodation and restaurants in the area, and crafting your own views of the travel by providing additional comments on the whole experience.
+
 
 \newpage
 
@@ -17,29 +22,22 @@ The main idea is to enable store customers to enter a queue from home (or wherev
 \subsubsection{Definitions}
 \begin{itemize} 
 	\item \textbf{Application}: a computer (mobile) program that is designed for a particular purpose. 
-	\item \textbf{QR code}: a machine-readable code consisting of an array of black and white squares, typically used for storing URLs or other information for reading by the camera or a scanner. 
 	\item \textbf{Smartphone}: a mobile phone that performs many of the functions of a computer, typically having a touchscreen interface, internet access, and an operating system capable of running downloaded apps. 
 	\item \textbf{Google Maps}: a web mapping service developed by Google, used both as a standalone app and as an integrated mapping solution in most of the apps.
 	\item \textbf{iOS}: operating system developed by Apple, used by their portable devices like iPads and iPhones.
 	\item \textbf{Android}: most popular operating system for smartphones and tablets, developed by Google and partners.
+	\item \textbf{Backend}: the part of a computer system or application that is not directly accessed by the user, typically responsible for storing and manipulating data.
 \end{itemize}
 \subsubsection{Acronyms}
 \begin{itemize}
-	\item \textbf{RASD}: Requirement Analysis and Specification Document
-	\item \textbf{COVID-19}: Virus responsible for the spread of the coronavirus disease 2019
-	\item \textbf{CLup}: Customer Line-up
 	\item \textbf{API}: Application programming interface, computing interface which defines interactions between multiple software intermediaries 
-	\item \textbf{WHO}: World Health Organization
+	\item \textbf{UI}: User interface	
 	\item \textbf{GUI}: Graphical user interface
 	\item \textbf{DB}: Database
 	\item \textbf{REST}: Representational state transfer - software architectural style used in web services
-	\item \textbf{DAO}: Data access object
-	\item \textbf{JDBC}: Java Database Connectivity, API used in Java programming language
 \end{itemize}
 \subsubsection{Abbreviations}
 \begin{itemize}
-	\item \textbf{Gn}: nth goal.
-	\item \textbf{Rn}: nth functional requirement.
 	\item \textbf{App}: Application.
 \end{itemize}
 
