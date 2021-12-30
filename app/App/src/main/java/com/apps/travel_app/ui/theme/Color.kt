@@ -8,6 +8,10 @@ lateinit var followSystem: MutableState<Boolean>
 
 val primaryColor = Color(0xFF0083FF)
 val secondaryColor = Color(0xFF0460D9)
+val primaryLightColor = Color(0xFF0083FF)
+val secondaryLightColor = Color(0xFF0460D9)
+val primaryDarkColor = Color(0xFF354253)
+val secondaryDarkColor = Color(0xFF063C83)
 val iconLightColor = Color(0xFF79818F)
 val textLightColor = Color(0xFF50555E)
 val textDarkColor = Color(0xFFDCE0E7)

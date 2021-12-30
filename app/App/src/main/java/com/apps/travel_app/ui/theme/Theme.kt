@@ -12,17 +12,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
+
 import androidx.preference.PreferenceManager
 import com.apps.travel_app.R
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 
 private val DarkColorPalette = darkColors(
-    primary = primaryColor,
-    secondary = secondaryColor,
+    primary = primaryDarkColor,
+    secondary = secondaryDarkColor,
     background = darkBackground,
     surface = textDarkColor,
-    onPrimary = Color.White,
-    onSecondary = Color.Black,
+    onPrimary = Color.DarkGray,
+    onSecondary = Color.White,
     onBackground = carddarkBackground,
     onSurface = Color.Black,
 )
@@ -45,8 +46,8 @@ var mapStyle = R.raw.style
 @Composable
 fun Travel_AppTheme(systemTheme: Boolean = true, content: @Composable () -> Unit) {
 
-
-    val colors = if (isSystemInDarkTheme() && systemTheme) {
+    //val colors = if (isSystemInDarkTheme() && systemTheme)
+    val colors = if (systemTheme) {
         mapStyle = R.raw.style_dark
         DarkColorPalette
     } else {
@@ -55,13 +56,15 @@ fun Travel_AppTheme(systemTheme: Boolean = true, content: @Composable () -> Unit
     }
 
     val systemUiController = rememberSystemUiController()
-    if(isSystemInDarkTheme() && systemTheme){
+    if(systemTheme){
         systemUiController.setSystemBarsColor(
             color = Color.Transparent // TODO: dark theme status bar color
+            //color = darkBackground
         )
     }else{
         systemUiController.setSystemBarsColor(
             color = Color.Transparent,
+            //color = darkBackground,
             darkIcons = true
         )
     }
