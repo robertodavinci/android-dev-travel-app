@@ -1,17 +1,40 @@
-Here you can see how to include an image in your document.
+\subsection{Product perspective}
+\subsubsection{Internal structure}
+\subsubsection{Scenarios}
+\subsection{Product functions}
+\hspace{\parindent}Functions of the system provide easy and intuitive ways to use the app. They are somewhat connected and have overlapping features. Nevertheless, the users may use only certain parts of the system and still get the full functionality they need from the app.
+These functions are mentioned in several places in the document, but their most thorough explanation can be found here.
+\subsubsection{Adding a trip}
+\hspace{\parindent}Adding a trip is the most essential part of the system. The function features several parameters and allows for high level of customizability in order to create a fully unique travel experience. \\
+Each point of interest is featured as a specific "destination", although even places that are not regarded as specific destinations can be inserted into a trip. Destination fetching is done through the Google Maps API, with the users also having the ability to add and edit their own destinations.
+The function features the following:
+\begin{itemize}
+\item Selecting a starting point, that is then connected to the nearest city on the map
+\item Adding other destinations to the trip
+\item Writing a trip description
+\item Adding preferred way of travel between destinations
+\item Identifying trip price level
+\item Adding comments to trip destinations
+\item .............
+\end{itemize}
+\subsubsection{Editing a trip}
+\hspace{\parindent}Editing a trip can be done on two different types of trips - public or private. If the trip is public, either published by the user editing it or someone else, by starting to editing an exact copy of that trip is created, which can then be published again under different name and different trip ID.\\
+If the trip is private and has not yet been published, then a new trip is not created, but rather the trip ID stays the same. If the trip is then published and edited again, the new edited version of the trip has a new trip ID and is a whole new entity.\\
+Editing a trip features all of the same functions that adding a trip does, which means that everything from a small comment to the whole trip can be changed. 
+\subsubsection{Finding a trip}
+\hspace{\parindent}Finding a trip can be done in several different ways. The first way features a search bar which then searches a trip by the starting point name or by the city which is the closest to that destination. The second way is a search by the trip ID or a hyperlink, which can be directly received from other users. The third way is by accessing a specific user's account page and scrolling through their published trips. Finally, trips can also be found by looking at the interactive map, selecting the area of the desired starting point of the trip, and finding the trip through the distinct trip name and photo.  
+\subsubsection{Following a trip}
+\hspace{\parindent}This function mainly uses a specific trip and sets it as an active trip of the user. This makes it easily accessible by the user at all times by using the bottom navigation bar, and allows him to follow certain steps of the trip without losing progress. This function also allows the user to change the current active trip and still keep the progress of an old trip, so that the progress can be easily restored when that trip is again set as an active trip.
+\subsubsection{Updating account settings}
+\hspace{\parindent}Only a few settings can be changed in the user account. List is the following:
+\begin{itemize}
+\item Changing a username
+\item Changing a profile picture
+\item Switching between dark and light colour scheme
+\item Setting preferred price level
+\item Switching between offline mode and online mode
+\end{itemize}
+\subsubsection{Offline function}
+\hspace{\parindent}The system allows the users to be disconnected from the Internet and still use the app fully. Individual trips can be downloaded and store in the phone internal storage, and then accessed at any time. If any changes are made to the trip during the offline time, a new iteration of the trip gets created and published as soon as the connection is restored and the user has come back to the online mode. Multiple trips can be downloaded and kept in the storage of the phone at all times.  
 
-\begin{sidewaysfigure}
-\centering
-\includegraphics[width=\textwidth]{Images/11.png}
-\caption{\label{fig:metamodel}DICE DPIM metamodel.}
-\end{sidewaysfigure}
 
-\begin{figure}
-\centering
-\includegraphics[width=\textwidth]{Images/11.png}
-\caption{\label{fig:metamodel2}DICE DPIM metamodel in portrait form.}
-\end{figure}
-
-Here is the command to refer to another element (section, figure, table, ...) in the document: \emph{As discussed in Section~\ref{sect:overview} and as shown in Figure~\ref{fig:metamodel}, ...}. Here is how to introduce a bibliographic citation~\cite{DAM}. Bibliographic references should be included in a \texttt{.bib} file. 
-
-Table generation is a bit complicated in Latex. You will soon become proficient, but to start you can rely on tools or external services. See for instance this \href{https://www.tablesgenerator.com}{https://www.tablesgenerator.com}. 
