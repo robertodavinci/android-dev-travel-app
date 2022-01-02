@@ -37,7 +37,6 @@ import com.apps.travel_app.ui.theme.textHeading
 import com.apps.travel_app.ui.utils.getTriangularMask
 import com.apps.travel_app.ui.utils.isOnline
 import com.apps.travel_app.ui.utils.sendPostRequest
-import com.apps.travel_app.user
 import com.google.android.libraries.maps.model.LatLng
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
@@ -171,7 +170,7 @@ fun HomeScreen(navController: NavController, mainActivity: MainActivity) {
                             append("Hi,")
                             pop()
                             pushStyle(SpanStyle(fontFamily = pacifico))
-                            append(user.displayName ?: user.email)
+                            append(mainActivity.user.displayName ?: mainActivity.user.email)
                             toAnnotatedString()
                         }
                         Text(

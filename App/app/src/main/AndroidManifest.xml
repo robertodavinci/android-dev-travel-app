@@ -14,7 +14,10 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/icon"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Travel_App">
+        android:theme="@style/Theme.Travel_App"
+        android:screenOrientation="locked"
+        >
+
 
         <meta-data android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyCmF0ljdTcy9NbOuXgLeZ6ozJVZbiM2DGM"/>
@@ -39,7 +42,8 @@
             android:name=".ui.components.login.LoginActivity"
             android:exported="true"
             android:label="@string/app_name"
-            android:theme="@style/Theme.Travel_App.NoActionBar">
+            android:theme="@style/Theme.Travel_App.NoActionBar"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -57,7 +61,8 @@
             android:name=".MainActivity"
             android:exported="true"
             android:label="@string/app_name"
-            android:theme="@style/Theme.Travel_App.NoActionBar">
+            android:theme="@style/Theme.Travel_App.NoActionBar"
+            android:screenOrientation="portrait">
 
         </activity>
 

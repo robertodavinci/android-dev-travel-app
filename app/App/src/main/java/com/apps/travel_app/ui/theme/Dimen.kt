@@ -7,6 +7,7 @@ import androidx.compose.ui.unit.sp
 val cardRadius = 20.dp
 val cardElevation = 20.dp
 val cardPadding = 15.dp
+val smallPadding = 8.dp
 
 // text
 val textExtraSmall = 9.sp

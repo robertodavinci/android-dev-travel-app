@@ -48,3 +48,9 @@ open class Destination() {
     }
 
 }
+
+data class Country (
+    var name: String = "",
+    var acronym: String = "",
+    //var currency: Currency = Currency.getInstance("EUR")
+    var currency: String = "")

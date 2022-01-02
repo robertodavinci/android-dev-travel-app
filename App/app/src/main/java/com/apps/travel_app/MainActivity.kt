@@ -43,7 +43,7 @@ import java.util.prefs.Preferences
 import kotlin.reflect.KProperty
 
 
-var user: User = User("","", "")
+var user: User = User("","", "","","")
 
 
 class MainActivity : ComponentActivity() {
@@ -51,6 +51,7 @@ class MainActivity : ComponentActivity() {
 
     private var destination: Destination? = null
     lateinit var navController: NavHostController
+    var user: User = User("","", "","","")
 
 
 
