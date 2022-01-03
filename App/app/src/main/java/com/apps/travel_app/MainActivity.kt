@@ -34,7 +34,9 @@ import com.apps.travel_app.ui.components.login.models.User
 import com.apps.travel_app.ui.pages.*
 import com.apps.travel_app.ui.theme.MainActivity_Travel_AppTheme
 import com.facebook.login.LoginManager
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.messaging.FirebaseMessaging
@@ -52,7 +54,8 @@ class MainActivity : ComponentActivity() {
     private var destination: Destination? = null
     lateinit var navController: NavHostController
     var user: User = User("","", "","","")
-
+    lateinit var db: FirebaseFirestore
+    lateinit var auth: FirebaseAuth
 
 
     @OptIn(ExperimentalFoundationApi::class,
@@ -65,6 +68,7 @@ class MainActivity : ComponentActivity() {
         val auth = Firebase.auth
         LoginManager.getInstance().logOut()
         auth.signOut()
+        getSharedPreferences("CURRENT_USER", Context.MODE_PRIVATE).edit().clear().commit()
         val intent = Intent(this, LoginActivity::class.java)
         startActivity(intent)
     }
@@ -135,10 +139,12 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val auth = Firebase.auth
+        auth = Firebase.auth
         user.displayName = auth.currentUser?.displayName
         user.email = auth.currentUser?.email.toString()
         user.id = auth.currentUser?.uid.toString()
+        user.realName = getSharedPreferences("CURRENT_USER", Context.MODE_PRIVATE).getString("realName", "")
+        user.realSurname = getSharedPreferences("CURRENT_USER", Context.MODE_PRIVATE).getString("realSurname", "")
 
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -159,7 +165,7 @@ class MainActivity : ComponentActivity() {
 
 
         // Firebase database auth
-        val db = Firebase.firestore
+        db = Firebase.firestore
        /* val settings = firestoreSettings {
             isPersistenceEnabled = true
         }
