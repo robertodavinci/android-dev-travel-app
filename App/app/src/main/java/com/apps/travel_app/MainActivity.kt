@@ -19,6 +19,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.preferencesDataStore
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -32,11 +34,15 @@ import com.apps.travel_app.ui.components.login.models.User
 import com.apps.travel_app.ui.pages.*
 import com.apps.travel_app.ui.theme.MainActivity_Travel_AppTheme
 import com.facebook.login.LoginManager
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.messaging.FirebaseMessaging
 import com.guru.fontawesomecomposelib.FaIconType
+import java.util.prefs.Preferences
+import kotlin.reflect.KProperty
 
 
 var user: User = User("","", "","","")
@@ -47,7 +53,8 @@ class MainActivity : ComponentActivity() {
 
     private var destination: Destination? = null
     lateinit var navController: NavHostController
-
+    lateinit var db: FirebaseFirestore
+    lateinit var auth: FirebaseAuth
 
 
     @OptIn(ExperimentalFoundationApi::class,
@@ -60,6 +67,7 @@ class MainActivity : ComponentActivity() {
         val auth = Firebase.auth
         LoginManager.getInstance().logOut()
         auth.signOut()
+        getSharedPreferences("CURRENT_USER", Context.MODE_PRIVATE).edit().clear().commit()
         val intent = Intent(this, LoginActivity::class.java)
         startActivity(intent)
     }
@@ -130,10 +138,12 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val auth = Firebase.auth
+        auth = Firebase.auth
         user.displayName = auth.currentUser?.displayName
         user.email = auth.currentUser?.email.toString()
         user.id = auth.currentUser?.uid.toString()
+        user.realName = getSharedPreferences("CURRENT_USER", Context.MODE_PRIVATE).getString("realName", "")
+        user.realSurname = getSharedPreferences("CURRENT_USER", Context.MODE_PRIVATE).getString("realSurname", "")
 
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -147,37 +157,36 @@ class MainActivity : ComponentActivity() {
 
 
         // maybe do this Async way - Room DB creation
-      /*  val db = Room.databaseBuilder(
-            applicationContext,
-            DB::class.java, "travel-db"
-        ).build()*/
+        /*  val db = Room.databaseBuilder(
+              applicationContext,
+              DB::class.java, "travel-db"
+          ).build()*/
 
 
         // Firebase database auth
-        val db = Firebase.firestore
-       /* val settings = firestoreSettings {
-            isPersistenceEnabled = true
-        }
-        db.firestoreSettings = settings
-        */
+        db = Firebase.firestore
+        /* val settings = firestoreSettings {
+             isPersistenceEnabled = true
+         }
+         db.firestoreSettings = settings
+         */
 
         // Create a new user with a first and last name
-       /* val user = hashMapOf(
-            "first" to "Ada",
-            "last" to "Lovelace",
-            "born" to 1815
-        )
-
-// Add a new document with a generated ID
-        db.collection("users")
-            .add(user)
-            .addOnSuccessListener { documentReference ->
-                Log.d("Firestore", "DocumentSnapshot added with ID: ${documentReference.id}")
-            }
-            .addOnFailureListener { e ->
-                Log.w("Firestore", "Error adding document", e)
-            }
-*/
+        /* val user = hashMapOf(
+             "first" to "Ada",
+             "last" to "Lovelace",
+             "born" to 1815
+         )
+ // Add a new document with a generated ID
+         db.collection("users")
+             .add(user)
+             .addOnSuccessListener { documentReference ->
+                 Log.d("Firestore", "DocumentSnapshot added with ID: ${documentReference.id}")
+             }
+             .addOnFailureListener { e ->
+                 Log.w("Firestore", "Error adding document", e)
+             }
+ */
         FirebaseMessaging.getInstance().subscribeToTopic("all").addOnCompleteListener {
             Log.d("FCM","Subscribed")
         }

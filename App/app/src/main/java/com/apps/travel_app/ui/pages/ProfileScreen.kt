@@ -1,11 +1,9 @@
 package com.apps.travel_app.ui.pages
 
 import FaIcons
-import androidx.preference.PreferenceManager
+import android.content.Context
 import android.util.Log
 import androidx.compose.animation.*
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -14,6 +12,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -21,14 +20,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
+import androidx.preference.PreferenceManager
 import com.apps.travel_app.MainActivity
+import com.apps.travel_app.models.updateUserInfo
+import com.apps.travel_app.models.updateUserRealcredentials
 import com.apps.travel_app.ui.components.Button
 import com.apps.travel_app.ui.components.Heading
 import com.apps.travel_app.ui.components.NiceSwitch
@@ -36,11 +34,11 @@ import com.apps.travel_app.ui.components.NiceSwitchStates
 import com.apps.travel_app.ui.theme.cardPadding
 import com.apps.travel_app.ui.theme.followSystem
 import com.apps.travel_app.ui.theme.smallPadding
+import com.apps.travel_app.user
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.messaging.FirebaseMessaging
 import com.guru.fontawesomecomposelib.FaIcon
-import com.apps.travel_app.ui.theme.Travel_AppTheme
-import com.apps.travel_app.user
 import com.guru.fontawesomecomposelib.FaIconType
 
 
@@ -51,12 +49,14 @@ private val showRealNameChange = mutableStateOf(false)
 fun ProfileScreen(activity: MainActivity) {
 
 
-   /* val systemUiController = rememberSystemUiController()
-    systemUiController.setSystemBarsColor(
-        color = MaterialTheme.colors.background
-    )*/
+    /* val systemUiController = rememberSystemUiController()
+     systemUiController.setSystemBarsColor(
+         color = MaterialTheme.colors.background
+     )*/
     val firebaseId = FirebaseAuth.getInstance().currentUser?.uid
     var currentUsername: String? = user.displayName
+    val currentRealName: String? = user.realName
+    val currentRealSurname: String? = user.realSurname
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -97,12 +97,12 @@ fun ProfileScreen(activity: MainActivity) {
         drawButton(function = { displayChangeBox(true) },"Change username",FaIcons.User, MaterialTheme.colors.surface, MaterialTheme.colors.onBackground)
         //if (showUsernameChange.value)
         AnimatedVisibility(visible = showUsernameChange.value, enter = expandVertically(expandFrom = Alignment.Top), exit = shrinkVertically(shrinkTowards = Alignment.Top)) {
-                detailsChange(currentUsername)
-            }
+            detailsChange(false, activity)
+        }
         Spacer(Modifier.padding(smallPadding))
         drawButton(function = { displayChangeBox(false) },"Change real credentials",FaIcons.UserTag,MaterialTheme.colors.surface, MaterialTheme.colors.onBackground)
         AnimatedVisibility(visible = showRealNameChange.value, enter = expandVertically(expandFrom = Alignment.Top), exit = shrinkVertically(shrinkTowards = Alignment.Top)) {
-            detailsChange(currentUsername)
+            detailsChange(true, activity)
         }
         Spacer(Modifier.padding(smallPadding))
         drawButton(function = { activity.signOut()},"Log out",FaIcons.DoorOpen,MaterialTheme.colors.surface, MaterialTheme.colors.onBackground)
@@ -132,90 +132,138 @@ fun drawButton(function:() ->Unit,text:String,icon: FaIconType?,colorText:Color,
 }
 
 @Composable
-fun detailsChange(text: String?){
+fun detailsChange(oneTwo:Boolean, activity:MainActivity){
+    //val newUsername = remember { mutableStateOf(TextFieldValue()) }
+    val newName = remember { mutableStateOf(TextFieldValue()) }
+    val newSurname = remember { mutableStateOf(TextFieldValue()) }
+    var text = when(oneTwo){
+        false -> {
+            "username"
+        }
+        true -> {
+            "real credentials"
+        }
+    }
+    var textTwo = when(oneTwo){
+        false -> { "New username" }
+        true -> { "New real name" }
+    }
+    var textThree = remember { mutableStateOf("") }
+    textThree.value = when(oneTwo){
+        false -> { user.displayName + "" }
+        true -> { user.realName + " " + user.realSurname }
+    }
+    var function: () -> Unit = {}
+    function = if (oneTwo) {
+        {
+            updateUserRealcredentials(activity.db, user.id,name = newName.value.text, surname = newSurname.value.text)
+            user.realName = newName.value.text
+            user.realSurname = newSurname.value.text
+            val sharedPref = activity.getSharedPreferences("CURRENT_USER", Context.MODE_PRIVATE)
+            var editor = sharedPref.edit()
+            editor.putString("realName", user.realName)
+            editor.putString("realSurname", user.realSurname)
+            editor.commit()
+        }
+    } else {
+        {
+            updateUserInfo(activity.db, user.id,newName.value.text)
+            user.displayName = newName.value.text
+            val sharedPref = activity.getSharedPreferences("CURRENT_USER", Context.MODE_PRIVATE)
+            var editor = sharedPref.edit()
+            editor.putString("displayName", user.displayName)
+            editor.commit()
+            val profileUpdates: UserProfileChangeRequest = UserProfileChangeRequest.Builder()
+                .setDisplayName(user.displayName).build()
+            activity.auth.currentUser?.updateProfile(profileUpdates)
+        }
+    }
+    Spacer(Modifier.padding(smallPadding))
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .wrapContentSize()
+    ) {
         Spacer(Modifier.padding(smallPadding))
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .wrapContentSize()
+                .clip(RoundedCornerShape(15.dp))
+                .background(MaterialTheme.colors.onBackground)
         ) {
-            Spacer(Modifier.padding(smallPadding))
-            Box(
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(15.dp))
-                    .background(MaterialTheme.colors.onBackground)
+                    .wrapContentSize()
             ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .wrapContentSize()
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Start
                 ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.Start
-                    ) {
+                    Text(
+                        "Current $text",
+                        color = MaterialTheme.colors.surface,
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp)
+                    )
+                    //if (textThree == "") textThree = "Not set"
+                    textThree?.let {
+
                         Text(
-                            "Current username: ",
+                            textThree.value!!,
+                            color = MaterialTheme.colors.surface,
+                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                        ?: Text(
+                            "Not set",
                             color = MaterialTheme.colors.surface,
                             modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp)
                         )
-
-                        text?.let {
-                            Text(
-                                text,
-                                color = MaterialTheme.colors.surface,
-                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
-                            ?: Text(
-                                "No username set",
-                                color = MaterialTheme.colors.surface,
-                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp)
-                            )
-                    }
-                    drawTextField()
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 10.dp),
-                        horizontalArrangement = Arrangement.Center
-                    ) {
-                        drawButton(
-                            function = { /*TODO*/ },
-                            text = "Set new username",
-                            icon = null,
-                            colorText = MaterialTheme.colors.onPrimary,
-                            colorButton = MaterialTheme.colors.onSurface
-                        )
-                    }
+                }
+                drawTextField(textTwo, newName)
+                if(oneTwo) drawTextField("New real surname", newSurname)
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 10.dp),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    drawButton(
+                        function = function,
+                        text = "Set new $text",
+                        icon = null,
+                        colorText = MaterialTheme.colors.onPrimary,
+                        colorButton = MaterialTheme.colors.onSurface
+                    )
                 }
             }
         }
+    }
 }
 
 
 @Composable
-fun drawTextField(){
+fun drawTextField(placeholder:String, returnText: MutableState<TextFieldValue>){
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(bottom = 10.dp, start = 10.dp, end = 10.dp),
         horizontalArrangement = Arrangement.Center
     ) {
-        Box(modifier = Modifier.fillMaxWidth().padding(0.dp)) {
-            val textState = remember { mutableStateOf(TextFieldValue()) }
+        Box(modifier = Modifier
+            .fillMaxWidth()
+            .padding(0.dp)) {
             TextField(
-                value = textState.value,
-                onValueChange = { textState.value = it },
+                value = returnText.value,
+                onValueChange = { returnText.value = it },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(2.dp),
                 shape = RoundedCornerShape(15.dp),
                 placeholder = {
                     Text(
-                        "New Username",
+                        placeholder,
                         color = MaterialTheme.colors.onSecondary,
                         modifier = Modifier.alpha(0.5f)
                     )
