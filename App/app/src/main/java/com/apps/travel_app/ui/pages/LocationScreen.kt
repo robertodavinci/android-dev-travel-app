@@ -209,7 +209,8 @@ fun LocationScreen(
                         views = 206,
                         mainActivity = mainActivity,
                         padding = (cardPadding * (1 - percentage)),
-                        radius = (cardRadius * (1 - percentage))
+                        radius = (cardRadius * (1 - percentage)),
+                        depthCards = true
                     )
                 }
 
@@ -283,10 +284,13 @@ fun LocationScreen(
                                 rating = 4.5f,
                                 padding = 5.dp,
                                 shadow = 10.dp,
-                                badges = arrayListOf("Youth", "Nature", "Crowd-less"),
+                                badges = trip.attributes.subList(
+                                    0,
+                                    if (trip.attributes.size > 3) 3 else trip.attributes.size
+                                ),
                                 mainActivity = mainActivity,
                                 infoScale = 0.8f,
-                                imageMaxHeight = 130f
+                                imageMaxHeight = 200f
                             )
                         }
                     }
@@ -319,7 +323,7 @@ fun LocationScreen(
                                     rating = facility.rating,
                                     padding = 5.dp,
                                     shadow = 10.dp,
-                                    imageMaxHeight = 100f,
+                                    imageMaxHeight = 200f,
                                     mainActivity = mainActivity,
                                     infoScale = 0.8f,
                                     icon = FaIcons.Google,
@@ -339,19 +343,19 @@ fun LocationScreen(
                         modifier = Modifier.padding(bottom = 60.dp)
                     ) {
 
-                            Column(
-                                modifier = Modifier
-                                    .padding(cardPadding)
-                            ) {
+                        Column(
+                            modifier = Modifier
+                                .padding(cardPadding)
+                        ) {
 
-                                ratings.value.forEach { rating ->
-                                    RatingCard(
-                                        rating
-                                    )
-                                }
-
-
+                            ratings.value.forEach { rating ->
+                                RatingCard(
+                                    rating
+                                )
                             }
+
+
+                        }
 
                         Box(
                             modifier = Modifier

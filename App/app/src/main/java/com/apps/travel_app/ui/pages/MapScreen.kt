@@ -264,7 +264,7 @@ class MapScreen {
             Column(
                 modifier = Modifier
                     .align(Alignment.BottomStart)
-                    .padding(bottom = 100.dp)
+                    .padding(bottom = 60.dp)
                     .fillMaxWidth()
             ) {
 

@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.MaterialTheme.colors
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -17,6 +18,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -57,6 +59,7 @@ fun MainCard(
     imageMinHeight: Float = 0f,
     isGooglePlace: Boolean = false,
     clickable: Boolean = true,
+    depthCards: Boolean = false,
     onClick: () -> Unit = {}
 ) {
 
@@ -64,131 +67,155 @@ fun MainCard(
     val openDialog = remember { mutableStateOf(false) }
     val haptic = LocalHapticFeedback.current
 
-    Card(
-        modifier = Modifier
-            .padding(padding)
-            .fillMaxWidth()
-            .widthIn(0.dp, 200.dp),
-        elevation = shadow,
-        shape = RoundedCornerShape(radius)
-    ) {
-        Column(
-            modifier = Modifier
-                .background(MaterialTheme.colors.onBackground)
-                .fillMaxWidth()
-        ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable {
-                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                    }
-                    .pointerInput(Unit) {
-                        if (clickable) {
-                            detectTapGestures(
-                                onLongPress = {
-                                    openDialog.value = true; haptic.performHapticFeedback(
-                                    HapticFeedbackType.LongPress
-                                )
-                                },
-                                onTap = {
-                                    onClick()
-                                    if (isGooglePlace) {
-                                        mainActivity.setGooglePlace(destination, true)
-                                    } else {
-                                        mainActivity.setDestination(destination, true)
-                                    }
-                                }
-                            )
+    Box {
+        if (depthCards) {
+            for (i in 1..3) {
+
+                Box(
+                    Modifier
+                        .fillMaxWidth()
+                        .height(100.dp)
+                        .scale(1 - 0.05f * i)
+                        .padding(cardPadding)
+                        .align(Alignment.BottomCenter)
+                        .offset(y = 12.dp * i)
+                        .graphicsLayer {
+                            shape = RoundedCornerShape(cardRadius)
+                            clip = true
                         }
-                    }
-            ) {
-                val modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(imageMinHeight.dp, imageMaxHeight.dp)
-                if (squaredImage)
-                    modifier.aspectRatio(1f)
-                GlideImage(
-                    imageModel = destination.thumbnailUrl.ifEmpty { R.drawable.blur },
-                    modifier = modifier,
-                    contentScale = if (squaredImage) ContentScale.Fit else ContentScale.Crop,
-                    circularReveal = CircularReveal(duration = 700),
-                    error = painterResource(id = R.drawable.blur),
+                        .background(colors.onBackground.copy(alpha = 0.3f + 0.7f * (3 - i) / 3f))
+
                 )
-
-                Column(
-                    modifier = Modifier
-                        .align(Alignment.BottomStart)
-                        .background(
-                            brush = Brush.verticalGradient(
-                                colors = listOf(
-                                    Color.Transparent,
-                                    if (destination.name.isNotEmpty()) Color(0xAA111122) else Color.Transparent,
-                                    if (destination.name.isNotEmpty()) Color(0xAA111122) else Color.Transparent
-                                )
-                            )
-
-                        ).fillMaxWidth()
-
-                ) {
-                    Row(
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        if (icon != null) {
-                            FaIcon(
-                                icon,
-                                tint = Color.White,
-                                modifier = Modifier
-                                    .padding(start = cardPadding * infoScale)
-                                    .scale(infoScale)
-                            )
-                        }
-                        Text(
-                            text = destination.name,
-                            Modifier
-                                .padding(start = cardPadding * infoScale)
-                                .fillMaxWidth(),
-                            color = Color.White,
-                            fontSize = textNormal * infoScale,
-                            fontWeight = FontWeight.Bold,
-                            overflow = TextOverflow.Ellipsis,
-                            maxLines = 1
-                        )
-
-                    }
-                    if (rating > 0) {
-                        Row(
-                            modifier = Modifier.padding(
-                                bottom = cardPadding * infoScale,
-                                start = cardPadding * infoScale
-                            )
-                        ) {
-                            RatingBar(
-                                rating = rating,
-                                modifier = Modifier
-                                    .height(15.dp * infoScale),
-                                emptyColor = Color(0x88FFFFFF)
-                            )
-                        }
-                    }
-                }
-
             }
+        }
 
-            if (badges.isNotEmpty()) {
-                Row(
+        Card(
+            modifier = Modifier
+                .padding(padding)
+                .fillMaxWidth()
+                .widthIn(0.dp, 200.dp),
+            elevation = shadow,
+            shape = RoundedCornerShape(radius)
+        ) {
+            Column(
+                modifier = Modifier
+                    .background(MaterialTheme.colors.onBackground)
+                    .fillMaxWidth()
+            ) {
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .wrapContentHeight()
-                        .padding(cardPadding)
+                        .clickable {
+                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                        }
+                        .pointerInput(Unit) {
+                            if (clickable) {
+                                detectTapGestures(
+                                    onLongPress = {
+                                        openDialog.value = true; haptic.performHapticFeedback(
+                                        HapticFeedbackType.LongPress
+                                    )
+                                    },
+                                    onTap = {
+                                        onClick()
+                                        if (isGooglePlace) {
+                                            mainActivity.setGooglePlace(destination, true)
+                                        } else {
+                                            mainActivity.setDestination(destination, true)
+                                        }
+                                    }
+                                )
+                            }
+                        }
                 ) {
-                    badges.forEach { badge ->
-                        println(badge)
-                        Badge(
-                            text = badge
-                        )
-                        Spacer(modifier = Modifier.width(5.dp))
+                    val modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(imageMinHeight.dp, imageMaxHeight.dp)
+                    if (squaredImage)
+                        modifier.aspectRatio(1f)
+                    GlideImage(
+                        imageModel = destination.thumbnailUrl.ifEmpty { R.drawable.blur },
+                        modifier = modifier,
+                        contentScale = if (squaredImage) ContentScale.Fit else ContentScale.Crop,
+                        circularReveal = CircularReveal(duration = 700),
+                        error = painterResource(id = R.drawable.blur),
+                    )
+
+                    Column(
+                        modifier = Modifier
+                            .align(Alignment.BottomStart)
+                            .background(
+                                brush = Brush.verticalGradient(
+                                    colors = listOf(
+                                        Color.Transparent,
+                                        if (destination.name.isNotEmpty()) Color(0xAA111122) else Color.Transparent,
+                                        if (destination.name.isNotEmpty()) Color(0xAA111122) else Color.Transparent
+                                    )
+                                )
+
+                            )
+                            .fillMaxWidth()
+
+                    ) {
+                        Row(
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            if (icon != null) {
+                                FaIcon(
+                                    icon,
+                                    tint = Color.White,
+                                    modifier = Modifier
+                                        .padding(start = cardPadding * infoScale)
+                                        .scale(infoScale)
+                                )
+                            }
+                            Text(
+                                text = destination.name,
+                                Modifier
+                                    .padding(start = cardPadding * infoScale)
+                                    .fillMaxWidth(),
+                                color = Color.White,
+                                fontSize = textNormal * infoScale,
+                                fontWeight = FontWeight.Bold,
+                                overflow = TextOverflow.Ellipsis,
+                                maxLines = 1
+                            )
+
+                        }
+                        if (rating > 0) {
+                            Row(
+                                modifier = Modifier.padding(
+                                    bottom = cardPadding * infoScale,
+                                    start = cardPadding * infoScale
+                                )
+                            ) {
+                                RatingBar(
+                                    rating = rating,
+                                    modifier = Modifier
+                                        .height(15.dp * infoScale),
+                                    emptyColor = Color(0x88FFFFFF)
+                                )
+                            }
+                        }
+                    }
+
+                }
+
+                if (badges.isNotEmpty()) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .wrapContentHeight()
+                            .padding(cardPadding)
+                    ) {
+                        badges.forEach { badge ->
+                            println(badge)
+                            Badge(
+                                text = badge
+                            )
+                            Spacer(modifier = Modifier.width(5.dp))
+                        }
                     }
                 }
             }

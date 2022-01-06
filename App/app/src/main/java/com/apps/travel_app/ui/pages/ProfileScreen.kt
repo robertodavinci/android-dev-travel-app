@@ -40,6 +40,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.messaging.FirebaseMessaging
 import com.guru.fontawesomecomposelib.FaIcon
 import com.apps.travel_app.ui.theme.Travel_AppTheme
+import com.apps.travel_app.user
 import com.guru.fontawesomecomposelib.FaIconType
 
 
@@ -55,7 +56,7 @@ fun ProfileScreen(activity: MainActivity) {
         color = MaterialTheme.colors.background
     )*/
     val firebaseId = FirebaseAuth.getInstance().currentUser?.uid
-    var currentUsername: String? = activity.user.displayName
+    var currentUsername: String? = user.displayName
     Column(
         modifier = Modifier
             .fillMaxSize()

@@ -12,7 +12,7 @@ import java.net.HttpURLConnection
 import java.net.URL
 
 
-const val API = "https://safeitaly.org/travel/controller.php"
+const val API = "https://www.superiorgames.eu/travel/controller.php"
 
 fun getBitmapFromURL(src: String?): Bitmap? {
     return try {

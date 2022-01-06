@@ -113,7 +113,7 @@ fun BottomNavigationBar(navController: NavController, mainActivity: MainActivity
                         shape = RoundedCornerShape(100)
                         clip = true
                     }
-                    .background(Color(0x15000022)), verticalAlignment = Alignment.CenterVertically) {
+                    .background(Color(0x30000022)), verticalAlignment = Alignment.CenterVertically) {
                     BasicTextField(
                         keyboardOptions = KeyboardOptions(imeAction = androidx.compose.ui.text.input.ImeAction.Search),
                         keyboardActions = KeyboardActions(

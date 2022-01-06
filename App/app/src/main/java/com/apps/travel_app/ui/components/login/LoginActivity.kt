@@ -116,12 +116,18 @@ class LoginActivity : ComponentActivity() {
 
         googleSignInClient = GoogleSignIn.getClient(this, gso)
         if (currentUser != null) {
+            setContent {
+                Box(modifier = Modifier.fillMaxSize().background(primaryColor)) {
+
+                }
+
+            }
             val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
         } else {
             setContent {
                 Travel_AppTheme {
-                    Surface(color = MaterialTheme.colors.background) {
+                    Surface(color = primaryColor) {
                         LoginAndRegistrationUI()
                     }
                 }
@@ -330,10 +336,6 @@ class LoginActivity : ComponentActivity() {
 
         val bottomColor = primaryColor
 
-        val systemUiController = rememberSystemUiController()
-        systemUiController.setSystemBarsColor(
-            color = topColor
-        )
 
         Box(
             modifier = Modifier

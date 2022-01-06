@@ -151,7 +151,7 @@ fun FullHeightBottomSheet(
                 )
                 .graphicsLayer {
                     shape = RoundedCornerShape(
-                        cardRadius * 2
+                        cardRadius
                     )
                     clip = true
                     shadowElevation = 200f

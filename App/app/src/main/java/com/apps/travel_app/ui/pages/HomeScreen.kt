@@ -4,15 +4,16 @@ import android.graphics.Bitmap
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.IconButton
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material.*
+import androidx.compose.material.MaterialTheme.colors
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.Transparent
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -27,80 +28,48 @@ import com.apps.travel_app.MainActivity
 import com.apps.travel_app.R
 import com.apps.travel_app.models.Destination
 import com.apps.travel_app.models.Trip
-import com.apps.travel_app.ui.components.Heading
-import com.apps.travel_app.ui.components.Loader
-import com.apps.travel_app.ui.components.MainCard
-import com.apps.travel_app.ui.components.NetworkError
+import com.apps.travel_app.ui.components.*
 import com.apps.travel_app.ui.theme.cardPadding
 import com.apps.travel_app.ui.theme.pacifico
+import com.apps.travel_app.ui.theme.primaryColor
 import com.apps.travel_app.ui.theme.textHeading
 import com.apps.travel_app.ui.utils.getTriangularMask
 import com.apps.travel_app.ui.utils.isOnline
 import com.apps.travel_app.ui.utils.sendPostRequest
+import com.apps.travel_app.user
 import com.google.android.libraries.maps.model.LatLng
+import com.google.android.material.tabs.TabLayout
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.skydoves.landscapist.glide.GlideImage
 
-lateinit var trips: MutableState<ArrayList<Destination>>
-var activeTrip: MutableState<Trip?> = mutableStateOf(null)
-var images: MutableState<Boolean> = mutableStateOf(false)
 
 @Composable
 fun HomeScreen(navController: NavController, mainActivity: MainActivity) {
 
-/*
-    val systemUiController = rememberSystemUiController()
-    systemUiController.setSystemBarsColor(
-        color = MaterialTheme.colors.background
-    )*/
-
-    images = remember { mutableStateOf(false) }
-    trips = remember { mutableStateOf(ArrayList()) }
-
-
-    fun getActiveTrip() {
-        Thread {
-            val request = "125"
-            val tripText = sendPostRequest(request, action = "trip")
-            if (!tripText.isNullOrEmpty()) {
-                val gson = Gson()
-                val itemType = object : TypeToken<Trip>() {}.type
-                val trip: Trip = gson.fromJson(tripText, itemType)
-                mainActivity.runOnUiThread {
-                    activeTrip.value = trip
-                }
-            }
-        }.start()
-    }
+    val trips = remember { mutableStateOf(ArrayList<Trip>()) }
+    val adventures = remember { mutableStateOf(ArrayList<Trip>()) }
+    val cities = remember { mutableStateOf(ArrayList<Destination>()) }
+    val tabs = arrayListOf(
+        "Destinations",
+        "Adventures",
+        "Trips")
 
     fun getImages() {
-        images.value = true
 
-        if (trips.value.size <= 0) {
+        if (trips.value.size <= 0 && adventures.value.size <= 0 && cities.value.size <= 0) {
             Thread {
-                val result = ArrayList<Destination>()
-                val points = arrayListOf(
-                    LatLng(0.0, 0.0),
-                    LatLng(80.0, 0.0),
-                    LatLng(80.0, 20.0),
-                    LatLng(0.0, 20.0),
-                    LatLng(0.0, 0.0)
-                )
-                val request = points.joinToString(",", "[", "]") { e ->
-                    "[${e.latitude},${e.longitude}]"
-                }
-                val citiesText = sendPostRequest(request, action = "polygonCities")
+
+                val citiesText = sendPostRequest("", action = "home")
                 if (!citiesText.isNullOrEmpty()) {
                     val gson = Gson()
-                    val itemType = object : TypeToken<List<Destination>>() {}.type
-                    val cities: List<Destination> = gson.fromJson(citiesText, itemType)
-                    for (city in cities) {
-                        result.add(city)
-                    }
+                    val itemType = object : TypeToken<HomeResponse>() {}.type
+                    val output: HomeResponse = gson.fromJson(citiesText, itemType)
 
                     mainActivity.runOnUiThread {
-                        trips.value = result
+                        trips.value = output.trips
+                        cities.value = output.cities
+                        adventures.value = output.adventures
                     }
                 }
             }.start()
@@ -108,15 +77,14 @@ fun HomeScreen(navController: NavController, mainActivity: MainActivity) {
     }
 
 
-    if (!images.value) {
+    if (trips.value.size <= 0 && adventures.value.size <= 0 && cities.value.size <= 0) {
         getImages()
-        getActiveTrip()
     }
 
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colors.background)
+            .background(colors.background)
     ) {
         item {
 
@@ -170,7 +138,7 @@ fun HomeScreen(navController: NavController, mainActivity: MainActivity) {
                             append("Hi,")
                             pop()
                             pushStyle(SpanStyle(fontFamily = pacifico))
-                            append(mainActivity.user.displayName ?: mainActivity.user.email)
+                            append(user.displayName ?: user.email)
                             toAnnotatedString()
                         }
                         Text(
@@ -230,8 +198,36 @@ fun HomeScreen(navController: NavController, mainActivity: MainActivity) {
                 NetworkError()
             } else {
                 Spacer(Modifier.height(15.dp))
+                var tab by remember { mutableStateOf(0) }
+                TabRow(
+                    selectedTabIndex = tab,
+                    divider = {},
+                    backgroundColor = Transparent,
+                    contentColor = Transparent
+                ) {
+                    tabs.forEachIndexed { index, title ->
+                        Tab(
+                            text = {
+                                Column {
+                                    Text(title, color = colors.surface)
+                                    Spacer(
+                                        Modifier
+                                            .height(3.dp)
+                                            .width(20.dp)
+                                            .background(
+                                                if (tab == index) primaryColor else Transparent
+                                            )
+                                    )
+
+                                }
+                            },
+                            selected = tab == index,
+                            onClick = { tab = index }
+                        )
+                    }
+                }
                 Heading(
-                    "Top destinations"
+                    "Top ${tabs[tab]}"
                 )
 
                 Box(
@@ -251,40 +247,81 @@ fun HomeScreen(navController: NavController, mainActivity: MainActivity) {
                             modifier = Modifier
                                 .padding(cardPadding)
                         ) {
-                            val loadedTrips = ArrayList<Destination>()
-
-                            trips.value.forEachIndexed { index, trip ->
-                                if (!loadedTrips.contains(trip)) {
-                                    loadedTrips.add(trip)
-                                    Row {
-                                        Box(
-                                            modifier = Modifier
-                                                .weight(1f)
-                                                .heightIn(0.dp, 120.dp)
-                                        ) {
-                                            MainCard(
-                                                destination = trip,
-                                                rating = trip.rating,
-                                                padding = 5.dp,
-                                                shadow = 10.dp,
-                                                mainActivity = mainActivity
-                                            )
-                                        }
-                                        if (trip.rating <= 2.5f && index < trips.value.size - 1) {
-                                            val trip2 = trips.value[index + 1]
-                                            loadedTrips.add(trip2)
+                            if (tab == 0) {
+                                val loadedCities = ArrayList<Destination>()
+                                cities.value.forEachIndexed { index, destination ->
+                                    if (!loadedCities.contains(destination)) {
+                                        loadedCities.add(destination)
+                                        Row {
                                             Box(
                                                 modifier = Modifier
                                                     .weight(1f)
                                                     .heightIn(0.dp, 120.dp)
                                             ) {
                                                 MainCard(
-                                                    destination = trip2,
-                                                    rating = trip2.rating,
+                                                    destination = destination,
+                                                    rating = destination.rating,
                                                     padding = 5.dp,
                                                     shadow = 10.dp,
                                                     mainActivity = mainActivity
                                                 )
+                                            }
+                                            if (destination.rating <= 2.5f && index < cities.value.size - 1) {
+                                                val trip2 = cities.value[index + 1]
+                                                loadedCities.add(trip2)
+                                                Box(
+                                                    modifier = Modifier
+                                                        .weight(1f)
+                                                        .heightIn(0.dp, 120.dp)
+                                                ) {
+                                                    MainCard(
+                                                        destination = trip2,
+                                                        rating = trip2.rating,
+                                                        padding = 5.dp,
+                                                        shadow = 10.dp,
+                                                        mainActivity = mainActivity
+                                                    )
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            } else {
+                                val loadedTrips = ArrayList<Trip>()
+                                val array = (if (tab == 1) adventures.value else trips.value)
+                                array.forEachIndexed { index, trip ->
+                                    if (!loadedTrips.contains(trip)) {
+                                        loadedTrips.add(trip)
+                                        Row {
+                                            Box(
+                                                modifier = Modifier
+                                                    .weight(1f)
+                                                    .heightIn(0.dp, 120.dp)
+                                            ) {
+                                                TripCard(
+                                                    trip = trip,
+                                                    rating = trip.rating,
+                                                    padding = 5.dp,
+                                                    shadow = 10.dp,
+                                                    mainActivity = mainActivity
+                                                )
+                                            }
+                                            if (trip.rating <= 2.5f && index < array.size - 1) {
+                                                val trip2 = array[index + 1]
+                                                loadedTrips.add(trip2)
+                                                Box(
+                                                    modifier = Modifier
+                                                        .weight(1f)
+                                                        .heightIn(0.dp, 120.dp)
+                                                ) {
+                                                    TripCard(
+                                                        trip = trip2,
+                                                        rating = trip2.rating,
+                                                        padding = 5.dp,
+                                                        shadow = 10.dp,
+                                                        mainActivity = mainActivity
+                                                    )
+                                                }
                                             }
                                         }
                                     }
@@ -301,6 +338,12 @@ fun HomeScreen(navController: NavController, mainActivity: MainActivity) {
         }
     }
 
+}
+
+class HomeResponse {
+    var adventures: ArrayList<Trip> = arrayListOf()
+    var cities: ArrayList<Destination> = arrayListOf()
+    var trips: ArrayList<Trip> = arrayListOf()
 }
 
 

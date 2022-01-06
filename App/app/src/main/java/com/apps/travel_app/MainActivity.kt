@@ -19,8 +19,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.preferencesDataStore
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -39,8 +37,6 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.messaging.FirebaseMessaging
 import com.guru.fontawesomecomposelib.FaIconType
-import java.util.prefs.Preferences
-import kotlin.reflect.KProperty
 
 
 var user: User = User("","", "","","")
@@ -51,7 +47,6 @@ class MainActivity : ComponentActivity() {
 
     private var destination: Destination? = null
     lateinit var navController: NavHostController
-    var user: User = User("","", "","","")
 
 
 
