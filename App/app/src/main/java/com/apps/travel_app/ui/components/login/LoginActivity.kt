@@ -48,12 +48,14 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.preference.PreferenceManager
 import com.apps.travel_app.MainActivity
 import com.apps.travel_app.models.addUser
 import com.apps.travel_app.models.addUserPeferences
 import com.apps.travel_app.ui.components.Button
 import com.apps.travel_app.ui.components.Heading
 import com.apps.travel_app.ui.components.login.buttons.GoogleSignInButtonUI
+import com.apps.travel_app.ui.components.login.models.User
 import com.apps.travel_app.ui.theme.Travel_AppTheme
 import com.apps.travel_app.ui.theme.cardPadding
 import com.apps.travel_app.ui.theme.danger
@@ -78,6 +80,7 @@ import com.google.firebase.ktx.Firebase
 import com.guru.fontawesomecomposelib.FaIcon
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
+
 @ExperimentalCoroutinesApi
 @ExperimentalFoundationApi
 @ExperimentalAnimationApi
@@ -90,6 +93,7 @@ class LoginActivity : ComponentActivity() {
 
     private lateinit var functions: FirebaseFunctions
     private lateinit var secondCredential: AuthCredential
+    var loginUser: User = User("","", "","","")
 
     var googleLog = true
     var logScreen = true
@@ -275,10 +279,7 @@ class LoginActivity : ComponentActivity() {
                     // Sign in success, update UI with the signed-in user's information
                     Log.d("SignIn info", "signInWithEmail:success")
                     val user = auth.currentUser
-
-                    val intent = Intent(this, MainActivity::class.java)
-                    startActivity(intent)
-
+                    loginSuccess(user, this)
                 } else {
                     // If sign in fails, display a message to the user.
                     Log.w("SignIn Info", "signInWithEmail:failure", task.exception)
@@ -686,8 +687,19 @@ class LoginActivity : ComponentActivity() {
         }
     }
 
+    fun sharedPrefUserEdit(user:FirebaseUser?){
+        val sharedPref = getSharedPreferences("CURRENT_USER", Context.MODE_PRIVATE)
+        var editor = sharedPref.edit()
+        editor.putString("userId", user?.uid)
+        editor.putString("email", user?.email)
+        editor.putString("displayName", user?.displayName)
+        editor.commit()
+    }
+
     private fun loginSuccess(user: FirebaseUser?,context: Context){
         // Update user preferences!!!
+            sharedPrefUserEdit(user)
+        //
         val intent = Intent(context, MainActivity::class.java)
         startActivity(intent)
     }
@@ -742,7 +754,7 @@ class LoginActivity : ComponentActivity() {
         displayName?.let { it1 ->
             Firebase.auth.currentUser?.uid?.let {
                     it2 ->
-                Log.i("Detaljcici--- ", it1 + " " + it2)
+                //Log.i("Detaljcici--- ", it1 + " " + it2)
                 addUser(Firebase.firestore, it1, it2)
             }
         }
