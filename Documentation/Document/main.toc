@@ -13,13 +13,13 @@
 \contentsline {section}{\numberline {2}Overall Description}{10}{section.2}%
 \contentsline {subsection}{\numberline {2.1}Product perspective}{10}{subsection.2.1}%
 \contentsline {subsubsection}{\numberline {2.1.1}Internal structure}{10}{subsubsection.2.1.1}%
-\contentsline {subsubsection}{\numberline {2.1.2}Scenarios}{10}{subsubsection.2.1.2}%
-\contentsline {subsection}{\numberline {2.2}Product functions}{10}{subsection.2.2}%
-\contentsline {subsubsection}{\numberline {2.2.1}Adding a trip}{10}{subsubsection.2.2.1}%
-\contentsline {subsubsection}{\numberline {2.2.2}Editing a trip}{11}{subsubsection.2.2.2}%
-\contentsline {subsubsection}{\numberline {2.2.3}Finding a trip}{11}{subsubsection.2.2.3}%
-\contentsline {subsubsection}{\numberline {2.2.4}Following a trip}{11}{subsubsection.2.2.4}%
-\contentsline {subsubsection}{\numberline {2.2.5}Updating account settings}{11}{subsubsection.2.2.5}%
+\contentsline {subsubsection}{\numberline {2.1.2}Scenarios}{11}{subsubsection.2.1.2}%
+\contentsline {subsection}{\numberline {2.2}Product functions}{11}{subsection.2.2}%
+\contentsline {subsubsection}{\numberline {2.2.1}Adding a trip}{11}{subsubsection.2.2.1}%
+\contentsline {subsubsection}{\numberline {2.2.2}Editing a trip}{12}{subsubsection.2.2.2}%
+\contentsline {subsubsection}{\numberline {2.2.3}Finding a trip}{12}{subsubsection.2.2.3}%
+\contentsline {subsubsection}{\numberline {2.2.4}Following a trip}{12}{subsubsection.2.2.4}%
+\contentsline {subsubsection}{\numberline {2.2.5}Updating account settings}{12}{subsubsection.2.2.5}%
 \contentsline {subsubsection}{\numberline {2.2.6}Offline function}{12}{subsubsection.2.2.6}%
 \contentsline {section}{\numberline {3}Architectural Design}{13}{section.3}%
 \contentsline {subsection}{\numberline {3.1}Overview}{13}{subsection.3.1}%

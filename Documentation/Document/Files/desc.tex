@@ -1,5 +1,25 @@
 \subsection{Product perspective}
+
 \subsubsection{Internal structure}
+\hspace{\parindent}The proposed system uses an application on the server side that is connected with the APIs to the Android on the phone. 
+
+The Way of communication between the parts of the system and logic behind the system is presented in the following figure:
+
+IMAGE HERE
+
+\textbf{Data storing}\\
+
+The database part is divided into two separate entities. Most of the authentication part is done directly through Google Firebase and Firestore frameworks, which offer great support for Google and Facebook accounts login integration, as well as native support for email based accounts. Controlling authentication via Google services is fast, easy, and seamless, so we have decided to keep most of our logic, as well as account data, stored here. \\ \\
+User account details, such as username, ID, and user preferences, are stored in the Google Firestore database, and are fetched after every login, so that the local user account data is consistent with the one on the servers. \\ \\
+ARE WE GOING TO STORE IMAGES HERE AS WELL??\\ \\
+The other part of the database, which stores the data about the destinations, trips, points of interests, and other features related directly to the workflow of the app, are stored in another, separate database. This decision was due to the fact that Google Firestore is a NoSQL database, so putting relational data there would make it inefficient and slow compared to the traditional SQL database.\\ \\
+This is what made us decide to transfer this data to completely other place and use a different technology than with the accounts. Account data storing and fetching works exceptionally well and fast with Google services, so we had no real reason to move it from there, especially since that data is more sensitive and Google services provide high level of protection. \\ \\
+Android framework also supports numerous features for working locally. We have used these features to have an additional "offline" mode of our application, which allows full functionalities despite the user not having internet connection. We use Android Room to store all the desired trips downloaded and edited by the user, as well as the ones that the user has created locally and decided not to publish yet. "Offline" mode is then synced as soon as the user gets Internet connection, if any additional changes have been made to the local or public trips. \\ \\
+Finally, shared preferences are used to store the user's local information such as username, theme preferences, display name, and other features that help user while navigating the app. These are updated with the data located in the Google Firestore framework.\\
+\\
+
+\textbf{APIs \& App Logic}\\
+
 \subsubsection{Scenarios}
 
 \textbf{Scenario 1}\\
