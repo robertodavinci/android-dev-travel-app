@@ -20,6 +20,21 @@ Finally, shared preferences are used to store the user's local information such 
 
 \textbf{APIs \& App Logic}\\
 
+Authentication used for the application is done directly through Google Firbase. Account creation can be done directly through email, after which it has to be confirmed via confirmation email. The other way of creating account is logging in with either Facebook or Google account. This way account gets automatically created, or joined if it has already been previously created with the same email. This allows users to not have to worry with which account they have logged in before, as it is all connected to the same email. Users would have to be logged in to either their Google or Facebook account before using those methods to log in to the app.\\ \\
+Google and Facebook "button" directly communicate with their respective APIs and only after the conversation has successfully ended do communicate with Google Firebase servers. \\ \\
+Another thing that is used from Google framework is the Google Maps API. From that API, several different features are used, such as Maps presentation, location searching, cities searching, distance calculation, and others. Google Maps are dynamically presented in the app and allow users to search through them either by text or by touch.\\ \\
+Another important thing is a small PHP script that is running on the server. It serves as a backend of the app, handling query fetching, control, and execution, as well as handling and displaying data that is coming and going through Google Maps API.\\ \\ 
+
+\textbf{Frontend}\\
+
+On the frontend side, we have decided to use all of the latest technologies recommended by Google for Android app development. \\ \\
+Kotlin is used as the programming language, which allows better data and variable control in Android environment than the previous official language Java.\\ \\
+From the pure design perspective, Android Compose is used instead of the previous template/xml based design. Compose allows for creation of certain elements, as well as their dynamic modelling, which allows for reusability and code cleanliness. Compose allows for elements to by dynamically inserted into specific places, as well as to be dynamically changed, hidden, or manipulated in a much faster and easier fashion. It also allows for faster development since the previews of those compose components can be rendered much faster.\\ \\
+As the base of the system, bottom bar with different pages has been used. More on that part is explained in latter chapters of this document.
+\\ \\ 
+The app supports both online and offline mode, with shared preferences used for storing local display preferences of the app.\\
+\newpage
+
 \subsubsection{Scenarios}
 
 \textbf{Scenario 1}\\
