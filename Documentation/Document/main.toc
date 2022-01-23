@@ -23,4 +23,10 @@
 \contentsline {subsection}{\numberline {3.1}Overview}{12}{subsection.3.1}%
 \contentsline {subsubsection}{\numberline {3.1.1}Backend architecture}{12}{subsubsection.3.1.1}%
 \contentsline {subsubsection}{\numberline {3.1.2}Middleware architecture}{12}{subsubsection.3.1.2}%
-\contentsline {section}{\numberline {4}User Interface Design}{13}{section.4}%
+\contentsline {subsection}{\numberline {3.2}Runtime view}{12}{subsection.3.2}%
+\contentsline {subsubsection}{\numberline {3.2.1}Create a trip}{13}{subsubsection.3.2.1}%
+\contentsline {subsubsection}{\numberline {3.2.2}Edit a trip}{13}{subsubsection.3.2.2}%
+\contentsline {subsubsection}{\numberline {3.2.3}Add a destination}{13}{subsubsection.3.2.3}%
+\contentsline {subsubsection}{\numberline {3.2.4}Search for a trip/explore}{13}{subsubsection.3.2.4}%
+\contentsline {subsection}{\numberline {3.3}Testing}{13}{subsection.3.3}%
+\contentsline {section}{\numberline {4}User Interface Design}{14}{section.4}%

@@ -23,4 +23,10 @@
 \BOOKMARK [2][-]{subsection.3.1}{Overview}{section.3}% 23
 \BOOKMARK [3][-]{subsubsection.3.1.1}{Backend architecture}{subsection.3.1}% 24
 \BOOKMARK [3][-]{subsubsection.3.1.2}{Middleware architecture}{subsection.3.1}% 25
-\BOOKMARK [1][-]{section.4}{User Interface Design}{}% 26
+\BOOKMARK [2][-]{subsection.3.2}{Runtime view}{section.3}% 26
+\BOOKMARK [3][-]{subsubsection.3.2.1}{Create a trip}{subsection.3.2}% 27
+\BOOKMARK [3][-]{subsubsection.3.2.2}{Edit a trip}{subsection.3.2}% 28
+\BOOKMARK [3][-]{subsubsection.3.2.3}{Add a destination}{subsection.3.2}% 29
+\BOOKMARK [3][-]{subsubsection.3.2.4}{Search for a trip/explore}{subsection.3.2}% 30
+\BOOKMARK [2][-]{subsection.3.3}{Testing}{section.3}% 31
+\BOOKMARK [1][-]{section.4}{User Interface Design}{}% 32
