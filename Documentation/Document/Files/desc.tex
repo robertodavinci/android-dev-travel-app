@@ -1,17 +1,52 @@
 \subsection{Product perspective}
-
+\subsubsection{Technologies overview}
+\begin{itemize}
+\item Android Studio Development Kit
+\begin{itemize}
+\item Kotlin
+\item Android Compose
+\end{itemize}
+\item Data management
+\begin{itemize}
+\item Google Firestore
+\item Google Firebase
+\item Database
+\item Room
+\item Shared preferences
+\end{itemize}
+\item Authentication
+\begin{itemize}
+\item Google Authentication
+\item Facebook Authentication
+\item Email Authentication
+\end{itemize}
+\item External APIs
+\begin{itemize}
+\item Google Maps
+\item Google Translate
+\item Google Cloud Messaging
+\item Google Places
+\item OpenWeatherMap
+\item GPT 3 - OpenAI
+\end{itemize}
+\end{itemize}
+\newpage
 \subsubsection{Internal structure}
 \hspace{\parindent}The proposed system uses an application on the server side that is connected with the APIs to the Android on the phone. 
 
 The Way of communication between the parts of the system and logic behind the system is presented in the following figure:
 
-IMAGE HERE
+\begin{figure}[!htb]
+\centering
+\includegraphics[width=\textwidth]{../Images/InternalStructurePNG_v2.png}
+\caption{\label{fig:dbapiuser}\textbf{Internal structure of the system}}
+\end{figure}
 
 \textbf{Data storing}\\
 
 The database part is divided into two separate entities. Most of the authentication part is done directly through Google Firebase and Firestore frameworks, which offer great support for Google and Facebook accounts login integration, as well as native support for email based accounts. Controlling authentication via Google services is fast, easy, and seamless, so we have decided to keep most of our logic, as well as account data, stored here. \\ \\
 User account details, such as username, ID, and user preferences, are stored in the Google Firestore database, and are fetched after every login, so that the local user account data is consistent with the one on the servers. \\ \\
-ARE WE GOING TO STORE IMAGES HERE AS WELL??\\ \\
+Images that are used for trips and destinations are also stored in the Google Firestore database.\\ \\
 The other part of the database, which stores the data about the destinations, trips, points of interests, and other features related directly to the workflow of the app, are stored in another, separate database. This decision was due to the fact that Google Firestore is a NoSQL database, so putting relational data there would make it inefficient and slow compared to the traditional SQL database.\\ \\
 This is what made us decide to transfer this data to completely other place and use a different technology than with the accounts. Account data storing and fetching works exceptionally well and fast with Google services, so we had no real reason to move it from there, especially since that data is more sensitive and Google services provide high level of protection. \\ \\
 Android framework also supports numerous features for working locally. We have used these features to have an additional "offline" mode of our application, which allows full functionalities despite the user not having internet connection. We use Android Room to store all the desired trips downloaded and edited by the user, as well as the ones that the user has created locally and decided not to publish yet. "Offline" mode is then synced as soon as the user gets Internet connection, if any additional changes have been made to the local or public trips. \\ \\
@@ -24,6 +59,7 @@ Authentication used for the application is done directly through Google Firbase.
 Google and Facebook "button" directly communicate with their respective APIs and only after the conversation has successfully ended do communicate with Google Firebase servers. \\ \\
 Another thing that is used from Google framework is the Google Maps API. From that API, several different features are used, such as Maps presentation, location searching, cities searching, distance calculation, and others. Google Maps are dynamically presented in the app and allow users to search through them either by text or by touch.\\ \\
 Another important thing is a small PHP script that is running on the server. It serves as a backend of the app, handling query fetching, control, and execution, as well as handling and displaying data that is coming and going through Google Maps API.\\ \\ 
+This PHP script is returning all the necessary data in the form of JSON files, which are then handled by the app accordingly and to its needs.
 
 \textbf{Frontend}\\
 
@@ -32,7 +68,7 @@ Kotlin is used as the programming language, which allows better data and variabl
 From the pure design perspective, Android Compose is used instead of the previous template/xml based design. Compose allows for creation of certain elements, as well as their dynamic modelling, which allows for reusability and code cleanliness. Compose allows for elements to by dynamically inserted into specific places, as well as to be dynamically changed, hidden, or manipulated in a much faster and easier fashion. It also allows for faster development since the previews of those compose components can be rendered much faster.\\ \\
 As the base of the system, bottom bar with different pages has been used. More on that part is explained in latter chapters of this document.
 \\ \\ 
-The app supports both online and offline mode, with shared preferences used for storing local display preferences of the app.\\
+The app supports both online and offline mode, with shared preferences used for storing local display preferences of the app.\\ \\
 \newpage
 
 \subsubsection{Scenarios}

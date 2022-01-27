@@ -10,23 +10,29 @@
 \contentsline {subsubsection}{\numberline {1.3.3}Abbreviations}{7}{subsubsection.1.3.3}%
 \contentsline {section}{\numberline {2}Overall Description}{8}{section.2}%
 \contentsline {subsection}{\numberline {2.1}Product perspective}{8}{subsection.2.1}%
-\contentsline {subsubsection}{\numberline {2.1.1}Internal structure}{8}{subsubsection.2.1.1}%
-\contentsline {subsubsection}{\numberline {2.1.2}Scenarios}{10}{subsubsection.2.1.2}%
-\contentsline {subsection}{\numberline {2.2}Product functions}{10}{subsection.2.2}%
-\contentsline {subsubsection}{\numberline {2.2.1}Adding a trip}{10}{subsubsection.2.2.1}%
-\contentsline {subsubsection}{\numberline {2.2.2}Editing a trip}{11}{subsubsection.2.2.2}%
-\contentsline {subsubsection}{\numberline {2.2.3}Finding a trip}{11}{subsubsection.2.2.3}%
-\contentsline {subsubsection}{\numberline {2.2.4}Following a trip}{11}{subsubsection.2.2.4}%
-\contentsline {subsubsection}{\numberline {2.2.5}Updating account settings}{11}{subsubsection.2.2.5}%
-\contentsline {subsubsection}{\numberline {2.2.6}Offline function}{11}{subsubsection.2.2.6}%
-\contentsline {section}{\numberline {3}Architectural Design}{12}{section.3}%
-\contentsline {subsection}{\numberline {3.1}Overview}{12}{subsection.3.1}%
-\contentsline {subsubsection}{\numberline {3.1.1}Backend architecture}{12}{subsubsection.3.1.1}%
-\contentsline {subsubsection}{\numberline {3.1.2}Middleware architecture}{12}{subsubsection.3.1.2}%
-\contentsline {subsection}{\numberline {3.2}Runtime view}{12}{subsection.3.2}%
-\contentsline {subsubsection}{\numberline {3.2.1}Create a trip}{13}{subsubsection.3.2.1}%
-\contentsline {subsubsection}{\numberline {3.2.2}Edit a trip}{13}{subsubsection.3.2.2}%
-\contentsline {subsubsection}{\numberline {3.2.3}Add a destination}{13}{subsubsection.3.2.3}%
-\contentsline {subsubsection}{\numberline {3.2.4}Search for a trip/explore}{13}{subsubsection.3.2.4}%
-\contentsline {subsection}{\numberline {3.3}Testing}{13}{subsection.3.3}%
-\contentsline {section}{\numberline {4}User Interface Design}{14}{section.4}%
+\contentsline {subsubsection}{\numberline {2.1.1}Technologies overview}{8}{subsubsection.2.1.1}%
+\contentsline {subsubsection}{\numberline {2.1.2}Internal structure}{9}{subsubsection.2.1.2}%
+\contentsline {subsubsection}{\numberline {2.1.3}Scenarios}{12}{subsubsection.2.1.3}%
+\contentsline {subsection}{\numberline {2.2}Product functions}{12}{subsection.2.2}%
+\contentsline {subsubsection}{\numberline {2.2.1}Adding a trip}{12}{subsubsection.2.2.1}%
+\contentsline {subsubsection}{\numberline {2.2.2}Editing a trip}{13}{subsubsection.2.2.2}%
+\contentsline {subsubsection}{\numberline {2.2.3}Finding a trip}{13}{subsubsection.2.2.3}%
+\contentsline {subsubsection}{\numberline {2.2.4}Following a trip}{13}{subsubsection.2.2.4}%
+\contentsline {subsubsection}{\numberline {2.2.5}Updating account settings}{13}{subsubsection.2.2.5}%
+\contentsline {subsubsection}{\numberline {2.2.6}Offline function}{13}{subsubsection.2.2.6}%
+\contentsline {section}{\numberline {3}Architectural Design}{14}{section.3}%
+\contentsline {subsection}{\numberline {3.1}Overview}{14}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}Backend architecture}{15}{subsection.3.2}%
+\contentsline {subsubsection}{\numberline {3.2.1}User database}{15}{subsubsection.3.2.1}%
+\contentsline {subsubsection}{\numberline {3.2.2}Trips database}{16}{subsubsection.3.2.2}%
+\contentsline {subsection}{\numberline {3.3}Middleware architecture}{18}{subsection.3.3}%
+\contentsline {subsection}{\numberline {3.4}Runtime view}{18}{subsection.3.4}%
+\contentsline {subsubsection}{\numberline {3.4.1}Create a trip}{19}{subsubsection.3.4.1}%
+\contentsline {subsubsection}{\numberline {3.4.2}Edit a trip}{20}{subsubsection.3.4.2}%
+\contentsline {subsubsection}{\numberline {3.4.3}Add a destination}{21}{subsubsection.3.4.3}%
+\contentsline {subsubsection}{\numberline {3.4.4}Search for a trip/explore}{22}{subsubsection.3.4.4}%
+\contentsline {subsection}{\numberline {3.5}Design constraints}{23}{subsection.3.5}%
+\contentsline {subsubsection}{\numberline {3.5.1}Hardware limitations}{23}{subsubsection.3.5.1}%
+\contentsline {subsubsection}{\numberline {3.5.2}Privacy limitations}{23}{subsubsection.3.5.2}%
+\contentsline {section}{\numberline {4}User Interface Design}{24}{section.4}%
+\contentsline {section}{\numberline {5}Testing}{25}{section.5}%
