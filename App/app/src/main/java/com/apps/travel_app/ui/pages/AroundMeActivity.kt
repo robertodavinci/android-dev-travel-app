@@ -61,6 +61,7 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.libraries.maps.model.LatLng
 import com.google.android.libraries.maps.model.LatLngBounds
+import com.google.android.material.snackbar.Snackbar
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.google.maps.android.SphericalUtil
@@ -159,13 +160,20 @@ class AroundMeActivity : ComponentActivity() {
         }
 
         Thread {
-            val citiesText = sendPostRequest(request, action = "polygonCities")
-            val gson = Gson()
-            val type1 = object : TypeToken<List<Destination>>() {}.type
-            locations.value = gson.fromJson(citiesText, type1)
-            val tripsText = sendPostRequest(request, action = "polygonTrips")
-            val type2 = object : TypeToken<List<Trip>>() {}.type
-            trips.value = gson.fromJson(tripsText, type2)
+            try {
+                val citiesText = sendPostRequest(request, action = "polygonCities")
+                val gson = Gson()
+                val type1 = object : TypeToken<List<Destination>>() {}.type
+                locations.value = gson.fromJson(citiesText, type1)
+            } catch (e: Exception) {
+                currentFocus?.let {
+                    Snackbar.make(
+                        it, "Ops, there is a connectivity problem",
+                        Snackbar.LENGTH_LONG
+                    ).show()
+                }
+            }
+
         }.start()
     }
 
@@ -186,6 +194,7 @@ class AroundMeActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        requireFullscreenMode(window, this)
 
         val manager: LocationManager =
             getSystemService(Context.LOCATION_SERVICE) as LocationManager;
@@ -196,11 +205,17 @@ class AroundMeActivity : ComponentActivity() {
                 ActivityResultContracts.RequestMultiplePermissions()
             ) { permissions ->
                 when {
-                    permissions.getOrDefault(Manifest.permission.ACCESS_FINE_LOCATION, false) -> {
-
+                    permissions.getOrDefault(
+                        Manifest.permission.ACCESS_FINE_LOCATION,
+                        false
+                    ) -> {
+                        getLastKnownLocation()
                     }
-                    permissions.getOrDefault(Manifest.permission.ACCESS_COARSE_LOCATION, false) -> {
-
+                    permissions.getOrDefault(
+                        Manifest.permission.ACCESS_COARSE_LOCATION,
+                        false
+                    ) -> {
+                        getLastKnownLocation()
                     }
                     else -> {
                     }
@@ -221,110 +236,109 @@ class AroundMeActivity : ComponentActivity() {
 
         setContent {
             val state = rememberTransformableState { zoomChange, _, _ ->
-                radius.value *= zoomChange
+                radius.value *= 1 / zoomChange
             }
             locations = remember { mutableStateOf(ArrayList()) }
             radius = remember { mutableStateOf(radius.value) }
             destinationSelected = remember { mutableStateOf(null) }
+            val context = this
             Travel_AppTheme(systemTheme = systemTheme) {
                 Surface(color = colors.background) {
-
-                    if (!manager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                        Box(Modifier.fillMaxSize(), contentAlignment = Center) {
-                            Column(horizontalAlignment = CenterHorizontally) {
-                                FaIcon(FaIcons.MapMarker, tint = colors.surface, size = 50.dp)
-                                Heading(
-                                    "Dear astronaut, we need to know your position in order to access this fantastic tool",
-                                    Modifier.padding(
-                                        cardPadding
+                    Box(
+                        modifier = Modifier
+                            .padding(top = 16.dp)
+                            .fillMaxSize()
+                    ) {
+                        if (!manager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                            Box(Modifier.fillMaxSize(), contentAlignment = Center) {
+                                Column(horizontalAlignment = CenterHorizontally) {
+                                    FaIcon(
+                                        FaIcons.MapMarker,
+                                        tint = colors.surface,
+                                        size = 50.dp
                                     )
-                                )
-                                Text(
-                                    "Please, turn on your GPS signal. We'll keep waiting for you",
-                                    color = colors.surface,
-                                    modifier = Modifier.padding(
-                                        cardPadding
-                                    ),
-                                    textAlign = TextAlign.Center
-                                )
-                            }
-                        }
-                    } else if (!isOnline(this)) {
-                        Box(Modifier.fillMaxSize(), contentAlignment = Center) {
-                            NetworkError()
-                        }
-                    } else {
-                        Box(modifier = Modifier.transformable(state = state)) {
-
-                            Image(
-                                painter = rememberDrawablePainter(RadarDrawable()),
-                                contentDescription = "",
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .align(Center)
-                            )
-
-                            for (location in locations.value) {
-                                val pos = getPosition(location)
-                                val distance = (SphericalUtil.computeDistanceBetween(
-
-                                    com.google.android.gms.maps.model.LatLng(
-                                        location.latitude,
-                                        location.longitude
-                                    ),
-                                    com.google.android.gms.maps.model.LatLng(
-                                        centralLocation.latitude,
-                                        centralLocation.longitude
+                                    Heading(
+                                        "Dear astronaut, we need to know your position in order to access this fantastic tool",
+                                        Modifier.padding(
+                                            cardPadding
+                                        )
                                     )
-                                ) / 1000).roundToInt()
-                                Box(modifier = Modifier.align(Center)) {
-                                    MapElement(
-                                        pos = pos,
-                                        distance = distance,
-                                        url = location.thumbnailUrl,
-                                        destination = location
+                                    Text(
+                                        "Please, turn on your GPS signal. We'll keep waiting for you",
+                                        color = colors.surface,
+                                        modifier = Modifier.padding(
+                                            cardPadding
+                                        ),
+                                        fontSize = textNormal,
+                                        textAlign = TextAlign.Center
                                     )
                                 }
                             }
-
-                            for (location in trips.value) {
-                                val pos = getPosition(location.startingPoint)
-                                val distance = (SphericalUtil.computeDistanceBetween(
-
-                                    com.google.android.gms.maps.model.LatLng(
-                                        location.startingPoint.latitude,
-                                        location.startingPoint.longitude
-                                    ),
-                                    com.google.android.gms.maps.model.LatLng(
-                                        centralLocation.latitude,
-                                        centralLocation.longitude
-                                    )
-                                ) / 1000).roundToInt()
-                                Box(modifier = Modifier.align(Center)) {
-                                    MapElement(
-                                        pos = pos,
-                                        distance = distance,
-                                        url = location.thumbnailUrl,
-                                        destination = location.startingPoint
-                                    )
-                                }
+                        } else if (!isOnline(context)) {
+                            Box(Modifier.fillMaxSize(), contentAlignment = Center) {
+                                NetworkError()
                             }
+                        } else {
+                            Box(modifier = Modifier.transformable(state = state)) {
+
+                                Image(
+                                    painter = rememberDrawablePainter(RadarDrawable()),
+                                    contentDescription = "",
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .align(Center)
+                                )
+
+                                for (location in locations.value) {
+                                    val pos = getPosition(location)
+                                    val distance = (SphericalUtil.computeDistanceBetween(
+
+                                        com.google.android.gms.maps.model.LatLng(
+                                            location.latitude,
+                                            location.longitude
+                                        ),
+                                        com.google.android.gms.maps.model.LatLng(
+                                            centralLocation.latitude,
+                                            centralLocation.longitude
+                                        )
+                                    ) / 1000).roundToInt()
+                                    Box(modifier = Modifier.align(Center)) {
+                                        MapElement(
+                                            pos = pos,
+                                            distance = distance,
+                                            url = location.thumbnailUrl,
+                                            destination = location
+                                        )
+                                    }
+                                }
+
+                                for (location in trips.value) {
+                                    val pos = getPosition(location.startingPoint)
+                                    val distance = (SphericalUtil.computeDistanceBetween(
+
+                                        com.google.android.gms.maps.model.LatLng(
+                                            location.startingPoint.latitude,
+                                            location.startingPoint.longitude
+                                        ),
+                                        com.google.android.gms.maps.model.LatLng(
+                                            centralLocation.latitude,
+                                            centralLocation.longitude
+                                        )
+                                    ) / 1000).roundToInt()
+                                    Box(modifier = Modifier.align(Center)) {
+                                        MapElement(
+                                            pos = pos,
+                                            distance = distance,
+                                            url = location.thumbnailUrl,
+                                            destination = location.startingPoint
+                                        )
+                                    }
+                                }
 
 
-                            GlideImage(
-                                imageModel = R.mipmap.icon,
-                                contentDescription = "",
-                                modifier = Modifier
-                                    .width(80.dp)
-                                    .height(80.dp)
-                                    .align(Center)
-                                    .graphicsLayer {
-                                        shape = RoundedCornerShape(100)
-                                        clip = true
-                                    })
-
-                            if (checkPermission()) {
-                                IconButton(
+                                GlideImage(
+                                    imageModel = R.mipmap.icon,
+                                    contentDescription = "",
                                     modifier = Modifier
                                         .width(80.dp)
                                         .height(80.dp)
@@ -332,39 +346,52 @@ class AroundMeActivity : ComponentActivity() {
                                         .graphicsLayer {
                                             shape = RoundedCornerShape(100)
                                             clip = true
+                                        })
+
+                                if (checkPermission()) {
+                                    IconButton(
+                                        modifier = Modifier
+                                            .width(80.dp)
+                                            .height(80.dp)
+                                            .align(Center)
+                                            .graphicsLayer {
+                                                shape = RoundedCornerShape(100)
+                                                clip = true
+                                            }
+                                            .background(Color(0x66FF0055)),
+                                        onClick = {
+                                            getLastKnownLocation()
                                         }
-                                        .background(Color(0x66FF0055)),
-                                    onClick = {
-                                        getLastKnownLocation()
+                                    ) {
+                                        FaIcon(FaIcons.MapMarker, tint = danger)
                                     }
-                                ) {
-                                    FaIcon(FaIcons.MapMarker, tint = danger)
                                 }
-                            }
 
-                            Column {
-                                Heading(
-                                    "Discover the nearest destinations",
-                                    modifier = Modifier
-                                        .align(Start)
-                                        .padding(
-                                            cardPadding
-                                        )
-                                )
-                                Text(
-                                    "${radius.value.toInt() / 1000} km",
-                                    color = colors.surface,
-                                    fontSize = textSmall,
-                                    modifier = Modifier.fillMaxWidth(),
-                                    textAlign = TextAlign.Center
+                                Column {
+                                    Heading(
+                                        "Discover the nearest destinations",
+                                        modifier = Modifier
+                                            .align(Start)
+                                            .padding(
+                                                cardPadding
+                                            )
+                                    )
+                                    Text(
+                                        "${radius.value.toInt() / 1000} km",
+                                        color = colors.surface,
+                                        fontSize = textSmall,
+                                        modifier = Modifier.fillMaxWidth(),
+                                        textAlign = TextAlign.Center
+                                    )
+                                }
+
+                                DestinationCard(
+                                    destination = destinationSelected.value,
+                                    open = destinationSelected.value != null,
+                                    modifier = Modifier.align(BottomCenter),
+                                    activity = this@AroundMeActivity
                                 )
                             }
-
-                            DestinationCard(
-                                destination = destinationSelected.value,
-                                open = destinationSelected.value != null,
-                                modifier = Modifier.align(BottomCenter)
-                            )
                         }
                     }
 
@@ -514,7 +541,12 @@ class AroundMeActivity : ComponentActivity() {
     }
 
     @Composable
-    fun MapElement(url: String, pos: ArrayList<Double>, distance: Int, destination: Destination) {
+    fun MapElement(
+        url: String,
+        pos: ArrayList<Double>,
+        distance: Int,
+        destination: Destination
+    ) {
 
         Column(
             modifier = Modifier

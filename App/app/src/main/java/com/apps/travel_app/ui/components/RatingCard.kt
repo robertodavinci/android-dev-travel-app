@@ -42,7 +42,7 @@ fun RatingCard(rating: Rating) {
 
     val open = remember { mutableStateOf(false) }
     val maxHeight: Float by animateFloatAsState(
-        if (open.value) 100f else 0f, animationSpec = tween(
+        if (open.value) 500f else 0f, animationSpec = tween(
             durationMillis = 1000
         )
     )
@@ -92,6 +92,7 @@ fun RatingCard(rating: Rating) {
                 Text(
                     text = rating.message,
                     fontSize = textNormal,
+                    lineHeight = textSmall / 2,
                     color = MaterialTheme.colors.surface,
                     modifier = Modifier
                         .fillMaxWidth()

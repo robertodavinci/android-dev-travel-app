@@ -1,15 +1,26 @@
 package com.apps.travel_app.ui.utils
 
+import android.app.Activity
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.util.Log
+import android.widget.TextView
+import androidx.compose.material.MaterialTheme.colors
+import androidx.compose.ui.graphics.toArgb
+import com.apps.travel_app.models.Destination
+import com.apps.travel_app.models.Trip
+import com.apps.travel_app.ui.theme.primaryColor
+import com.apps.travel_app.ui.theme.textSmall
 import com.apps.travel_app.user
+import com.google.android.material.snackbar.Snackbar
+import com.guru.fontawesomecomposelib.FaIconType
 import java.io.*
 import java.net.HttpURLConnection
 import java.net.URL
+import java.util.*
 
 
 const val API = "https://www.superiorgames.eu/travel/controller.php"
@@ -49,7 +60,7 @@ fun isOnline(context: Context): Boolean {
 }
 
 fun sendPostRequest(body: String, url: String = API, action: String = ""): String? {
-   val mURL = URL("${url}?action=${action}&user=${user.id}&user_m=${user.email}")
+   val mURL = URL("${url}?action=${action}&user=${user.id}&user_m=${user.email}&lang=${Locale.getDefault().language}")
 
 
 
@@ -83,4 +94,13 @@ fun sendPostRequest(body: String, url: String = API, action: String = ""): Strin
         }
     }
     return responseBody
+}
+
+
+
+
+class Response {
+    var places: ArrayList<Destination> = arrayListOf()
+    var cities: ArrayList<Destination> = arrayListOf()
+    var trips: ArrayList<Trip> = arrayListOf()
 }

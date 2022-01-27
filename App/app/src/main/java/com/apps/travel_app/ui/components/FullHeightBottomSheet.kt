@@ -1,6 +1,7 @@
 package com.apps.travel_app.ui.components
 
 import android.content.res.Resources
+import android.util.DisplayMetrics
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation
@@ -31,6 +32,7 @@ import com.apps.travel_app.ui.theme.iconLightColor
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
+
 enum class States {
     EXPANDED,
     COLLAPSED
@@ -46,7 +48,7 @@ fun ChangeState(state: States) {
 @ExperimentalMaterialApi
 @Composable
 fun FullHeightBottomSheet(
-    mH: Int = 0,
+    mH: Float = convertPixelsToDp(Resources.getSystem().displayMetrics.heightPixels / 2),
     MH: Int = 0,
     button: @Composable (() -> Unit)? = null,
     background: Color = colors.background,
@@ -124,7 +126,7 @@ fun FullHeightBottomSheet(
 
 
     val maxHeight =
-        Resources.getSystem().displayMetrics.heightPixels - (if(mH == 0) Resources.getSystem().displayMetrics.heightPixels / 2 else mH)
+        Resources.getSystem().displayMetrics.heightPixels -  convertDpToPixel(mH)
 
 
     Box(
@@ -135,6 +137,7 @@ fun FullHeightBottomSheet(
                     swipeableState.offset.value.roundToInt()
                 )
             }
+            .height(convertPixelsToDp(Resources.getSystem().displayMetrics.heightPixels).dp)
     ) {
 
 
@@ -159,6 +162,7 @@ fun FullHeightBottomSheet(
                 .background(
                     background
                 )
+                .fillMaxSize()
                 .nestedScroll(connection)
         ) {
 
@@ -178,7 +182,7 @@ fun FullHeightBottomSheet(
 
             Box(
                 Modifier
-                    .fillMaxWidth()
+                    .fillMaxSize()
                     .verticalScroll(scrollState)
             ) {
                 body(swipeableState.currentValue)
@@ -186,11 +190,39 @@ fun FullHeightBottomSheet(
         }
         if (button != null) {
             Box(
-                modifier = Modifier.fillMaxWidth().offset(x = (-30).dp, y = (20 + -swipeableState.offset.value / maxHeight * 40).dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .offset(
+                        x = (-30).dp,
+                        y = (20 + -swipeableState.offset.value / maxHeight * 40).dp
+                    ),
                 contentAlignment = TopEnd
             ) {
                 button()
             }
         }
     }
+}
+
+
+/**
+ * This method converts device specific pixels to density independent pixels.
+ *
+ * @param px A value in px (pixels) unit. Which we need to convert into db
+ * @param context Context to get resources and device specific display metrics
+ * @return A float value to represent dp equivalent to px value
+ */
+fun convertPixelsToDp(px: Int): Float {
+    return px / (Resources.getSystem().displayMetrics.densityDpi.toFloat() / DisplayMetrics.DENSITY_DEFAULT)
+}
+
+/**
+ * This method converts dp unit to equivalent pixels, depending on device density.
+ *
+ * @param dp A value in dp (density independent pixels) unit. Which we need to convert into pixels
+ * @param context Context to get resources and device specific display metrics
+ * @return A float value to represent px equivalent to dp depending on device density
+ */
+fun convertDpToPixel(dp: Float): Float {
+    return dp * (Resources.getSystem().displayMetrics.densityDpi.toFloat() / DisplayMetrics.DENSITY_DEFAULT)
 }

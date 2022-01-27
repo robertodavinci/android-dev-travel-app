@@ -204,6 +204,7 @@ class ActiveTripActivity : ComponentActivity() {
                 }
                 if (!mapLoaded.value) {
                     Text(
+                        fontSize = textNormal,
                         modifier = Modifier
                             .fillMaxSize()
                             .alpha(0.5f)

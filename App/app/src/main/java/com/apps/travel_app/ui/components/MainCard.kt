@@ -179,6 +179,7 @@ fun MainCard(
                                 fontSize = textNormal * infoScale,
                                 fontWeight = FontWeight.Bold,
                                 overflow = TextOverflow.Ellipsis,
+                                lineHeight = textNormal,
                                 maxLines = 1
                             )
 

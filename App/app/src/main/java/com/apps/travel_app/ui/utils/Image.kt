@@ -154,10 +154,10 @@ fun getTriangularMask(
         paintStroke.strokeWidth = 15f
         paintStroke.color = WHITE
 
-        canvas.drawPath(
+        /*canvas.drawPath(
             path,
             paintStroke
-        )
+        )*/
 
         return output
     }

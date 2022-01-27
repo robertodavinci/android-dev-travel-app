@@ -7,13 +7,16 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.Card
 import androidx.compose.material.MaterialTheme.colors
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -22,6 +25,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation.NavController
@@ -29,6 +33,7 @@ import com.apps.travel_app.MainActivity
 import com.apps.travel_app.models.Destination
 import com.apps.travel_app.models.GooglePlace
 import com.apps.travel_app.ui.components.*
+import com.apps.travel_app.ui.pages.viewmodels.GooglePlaceViewModel
 import com.apps.travel_app.ui.theme.*
 import com.apps.travel_app.ui.utils.rememberMapViewWithLifecycle
 import com.apps.travel_app.ui.utils.sendPostRequest
@@ -40,6 +45,7 @@ import com.google.android.libraries.maps.model.MapStyleOptions
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.guru.fontawesomecomposelib.FaIcon
+import com.guru.fontawesomecomposelib.FaIconType
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -53,13 +59,7 @@ fun GooglePlaceScreen(
     mainActivity: MainActivity
 ) {
 
-    val loaded: MutableState<Boolean> = remember { mutableStateOf(false) }
-    val googlePlace: MutableState<GooglePlace?> = remember { mutableStateOf(null) }
-    val loadingScreen = remember { mutableStateOf(0) }
-    val map: MutableState<GoogleMap?> = remember { mutableStateOf(null) }
-    val mapLoaded = remember { mutableStateOf(false) }
-    val openMap = remember { mutableStateOf(false) }
-    val id = remember { mutableStateOf("") }
+    val viewModel = remember { GooglePlaceViewModel(destination, mainActivity) }
 
     fun dayOfWeek(i: Int): String {
         return when (i) {
@@ -74,34 +74,19 @@ fun GooglePlaceScreen(
         }
     }
 
-    fun getMoreInfo() {
-        loaded.value = true
-
-        //if (googlePlace.value == null) {
-            Thread {
-                val request = "{\"id\":\"${destination.id}\"}"
-                val text = sendPostRequest(request, action = "placeDetails")
-                val gson = Gson()
-                val itemType = object : TypeToken<GooglePlace>() {}.type
-                val _googlePlace: GooglePlace = gson.fromJson(text, itemType)
-                googlePlace.value = _googlePlace
-            }.start()
-        //}
-    }
-
     fun mapInit() {
-        map.value!!.uiSettings.isZoomControlsEnabled = false
+        viewModel.map!!.uiSettings.isZoomControlsEnabled = false
 
-        map.value?.setMapStyle(
+        viewModel.map?.setMapStyle(
             MapStyleOptions.loadRawResourceStyle(
                 mainActivity,
                 mapStyle
             )
         )
 
-        map.value!!.uiSettings.isMapToolbarEnabled = false
+        viewModel.map!!.uiSettings.isMapToolbarEnabled = false
 
-        map.value?.moveCamera(
+        viewModel.map?.moveCamera(
             CameraUpdateFactory.newLatLngZoom(
                 LatLng(
                     destination.latitude,
@@ -110,14 +95,7 @@ fun GooglePlaceScreen(
             )
         )
 
-        //map.value?.setOnMarkerClickListener { marker -> markerClick(marker) }
-    }
-
-
-    if (!loaded.value || destination.id != id.value) {
-        id.value = destination.id
-        getMoreInfo()
-
+        //viewModel.map?.setOnMarkerClickListener { marker -> markerClick(marker) }
     }
 
 
@@ -127,7 +105,7 @@ fun GooglePlaceScreen(
     percentage = if (percentage > 1) 1f else percentage
 
     var mapView: MapView? = null
-    if (loadingScreen.value > 5)
+    if (viewModel.loadingScreen > 5)
         mapView = rememberMapViewWithLifecycle()
 
     BoxWithConstraints {
@@ -172,7 +150,7 @@ fun GooglePlaceScreen(
                             )
                             Spacer(modifier = Modifier.width(5.dp))
                             Text(
-                                googlePlace.value?.address ?: "",
+                                viewModel.googlePlace?.address ?: "",
                                 color = colors.surface,
                                 modifier = Modifier.align(CenterVertically)
                             )
@@ -188,10 +166,10 @@ fun GooglePlaceScreen(
                                 tint = colors.surface
                             )
                             Spacer(modifier = Modifier.width(5.dp))
-                            Text(googlePlace.value?.phoneNumber ?: "", color = colors.surface)
+                            Text(viewModel.googlePlace?.phoneNumber ?: "", color = colors.surface)
                         }
                     }
-                    Button(onClick = { openMap.value = true }, modifier = Modifier.padding(5.dp)) {
+                    Button(onClick = { viewModel.openMap = true }, modifier = Modifier.padding(5.dp)) {
                         FaIcon(
                             FaIcons.LocationArrow,
                             tint = colors.surface
@@ -199,7 +177,7 @@ fun GooglePlaceScreen(
                     }
                     Button(onClick = {  }, modifier = Modifier.padding(5.dp)) {
                         Row {
-                            for (i in 1..(googlePlace.value?.priceLevel?.toInt() ?: 1)) {
+                            for (i in 1..(viewModel.googlePlace?.priceLevel?.toInt() ?: 1)) {
                                 FaIcon(
                                     FaIcons.EuroSign,
                                     tint = colors.surface
@@ -219,14 +197,14 @@ fun GooglePlaceScreen(
                         onClick = { }, modifier = Modifier
                             .padding(5.dp),
 
-                        background = if (googlePlace.value?.isOpen == true) success else danger
+                        background = if (viewModel.googlePlace?.isOpen == true) success else danger
                     ) {
                         Text(
-                            if (googlePlace.value?.isOpen == true) "Open" else "Close",
+                            if (viewModel.googlePlace?.isOpen == true) "Open" else "Close",
                             color = Color.White
                         )
                     }
-                    googlePlace.value?.openingHours?.forEach {
+                    viewModel.googlePlace?.openingHours?.forEach {
                         val day = it.open.dayOfWeek
                         Button(onClick = { }, modifier = Modifier.padding(5.dp)) {
                             Row {
@@ -251,6 +229,68 @@ fun GooglePlaceScreen(
                     }
                 }
 
+                Card(
+                    modifier = Modifier
+                        .padding(cardPadding)
+                        .fillMaxWidth(),
+                    backgroundColor = colors.onBackground,
+                    elevation = cardElevation,
+                    shape = RoundedCornerShape(cardRadius)
+                ) {
+                    Row(
+                        horizontalArrangement =  Arrangement.SpaceBetween,
+                        verticalAlignment = CenterVertically,
+                        modifier = Modifier.padding(cardPadding)
+                    ) {
+                        Column(
+                            horizontalAlignment = CenterHorizontally,
+                            modifier = Modifier.padding(cardPadding)
+                        ) {
+                            FaIcon(
+                                FaIcons.Viruses,
+                                tint = primaryLightColor,
+                                size = 60.dp
+                            )
+                            Text(
+                                "Travel safe\nduring COVID-19",
+                                fontSize = textNormal,
+                                textAlign = TextAlign.Center,
+                                maxLines = 2,
+                                fontWeight = FontWeight.Bold,
+                                color = colors.surface
+                            )
+                        }
+                        Text(
+                        "What you can expect during your visit\n" +
+                            "Face masks required for staff in public areas\n" +
+                            "Hand sanitizer available to guests & staff\n" +
+                            "Socially distanced dining tables\n" +
+                            "Staff required to regularly wash hands\n" +
+                            "Tables disinfected between guests\n" +
+                            "Face masks required for guests in public areas",
+                            fontSize = textSmall,
+                            color = colors.surface,
+                            modifier = Modifier.weight(1f)
+                        )
+
+                    }
+                }
+
+                Heading("Do")
+                Subheading("Places to see, ways to wander, and signature experiences.")
+
+                AttractionsRow(viewModel.todo,mainActivity)
+
+                Heading("Eat")
+                Subheading("Can't-miss spots to dine, drink, and feast.")
+
+                AttractionsRow(viewModel.eat,mainActivity)
+
+                Heading("Stay")
+                Subheading("A mix of the charming, modern, and tried and true.")
+
+                AttractionsRow(viewModel.stay,mainActivity)
+
                 Heading(
                     "Top ratings"
                 )
@@ -258,7 +298,7 @@ fun GooglePlaceScreen(
                 Box(
                     modifier = Modifier.padding(bottom = 60.dp)
                 ) {
-                    if (googlePlace.value?.reviews?.isEmpty() == true) {
+                    if (viewModel.googlePlace?.reviews?.isEmpty() == true) {
                         Box(
                             modifier = Modifier
                                 .align(Alignment.Center)
@@ -273,7 +313,7 @@ fun GooglePlaceScreen(
                                 .padding(cardPadding)
                         ) {
 
-                            googlePlace.value?.reviews?.forEach { rating ->
+                            viewModel.googlePlace?.reviews?.forEach { rating ->
                                 RatingCard(
                                     rating
                                 )
@@ -302,15 +342,15 @@ fun GooglePlaceScreen(
 
     }
     val scale: Float by animateFloatAsState(
-        if (openMap.value) 1f else 0f, animationSpec = tween(
+        if (viewModel.openMap) 1f else 0f, animationSpec = tween(
             durationMillis = 500,
             easing = LinearOutSlowInEasing
         )
     )
-    if (openMap.value) {
+    if (viewModel.openMap) {
         androidx.compose.ui.window.Dialog(
             onDismissRequest = {
-                openMap.value = false
+                viewModel.openMap = false
             },
 
             ) {
@@ -333,12 +373,12 @@ fun GooglePlaceScreen(
                     if (mapView != null) {
                         AndroidView({ mapView }) { mapView ->
                             CoroutineScope(Dispatchers.Main).launch {
-                                if (!mapLoaded.value) {
+                                if (!viewModel.mapLoaded) {
                                     mapView.getMapAsync { mMap ->
-                                        if (!mapLoaded.value) {
-                                            map.value = mMap
+                                        if (!viewModel.mapLoaded) {
+                                            viewModel.map = mMap
                                             mapInit()
-                                            mapLoaded.value = true
+                                            viewModel.mapLoaded = true
                                         }
                                     }
                                 }
@@ -353,7 +393,7 @@ fun GooglePlaceScreen(
                                 cardPadding
                             )
                         )
-                        loadingScreen.value++
+                        viewModel.loadingScreen++
                     }
                 }
             }
@@ -361,8 +401,33 @@ fun GooglePlaceScreen(
     }
 
 
+
 }
 
+@Composable
+private fun AttractionsRow(attractions: ArrayList<GooglePlace>, activity: MainActivity) {
+    LazyRow(
+        modifier = Modifier.padding(cardPadding)
+    ) {
+        items(attractions.size) { i ->
+            val attraction = attractions[i]
+
+                MainCard(
+                    destination = attraction,
+                    rating = attraction.rating,
+                    padding = 5.dp,
+                    shadow = 10.dp,
+                    imageMaxHeight = 200f,
+                    mainActivity = activity,
+                    infoScale = 0.8f,
+                    icon = FaIcons.Google,
+                    isGooglePlace = true
+                )
+
+        }
+    }
+
+}
 
 
 

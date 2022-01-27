@@ -3,6 +3,7 @@ package com.apps.travel_app.ui.components.login
 import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import com.apps.travel_app.ui.theme.textNormal
 import com.facebook.Profile
 
 @Composable
@@ -23,7 +24,8 @@ fun LogRegButton(profile: Profile?, login: () -> Unit, logout: () -> Unit) {
         }
     ) {
         Text(
-            text = buttonText
+            text = buttonText,
+            fontSize = textNormal
         )
     }
 }

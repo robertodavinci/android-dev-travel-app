@@ -35,11 +35,12 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import com.apps.travel_app.MainActivity
 import com.apps.travel_app.models.Destination
 import com.apps.travel_app.models.Trip
-import com.apps.travel_app.ui.pages.Response
 import com.apps.travel_app.ui.theme.iconLightColor
 import com.apps.travel_app.ui.theme.primaryColor
+import com.apps.travel_app.ui.utils.Response
 import com.apps.travel_app.ui.utils.isOnline
 import com.apps.travel_app.ui.utils.sendPostRequest
+import com.google.android.material.snackbar.Snackbar
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.guru.fontawesomecomposelib.FaIcon
@@ -74,17 +75,25 @@ fun BottomNavigationBar(navController: NavController, mainActivity: MainActivity
 
         Thread {
 
-            val request = "{\"text\": \"$text\"}"
+            val request = "{\"text\": \"${text.replace('\n',' ').trim()}\"}"
             println(request)
             val resultText = sendPostRequest(request, action = "search")
             if (!resultText.isNullOrEmpty()) {
-                val gson = Gson()
-                val itemType = object : TypeToken<Response>() {}.type
-                val response: Response = gson.fromJson(resultText, itemType)
+                try {
+                    val gson = Gson()
+                    val itemType = object : TypeToken<Response>() {}.type
+                    val response: Response = gson.fromJson(resultText, itemType)
 
-                trips.value = response.trips
-                cities.value = response.cities
-                places.value = response.places
+                    trips.value = response.trips
+                    cities.value = response.cities
+                    places.value = response.places
+                } catch (e: Exception) {
+                    mainActivity.currentFocus?.let {
+                        Snackbar.make(
+                            it, "Ops, there is a connectivity problem",
+                            Snackbar.LENGTH_LONG).show()
+                    }
+                }
 
             }
         }.start()
@@ -92,7 +101,7 @@ fun BottomNavigationBar(navController: NavController, mainActivity: MainActivity
 
     val keyboardController = LocalSoftwareKeyboardController.current
     Box {
-        FullHeightBottomSheet(mH = 320, background = colors.onBackground, MH = 200) { status ->
+        FullHeightBottomSheet(mH = 160f, background = colors.onBackground, MH = 200) { status ->
             if (status == States.COLLAPSED) {
                 searchTerm = ""
                 DisposableEffect(Unit) {
@@ -113,7 +122,7 @@ fun BottomNavigationBar(navController: NavController, mainActivity: MainActivity
                         shape = RoundedCornerShape(100)
                         clip = true
                     }
-                    .background(Color(0x30000022)), verticalAlignment = Alignment.CenterVertically) {
+                    .background(colors.background), verticalAlignment = Alignment.CenterVertically) {
                     BasicTextField(
                         keyboardOptions = KeyboardOptions(imeAction = androidx.compose.ui.text.input.ImeAction.Search),
                         keyboardActions = KeyboardActions(

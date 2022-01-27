@@ -4,10 +4,12 @@ import android.graphics.Bitmap
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
+import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme.colors
+import androidx.compose.material.Tab
+import androidx.compose.material.TabRow
+import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -16,7 +18,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Transparent
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.font.FontStyle
@@ -29,57 +30,26 @@ import com.apps.travel_app.R
 import com.apps.travel_app.models.Destination
 import com.apps.travel_app.models.Trip
 import com.apps.travel_app.ui.components.*
-import com.apps.travel_app.ui.theme.cardPadding
-import com.apps.travel_app.ui.theme.pacifico
-import com.apps.travel_app.ui.theme.primaryColor
-import com.apps.travel_app.ui.theme.textHeading
+import com.apps.travel_app.ui.pages.viewmodels.HomeViewModel
+import com.apps.travel_app.ui.theme.*
 import com.apps.travel_app.ui.utils.getTriangularMask
 import com.apps.travel_app.ui.utils.isOnline
-import com.apps.travel_app.ui.utils.sendPostRequest
 import com.apps.travel_app.user
-import com.google.android.libraries.maps.model.LatLng
-import com.google.android.material.tabs.TabLayout
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import com.skydoves.landscapist.glide.GlideImage
 
 
 @Composable
 fun HomeScreen(navController: NavController, mainActivity: MainActivity) {
 
-    val trips = remember { mutableStateOf(ArrayList<Trip>()) }
-    val adventures = remember { mutableStateOf(ArrayList<Trip>()) }
-    val cities = remember { mutableStateOf(ArrayList<Destination>()) }
+   
+    val viewModel = remember { HomeViewModel(mainActivity) }
+    
     val tabs = arrayListOf(
         "Destinations",
-        "Adventures",
+        //"Adventures",
         "Trips")
 
-    fun getImages() {
-
-        if (trips.value.size <= 0 && adventures.value.size <= 0 && cities.value.size <= 0) {
-            Thread {
-
-                val citiesText = sendPostRequest("", action = "home")
-                if (!citiesText.isNullOrEmpty()) {
-                    val gson = Gson()
-                    val itemType = object : TypeToken<HomeResponse>() {}.type
-                    val output: HomeResponse = gson.fromJson(citiesText, itemType)
-
-                    mainActivity.runOnUiThread {
-                        trips.value = output.trips
-                        cities.value = output.cities
-                        adventures.value = output.adventures
-                    }
-                }
-            }.start()
-        }
-    }
-
-
-    if (trips.value.size <= 0 && adventures.value.size <= 0 && cities.value.size <= 0) {
-        getImages()
-    }
+    
 
     LazyColumn(
         modifier = Modifier
@@ -101,6 +71,7 @@ fun HomeScreen(navController: NavController, mainActivity: MainActivity) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .heightIn(0.dp,300.dp)
             ) {
 
                 val modifier = Modifier
@@ -110,8 +81,7 @@ fun HomeScreen(navController: NavController, mainActivity: MainActivity) {
                     GlideImage(
                         imageModel = experienceImage,
                         modifier = modifier,
-                        contentScale = ContentScale.Crop,
-                        error = painterResource(id = R.drawable.blur),
+                        contentScale = ContentScale.Crop
                     )
                 }
                 Column(
@@ -209,7 +179,7 @@ fun HomeScreen(navController: NavController, mainActivity: MainActivity) {
                         Tab(
                             text = {
                                 Column {
-                                    Text(title, color = colors.surface)
+                                    Text(title, color = colors.surface,fontSize = textNormal)
                                     Spacer(
                                         Modifier
                                             .height(3.dp)
@@ -233,7 +203,7 @@ fun HomeScreen(navController: NavController, mainActivity: MainActivity) {
                 Box(
                     modifier = Modifier.padding(bottom = 40.dp)
                 ) {
-                    if (trips.value.size <= 0) {
+                    if (viewModel.trips.size <= 0) {
                         Box(
                             modifier = Modifier
                                 .align(Alignment.Center)
@@ -249,7 +219,7 @@ fun HomeScreen(navController: NavController, mainActivity: MainActivity) {
                         ) {
                             if (tab == 0) {
                                 val loadedCities = ArrayList<Destination>()
-                                cities.value.forEachIndexed { index, destination ->
+                                viewModel.cities.forEachIndexed { index, destination ->
                                     if (!loadedCities.contains(destination)) {
                                         loadedCities.add(destination)
                                         Row {
@@ -266,8 +236,8 @@ fun HomeScreen(navController: NavController, mainActivity: MainActivity) {
                                                     mainActivity = mainActivity
                                                 )
                                             }
-                                            if (destination.rating <= 2.5f && index < cities.value.size - 1) {
-                                                val trip2 = cities.value[index + 1]
+                                            if (destination.rating <= 4.5f && index < viewModel.cities.size - 1) {
+                                                val trip2 = viewModel.cities[index + 1]
                                                 loadedCities.add(trip2)
                                                 Box(
                                                     modifier = Modifier
@@ -288,7 +258,7 @@ fun HomeScreen(navController: NavController, mainActivity: MainActivity) {
                                 }
                             } else {
                                 val loadedTrips = ArrayList<Trip>()
-                                val array = (if (tab == 1) adventures.value else trips.value)
+                                val array = (viewModel.trips)
                                 array.forEachIndexed { index, trip ->
                                     if (!loadedTrips.contains(trip)) {
                                         loadedTrips.add(trip)
@@ -340,11 +310,7 @@ fun HomeScreen(navController: NavController, mainActivity: MainActivity) {
 
 }
 
-class HomeResponse {
-    var adventures: ArrayList<Trip> = arrayListOf()
-    var cities: ArrayList<Destination> = arrayListOf()
-    var trips: ArrayList<Trip> = arrayListOf()
-}
+
 
 
 

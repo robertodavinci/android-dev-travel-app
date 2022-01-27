@@ -2,18 +2,12 @@ package com.apps.travel_app.ui.pages
 
 import FaIcons
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
-import androidx.preference.PreferenceManager
 import android.util.Log
-import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement.SpaceBetween
 import androidx.compose.foundation.lazy.LazyColumn
@@ -22,8 +16,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme.colors
 import androidx.compose.material.Text
-import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment.Companion.BottomCenter
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment.Companion.BottomStart
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
@@ -34,40 +28,37 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Transparent
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight.Companion.Bold
 import androidx.compose.ui.text.font.FontWeight.Companion.ExtraBold
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.preference.PreferenceManager
 import androidx.room.Room
 import com.apps.travel_app.data.room.AppDatabase
 import com.apps.travel_app.models.MediumType
-import com.apps.travel_app.models.Rating
 import com.apps.travel_app.models.Trip
 import com.apps.travel_app.models.TripDestination
 import com.apps.travel_app.ui.components.*
+import com.apps.travel_app.ui.pages.viewmodels.TripActivityViewModel
+import com.apps.travel_app.ui.pages.viewmodels.TripViewModel
 import com.apps.travel_app.ui.theme.*
-import com.apps.travel_app.ui.utils.*
+import com.apps.travel_app.ui.utils.markerPopUp
+import com.apps.travel_app.ui.utils.numberedMarker
+import com.apps.travel_app.ui.utils.rememberMapViewWithLifecycle
 import com.apps.travel_app.user
 import com.google.android.libraries.maps.CameraUpdateFactory
-import com.google.android.libraries.maps.GoogleMap
 import com.google.android.libraries.maps.MapView
 import com.google.android.libraries.maps.model.*
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import com.guru.fontawesomecomposelib.FaIcon
 import com.skydoves.landscapist.glide.GlideImage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.lang.Math.random
 
 class TripActivity : ComponentActivity() {
 
@@ -86,41 +77,17 @@ class TripActivity : ComponentActivity() {
 
 
         setContent {
-            var trip: Trip? by remember { mutableStateOf(null) }
-            var phase by remember { mutableStateOf(false) }
-            Thread {
-                if (isOnline(this)) {
-                    val request = tripId.toString()
-                    val ratingsText = sendPostRequest(request, action = "trip")
-                    val gson = Gson()
-                    val itemType = object : TypeToken<Trip>() {}.type
-                    runOnUiThread {
-                        trip = gson.fromJson(ratingsText, itemType)
-                    }
-                } else {
-                    val db = Room.databaseBuilder(
-                        this,
-                        AppDatabase::class.java, "database-name"
-                    ).build()
-                    val tripDb = db.tripDao().getById(tripId)
-                    val newTrip = Trip()
-                    if (tripDb != null) {
-                        newTrip.fromTripDb(tripDb)
-                        runOnUiThread {
-                            trip = newTrip
-                        }
-                    }
-                }
-            }.start()
+
+            val viewModel = remember { TripActivityViewModel(this, tripId) }
             Travel_AppTheme(systemTheme = systemTheme) {
 
-                if (trip != null) {
-                    if (!phase) {
-                        TripWallpaper(trip!!, next = {
-                            phase = true
+                if (viewModel.trip != null) {
+                    if (!viewModel.phase) {
+                        TripWallpaper(viewModel.trip!!, next = {
+                            viewModel.phase = true
                         })
                     } else {
-                        TripScreen(trip!!)
+                        TripScreen(viewModel.trip!!)
                     }
                 }
             }
@@ -158,7 +125,7 @@ class TripActivity : ComponentActivity() {
                 Text(
                     trip.name,
                     color = White,
-                    fontSize = 30.sp,
+                    fontSize = textNormal,
                     fontWeight = ExtraBold
                 )
                 Text(
@@ -171,7 +138,8 @@ class TripActivity : ComponentActivity() {
                 ) {
                     Row {
                         Text(
-                            "More"
+                            "More",
+                            fontSize = textNormal
                         )
                         Spacer(Modifier.size(10.dp))
                         FaIcon(
@@ -200,30 +168,23 @@ class TripActivity : ComponentActivity() {
             AppDatabase::class.java, "database-name"
         ).build()
 
-        val open: MutableState<Boolean> = remember { mutableStateOf(false) }
-        val loaded: MutableState<Boolean> = remember { mutableStateOf(false) }
-        val ratings: MutableState<ArrayList<Rating>> = remember { mutableStateOf(ArrayList()) }
-        val loadingScreen = remember { mutableStateOf(0) }
-        val map: MutableState<GoogleMap?> = remember { mutableStateOf(null) }
-        val mapLoaded = remember { mutableStateOf(false) }
-        var selectedDay by remember { mutableStateOf(0) }
-        var isSaved by remember { mutableStateOf(false) }
-
-        var steps by remember { mutableStateOf(if (selectedDay < trip.destinationsPerDay.size) trip.destinationsPerDay[selectedDay] else ArrayList()) }
+        val viewModel = remember { TripViewModel(
+             trip,  db, this
+        ) }
 
         fun mapInit() {
-            map.value!!.uiSettings.isZoomControlsEnabled = false
+            viewModel.map!!.uiSettings.isZoomControlsEnabled = false
 
-            map.value?.setMapStyle(
+            viewModel.map?.setMapStyle(
                 MapStyleOptions.loadRawResourceStyle(
                     this,
                     mapStyle
                 )
             )
 
-            map.value!!.uiSettings.isMapToolbarEnabled = false
+            viewModel.map!!.uiSettings.isMapToolbarEnabled = false
 
-            map.value!!.moveCamera(
+            viewModel.map!!.moveCamera(
                 CameraUpdateFactory.newLatLngZoom(
                     LatLng(
                         trip.startingPoint.latitude,
@@ -232,7 +193,7 @@ class TripActivity : ComponentActivity() {
                 )
             )
 
-            map.value!!.clear()
+            viewModel.map!!.clear()
             val pattern: List<PatternItem> =
                 arrayListOf(Dot(), Gap(15f))
             val polyline = PolylineOptions()
@@ -240,7 +201,7 @@ class TripActivity : ComponentActivity() {
                 .width(8f)
                 .pattern(pattern)
 
-            for ((index, step) in trip.destinationsPerDay[selectedDay].withIndex()) {
+            for ((index, step) in trip.destinationsPerDay[viewModel.selectedDay].withIndex()) {
                 val point = LatLng(
                     step.latitude,
                     step.longitude
@@ -253,51 +214,16 @@ class TripActivity : ComponentActivity() {
                     .zIndex(5f)
 
 
-                val marker = map.value!!.addMarker(markerOptions)
+                val marker = viewModel.map!!.addMarker(markerOptions)
 
                 markerPopUp(marker)
             }
-            map.value!!.addPolyline(polyline)
-        }
-
-        fun getRatings(trip: Trip) {
-            loaded.value = true
-
-            if (ratings.value.size <= 0) {
-                Thread {
-
-                    val result = ArrayList<Rating>()
-
-                    val request = "${trip.id}"
-                    val ratingsText = sendPostRequest(request, action = "ratings")
-                    val gson = Gson()
-                    val itemType = object : TypeToken<List<Rating>>() {}.type
-                    val _ratings: List<Rating> = gson.fromJson(ratingsText, itemType)
-                    for (rating in _ratings) {
-                        rating.rating = random().toFloat() * 5f
-                        result.add(rating)
-                    }
-                    ratings.value = result
-                }.start()
-            }
-        }
-
-        if (!loaded.value) {
-            if (isOnline(this)) {
-                getRatings(trip)
-            }
-            Thread {
-                try {
-                    isSaved = db.tripDao().getById(trip.id) != null
-                } catch (e: Exception) {
-
-                }
-            }.start()
+            viewModel.map!!.addPolyline(polyline)
         }
 
 
         var mapView: MapView? = null
-        if (loadingScreen.value > 5)
+        if (viewModel.loadingScreen > 5)
             mapView = rememberMapViewWithLifecycle()
 
         BoxWithConstraints {
@@ -317,12 +243,12 @@ class TripActivity : ComponentActivity() {
                     ) {
                         AndroidView({ mapView }) { mapView ->
                             CoroutineScope(Dispatchers.Main).launch {
-                                if (!mapLoaded.value) {
+                                if (!viewModel.mapLoaded) {
                                     mapView.getMapAsync { mMap ->
-                                        if (!mapLoaded.value) {
-                                            map.value = mMap
+                                        if (!viewModel.mapLoaded) {
+                                            viewModel.map = mMap
                                             mapInit()
-                                            mapLoaded.value = true
+                                            viewModel.mapLoaded = true
                                         }
                                     }
                                 }
@@ -331,7 +257,7 @@ class TripActivity : ComponentActivity() {
 
                     }
                 }
-                if (!mapLoaded.value) {
+                if (!viewModel.mapLoaded) {
                     Text(
                         modifier = Modifier
                             .fillMaxSize()
@@ -339,9 +265,10 @@ class TripActivity : ComponentActivity() {
                             .padding(50.dp),
                         textAlign = TextAlign.Center,
                         color = White,
+                        fontSize = textNormal,
                         text = "Loading..."
                     )
-                    loadingScreen.value++
+                    viewModel.loadingScreen++
                 }
                 Box(
                     modifier = Modifier
@@ -374,7 +301,7 @@ class TripActivity : ComponentActivity() {
                         onClick = {
                             Thread {
                                 try {
-                                    if (!isSaved) {
+                                    if (!viewModel.isSaved) {
                                         db.locationDao()
                                             .insertAll(trip.startingPoint.toLocation())
                                         val tripId = db.tripDao()
@@ -394,7 +321,7 @@ class TripActivity : ComponentActivity() {
 
                                         db.tripDao().deleteById(trip.id)
                                     }
-                                    isSaved = !isSaved
+                                    viewModel.isSaved = !viewModel.isSaved
                                 } catch (e: Exception) {
                                     Log.e("ERROR", e.localizedMessage)
                                 }
@@ -410,17 +337,11 @@ class TripActivity : ComponentActivity() {
                         )
                     ) {
                         FaIcon(
-                            if (isSaved) FaIcons.Heart else FaIcons.HeartRegular,
-                            tint = if (isSaved) danger else colors.surface
+                            if (viewModel.isSaved) FaIcons.Heart else FaIcons.HeartRegular,
+                            tint = if (viewModel.isSaved) danger else colors.surface
                         )
                     }
-                }, body = {
-
-                    val maxHeight: Float by animateFloatAsState(
-                        if (open.value) 250f else 100f, animationSpec = tween(
-                            durationMillis = 500
-                        )
-                    )
+                }) {
 
                     LazyColumn(
                         modifier = Modifier
@@ -441,7 +362,7 @@ class TripActivity : ComponentActivity() {
                                         Row {
                                             FaIcon(FaIcons.CopyRegular, tint = White, size = 18.dp)
                                             Spacer(modifier = Modifier.width(5.dp))
-                                            Text("Duplicate", color = White)
+                                            Text("Duplicate", fontSize = textNormal, color = White)
                                         }
                                     }
                                     Text(
@@ -453,7 +374,10 @@ class TripActivity : ComponentActivity() {
                                 } else {
                                     Button(
                                         onClick = {
-                                            val intent = Intent(baseContext, TripCreationActivity::class.java)
+                                            val intent = Intent(
+                                                baseContext,
+                                                TripCreationActivity::class.java
+                                            )
                                             intent.putExtra("tripId", trip.id)
                                             finish()
                                             startActivity(intent)
@@ -466,7 +390,7 @@ class TripActivity : ComponentActivity() {
                                         Row {
                                             FaIcon(FaIcons.Pen, tint = White, size = 18.dp)
                                             Spacer(modifier = Modifier.width(5.dp))
-                                            Text("Edit", color = White)
+                                            Text("Edit", color = White, fontSize = textNormal)
                                         }
                                     }
                                 }
@@ -550,14 +474,17 @@ class TripActivity : ComponentActivity() {
                                             onClick = {},
                                             modifier = Modifier.padding(5.dp)
                                         ) {
-                                            Text("${trip.destinationsPerDay.size} Day${if (trip.destinationsPerDay.size > 1) "s" else ""}")
+                                            Text(
+                                                "${trip.destinationsPerDay.size} Day${if (trip.destinationsPerDay.size > 1) "s" else ""}",
+                                                fontSize = textNormal
+                                            )
                                         }
                                         trip.attributes.forEach { activity ->
                                             Button(
                                                 onClick = {},
                                                 modifier = Modifier.padding(5.dp)
                                             ) {
-                                                Text(activity)
+                                                Text(activity, fontSize = textNormal)
                                             }
                                         }
                                     }
@@ -570,14 +497,14 @@ class TripActivity : ComponentActivity() {
                                 ) {
                                     items(trip.destinationsPerDay.size) { i ->
                                         val background =
-                                            if (i == selectedDay) primaryColor else colors.onBackground
+                                            if (i == viewModel.selectedDay) primaryColor else colors.onBackground
                                         val foreground =
-                                            if (i == selectedDay) White else colors.surface
+                                            if (i == viewModel.selectedDay) White else colors.surface
                                         Button(
                                             onClick = {
-                                                selectedDay = i
-                                                if (selectedDay < trip.destinationsPerDay.size)
-                                                    steps = trip.destinationsPerDay[selectedDay]
+                                                viewModel.selectedDay = i
+                                                if (viewModel.selectedDay < trip.destinationsPerDay.size)
+                                                    viewModel.steps = trip.destinationsPerDay[viewModel.selectedDay]
                                             },
                                             modifier = Modifier.padding(5.dp),
                                             background = background
@@ -611,7 +538,7 @@ class TripActivity : ComponentActivity() {
                                         modifier = Modifier.padding(10.dp)
                                     ) {
                                         Heading("Steps")
-                                        steps.forEachIndexed { index, place ->
+                                        viewModel.steps.forEachIndexed { index, place ->
                                             if (index > 0) {
                                                 Box(
                                                     modifier = Modifier
@@ -624,7 +551,7 @@ class TripActivity : ComponentActivity() {
                                                 )
                                             }
                                             TripStepCard(place, index, tripId = trip.id)
-                                            if (index < steps.size - 1) {
+                                            if (index < viewModel.steps.size - 1) {
                                                 Box(
                                                     modifier = Modifier
                                                         .padding(start = 25.dp)
@@ -670,12 +597,12 @@ class TripActivity : ComponentActivity() {
                                                             IconButton(
                                                                 onClick = {
                                                                     val _steps =
-                                                                        steps.clone() as ArrayList<TripDestination>
+                                                                        viewModel.steps.clone() as ArrayList<TripDestination>
                                                                     _steps.add(
                                                                         index + 1,
                                                                         TripDestination()
                                                                     )
-                                                                    steps = _steps
+                                                                    viewModel.steps = _steps
                                                                 },
                                                                 modifier = Modifier
                                                                     .size(22.dp, 22.dp)
@@ -702,7 +629,7 @@ class TripActivity : ComponentActivity() {
                                 Box(
                                     modifier = Modifier.padding(bottom = 60.dp)
                                 ) {
-                                    if (ratings.value.size <= 0) {
+                                    if (viewModel.ratings.size <= 0) {
                                         Box(
                                             modifier = Modifier
                                                 .align(Center)
@@ -717,7 +644,7 @@ class TripActivity : ComponentActivity() {
                                                 .padding(cardPadding)
                                         ) {
 
-                                            ratings.value.forEach { rating ->
+                                            viewModel.ratings.forEach { rating ->
                                                 RatingCard(
                                                     rating
                                                 )
@@ -730,7 +657,7 @@ class TripActivity : ComponentActivity() {
                             }
                         }
                     }
-                })
+                }
             }
 
         }

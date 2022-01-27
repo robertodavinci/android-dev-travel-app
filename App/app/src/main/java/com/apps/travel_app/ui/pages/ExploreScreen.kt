@@ -59,12 +59,6 @@ val filterIcons = arrayListOf(
 fun ExploreScreen(navController: NavController, mainActivity: MainActivity) {
 
 
-
-   /* val systemUiController = rememberSystemUiController()
-    systemUiController.setSystemBarsColor(
-        color = colors.background
-    )
-*/
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -215,8 +209,3 @@ fun ExploreScreen(navController: NavController, mainActivity: MainActivity) {
 class FilterIcon(var icon: FaIconType, var name: String) {
 }
 
-class Response {
-    var places: ArrayList<Destination> = arrayListOf()
-    var cities: ArrayList<Destination> = arrayListOf()
-    var trips: ArrayList<Trip> = arrayListOf()
-}

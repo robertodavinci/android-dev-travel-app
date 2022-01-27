@@ -44,6 +44,7 @@ import androidx.compose.ui.text.style.TextAlign.Companion.Center
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -56,10 +57,7 @@ import com.apps.travel_app.ui.components.Button
 import com.apps.travel_app.ui.components.Heading
 import com.apps.travel_app.ui.components.login.buttons.GoogleSignInButtonUI
 import com.apps.travel_app.ui.components.login.models.User
-import com.apps.travel_app.ui.theme.Travel_AppTheme
-import com.apps.travel_app.ui.theme.cardPadding
-import com.apps.travel_app.ui.theme.danger
-import com.apps.travel_app.ui.theme.primaryColor
+import com.apps.travel_app.ui.theme.*
 import com.facebook.AccessToken
 import com.facebook.CallbackManager
 import com.facebook.FacebookCallback
@@ -93,7 +91,6 @@ class LoginActivity : ComponentActivity() {
 
     private lateinit var functions: FirebaseFunctions
     private lateinit var secondCredential: AuthCredential
-    var loginUser: User = User("","", "","","")
 
     var googleLog = true
     var logScreen = true
@@ -105,11 +102,20 @@ class LoginActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
+        var currentUser: FirebaseUser? = null
+        installSplashScreen().apply {
+            setKeepOnScreenCondition {
+                currentUser == null
+            }
+
+        }
         auth = Firebase.auth
         auth.addAuthStateListener { auth ->
             Log.d("Tag---", "addAuthStateListener: ${auth.currentUser}")
         }
-        val currentUser = auth.currentUser
+
+        currentUser = auth.currentUser
+
         functions = Firebase.functions
 
 
@@ -120,14 +126,9 @@ class LoginActivity : ComponentActivity() {
 
         googleSignInClient = GoogleSignIn.getClient(this, gso)
         if (currentUser != null) {
-            setContent {
-                Box(modifier = Modifier.fillMaxSize().background(primaryColor)) {
-
-                }
-
-            }
             val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
+            finish()
         } else {
             setContent {
                 Travel_AppTheme {
@@ -211,7 +212,7 @@ class LoginActivity : ComponentActivity() {
             ) {
                 FaIcon(FaIcons.Facebook, tint = primaryColor)
                 Spacer(modifier = Modifier.width(8.dp))
-                Text(text = "Login via Facebook", color = primaryColor)
+                Text(text = "Login via Facebook", color = primaryColor, fontSize = textNormal)
 
             }
         }
@@ -397,6 +398,7 @@ class LoginActivity : ComponentActivity() {
                             Text(
                                 "Email",
                                 color = White,
+                                fontSize = textNormal,
                                 modifier = Modifier.alpha(0.5f)
                             )
                         },
@@ -417,7 +419,7 @@ class LoginActivity : ComponentActivity() {
                     )
                 }
                 if (emailErrorState.value) {
-                    Text(text = "Required", color = Color.Yellow)
+                    Text(text = "Required", color = Color.Yellow, fontSize = textNormal)
                 }
                 if (!logreg) {
                     Spacer(Modifier.padding(cardPadding))
@@ -456,6 +458,7 @@ class LoginActivity : ComponentActivity() {
                             placeholder = {
                                 Text(
                                     "Username",
+                                    fontSize = textNormal,
                                     color = White,
                                     modifier = Modifier.alpha(0.5f)
                                 )
@@ -477,7 +480,7 @@ class LoginActivity : ComponentActivity() {
                         )
                     }
                     if (displayNameErrorState.value) {
-                        Text(text = "Required", color = Color.Yellow)
+                        Text(text = "Required", fontSize = textNormal, color = Color.Yellow)
                     }
                 }
                 Spacer(Modifier.padding(cardPadding))
@@ -518,6 +521,7 @@ class LoginActivity : ComponentActivity() {
                             Text(
                                 "Password",
                                 color = White,
+                                fontSize = textNormal,
                                 modifier = Modifier.alpha(0.5f)
                             )
                         },
@@ -539,7 +543,7 @@ class LoginActivity : ComponentActivity() {
                     )
                 }
                 if (passwordErrorState.value) {
-                    Text(text = "Required", color = Color.Yellow)
+                    Text(text = "Required", fontSize = textNormal, color = Color.Yellow)
                 }
                 Spacer(Modifier.padding(cardPadding))
 
@@ -569,6 +573,7 @@ class LoginActivity : ComponentActivity() {
                         content = {
                             Text(
                                 text = "Login",
+                                fontSize = textNormal,
                                 color = primaryColor,
                                 modifier = Modifier.padding(5.dp)
                             )
@@ -581,10 +586,12 @@ class LoginActivity : ComponentActivity() {
                     Spacer(Modifier.padding(cardPadding))
                     Text(
                         text = "Don't have an account?",
+                        fontSize = textNormal,
                         color = White,
                         textAlign = Center)
                     Text(
                         text = "Sign up here!",
+                        fontSize = textNormal,
                         style = TextStyle(textDecoration = TextDecoration.Underline),
                         color = White,
                         textAlign = Center,
@@ -635,6 +642,7 @@ class LoginActivity : ComponentActivity() {
                         content = {
                             Text(
                                 text = "Register",
+                                fontSize = textNormal,
                                 color = primaryColor,
                                 modifier = Modifier.padding(5.dp)
                             )
@@ -648,11 +656,13 @@ class LoginActivity : ComponentActivity() {
                     Text(
                         text = "Already have an account?",
                         color = White,
+                        fontSize = textNormal,
                         textAlign = Center)
                     Text(
                         text = "Log in!",
                         style = TextStyle(textDecoration = TextDecoration.Underline),
                         color = White,
+                        fontSize = textNormal,
                         textAlign = Center,
                         modifier = Modifier
                             .fillMaxWidth()

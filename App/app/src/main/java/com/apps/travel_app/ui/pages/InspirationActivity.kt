@@ -1,14 +1,12 @@
 package com.apps.travel_app.ui.pages
 
-import FaIcons
+import android.app.Activity
 import android.content.res.Resources
 import android.os.Bundle
-import androidx.preference.PreferenceManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -16,33 +14,23 @@ import androidx.compose.material.Card
 import androidx.compose.material.MaterialTheme.colors
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment.Companion.BottomCenter
-import androidx.compose.ui.Alignment.Companion.BottomStart
 import androidx.compose.ui.Alignment.Companion.Center
-import androidx.compose.ui.Alignment.Companion.TopEnd
-import androidx.compose.ui.Alignment.Companion.TopStart
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.draw.scale
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Color.Companion.Transparent
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.zIndex
+import androidx.preference.PreferenceManager
 import com.apps.travel_app.models.Destination
-import com.apps.travel_app.ui.components.Button
 import com.apps.travel_app.ui.components.DestinationCard
-import com.apps.travel_app.ui.components.Heading
 import com.apps.travel_app.ui.theme.Travel_AppTheme
 import com.apps.travel_app.ui.theme.cardRadius
 import com.apps.travel_app.ui.theme.darkBackground
 import com.apps.travel_app.ui.theme.requireFullscreenMode
 import com.apps.travel_app.ui.utils.sendPostRequest
+import com.google.android.material.snackbar.Snackbar
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import com.guru.fontawesomecomposelib.FaIcon
 import com.skydoves.landscapist.glide.GlideImage
 import java.lang.Math.random
 import kotlin.math.abs
@@ -65,19 +53,28 @@ class InspirationActivity : ComponentActivity() {
 
 
 
+
         setContent {
             destinations = remember { ArrayList() }
             var loaded by remember { mutableStateOf(false) }
             Thread {
                 val citiesText = sendPostRequest(request, action = "polygonCities")
                 if (!citiesText.isNullOrEmpty()) {
-                    val gson = Gson()
-                    val itemType = object : TypeToken<List<Destination>>() {}.type
-                    val cities: List<Destination> = gson.fromJson(citiesText, itemType)
-                    for (city in cities) {
-                        destinations.add(city)
+                    try {
+                        val gson = Gson()
+                        val itemType = object : TypeToken<List<Destination>>() {}.type
+                        val cities: List<Destination> = gson.fromJson(citiesText, itemType)
+                        for (city in cities) {
+                            destinations.add(city)
+                        }
+                        loaded = true
+                    } catch (e: Exception) {
+                        currentFocus?.let {
+                            Snackbar.make(
+                                it, "Ops, there is a connectivity problem",
+                                Snackbar.LENGTH_LONG).show()
+                        }
                     }
-                    loaded = true
                 }
             }.start()
             Travel_AppTheme(systemTheme = systemTheme) {
@@ -89,7 +86,7 @@ class InspirationActivity : ComponentActivity() {
                         .background(colors.background)
                 ) {
                     if (loaded) {
-                        Grid()
+                        Grid(this@InspirationActivity)
                     }
                 }
             }
@@ -99,7 +96,7 @@ class InspirationActivity : ComponentActivity() {
 
 
     @Composable
-    fun Grid() {
+    fun Grid(activity: Activity) {
 
         val density = Resources.getSystem().displayMetrics.density
         val height = Resources.getSystem().displayMetrics.heightPixels / density
@@ -227,7 +224,8 @@ class InspirationActivity : ComponentActivity() {
                 destination = if (opened != -1) destinations[opened] else null, modifier = Modifier.align(
                     BottomCenter
                 ),
-                open = opened != -1
+                open = opened != -1,
+                activity = activity
             )
 
             /*Box(

@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.apps.travel_app.ui.theme.cardPadding
+import com.apps.travel_app.ui.theme.textNormal
 import com.guru.fontawesomecomposelib.FaIcon
 
 @Composable
@@ -34,6 +35,7 @@ fun NetworkError() {
             modifier = Modifier.padding(
                 cardPadding
             ),
+            fontSize = textNormal,
             textAlign = TextAlign.Center
         )
     }

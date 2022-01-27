@@ -4,13 +4,10 @@ import FaIcons
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Bitmap
-import android.graphics.Matrix
 import android.os.Bundle
 import android.provider.MediaStore
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.core.*
@@ -26,6 +23,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.MaterialTheme.colors
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Alignment.Companion.Start
@@ -44,72 +42,26 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
-import androidx.exifinterface.media.ExifInterface
 import androidx.exifinterface.media.ExifInterface.*
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.preference.PreferenceManager
-import androidx.room.Room
-import com.apps.travel_app.data.room.AppDatabase
-import com.apps.travel_app.models.Destination
 import com.apps.travel_app.models.MediumType
-import com.apps.travel_app.models.Trip
 import com.apps.travel_app.models.TripDestination
-import com.apps.travel_app.ui.components.Button
-import com.apps.travel_app.ui.components.FlexibleRow
-import com.apps.travel_app.ui.components.Heading
-import com.apps.travel_app.ui.components.TripStepCard
+import com.apps.travel_app.ui.components.*
+import com.apps.travel_app.ui.pages.viewmodels.TripCreationViewModel
 import com.apps.travel_app.ui.theme.*
-import com.apps.travel_app.ui.utils.getRealPathFromURI
-import com.apps.travel_app.ui.utils.isOnline
-import com.apps.travel_app.ui.utils.sendPostRequest
 import com.apps.travel_app.user
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.storage.FirebaseStorage
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import com.guru.fontawesomecomposelib.FaIcon
 import com.skydoves.landscapist.glide.GlideImage
-import java.io.ByteArrayOutputStream
-import java.text.SimpleDateFormat
 import java.util.*
 
 
 class TripCreationActivity : ComponentActivity() {
-
-    lateinit var thumbnail: MutableState<Bitmap?>
+    
     lateinit var resultLauncher: ActivityResultLauncher<Intent>
     private val permissionStorage = arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
 
-    private fun galleryImageSelected(result: ActivityResult) {
-        val data: Intent = result.data!!
-        val bitmap = MediaStore.Images.Media.getBitmap(contentResolver, data.data)
-        val currentImageFile = getRealPathFromURI(data.data!!, this)
-        if (!currentImageFile.isNullOrEmpty()) {
-            val exif = ExifInterface(currentImageFile)
-            val angle = when (exif.getAttributeInt(TAG_ORIENTATION, 1)) {
-                ORIENTATION_ROTATE_90 -> 90
-                ORIENTATION_ROTATE_180 -> 180
-                ORIENTATION_ROTATE_270 -> 270
-                else -> 0
-            }
 
-            val matrix = Matrix()
-
-            matrix.postRotate(angle.toFloat())
-
-            val rotatedBitmap = Bitmap.createBitmap(
-                bitmap,
-                0,
-                0,
-                bitmap.width,
-                bitmap.height,
-                matrix,
-                true
-            )
-            thumbnail.value = rotatedBitmap
-        } else {
-            thumbnail.value = bitmap
-        }
-    }
 
 
     @OptIn(ExperimentalMaterialApi::class)
@@ -132,12 +84,15 @@ class TripCreationActivity : ComponentActivity() {
         val systemTheme = sharedPref.getBoolean("darkTheme", true)
 
         val tripId = intent.getIntExtra("tripId", -1)
+            val viewModel =
+            TripCreationViewModel(this, tripId)
+
 
         resultLauncher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()
         ) { result ->
             if (result.resultCode == RESULT_OK && result.data != null) {
-                galleryImageSelected(result)            }
+                viewModel.galleryImageSelected(result)            }
         }
 
         super.onCreate(savedInstanceState)
@@ -145,155 +100,24 @@ class TripCreationActivity : ComponentActivity() {
         requireFullscreenMode(window, this)
 
         setContent {
-            thumbnail = remember { mutableStateOf(null) }
-            var thumbnailUrl: String? by remember { mutableStateOf(null) }
-            var confirmed by remember { mutableStateOf(false) }
-            var description by remember { mutableStateOf("") }
-            var name by remember { mutableStateOf("") }
-            var tags by remember { mutableStateOf(ArrayList<String>()) }
-            var selectedDay by remember { mutableStateOf(0) }
-            var locationSelection by remember { mutableStateOf(false) }
-            var stepCursor by remember { mutableStateOf(0) }
-            val initialDestinations: ArrayList<ArrayList<TripDestination>> =
-                arrayListOf(ArrayList())
-            var destinations by remember { mutableStateOf(initialDestinations) }
-            var startingPoint: Destination? by remember { mutableStateOf(null) }
-            var days by remember { mutableStateOf(1) }
-            var sharedWith by remember { mutableStateOf(ArrayList<String>()) }
-            fun fillUp() {
-                Thread {
-                    if (isOnline(this)) {
-                        val request = tripId.toString()
-                        val ratingsText = sendPostRequest(request, action = "trip")
-                        val gson = Gson()
-                        val itemType = object : TypeToken<Trip>() {}.type
-                        runOnUiThread {
-                            val trip: Trip = gson.fromJson(ratingsText, itemType)
-                            description = trip.description
-                            name = trip.name
-                            tags = trip.attributes as ArrayList<String>
-                            selectedDay = 0
-                            destinations = trip.destinationsPerDay
-                            startingPoint = trip.startingPoint
-                            days = trip.destinationsPerDay.size
-                            sharedWith = trip.sharedWith as ArrayList<String>
-                        }
-                    } else {
-                        val db = Room.databaseBuilder(
-                            this,
-                            AppDatabase::class.java, "database-name"
-                        ).build()
-                        val tripDb = db.tripDao().getById(tripId)
-                        val trip = Trip()
-                        if (tripDb != null) {
-                            trip.fromTripDb(tripDb)
-                            runOnUiThread {
-                                description = trip.description
-                                name = trip.name
-                                tags = trip.attributes as ArrayList<String>
-                                selectedDay = 0
-                                destinations = trip.destinationsPerDay
-                                startingPoint = trip.startingPoint
-                                days = trip.destinationsPerDay.size
-                                sharedWith = trip.sharedWith as ArrayList<String>
-                            }
-                        }
-                    }
-                }.start()
-            }
-            fun upload(thumbnailUrl: String? = null) {
-                confirmed = true
-                if (name.isEmpty() || description.isEmpty() || startingPoint == null) {
-                    return
-                }
-                Thread {
-                    val gson = Gson()
-                    val trip = Trip()
-                    trip.id = tripId
-                    trip.creatorId = user.id
-                    trip.thumbnailUrl = thumbnailUrl ?: ""
-                    trip.startingPoint = startingPoint!!
-                    trip.name = name
-                    trip.description = description
-                    trip.attributes = tags
-                    val format = SimpleDateFormat("dd/MM/yyy", Locale.ITALIAN)
-                    trip.creationDate = format.format(Date())
-                    trip.creator = user.email
-                    trip.destinationsPerDay = destinations
-                    trip.sharedWith = sharedWith
-                    val request = gson.toJson(trip)
-                    println(request)
-                    val id = sendPostRequest(request, action = "saveTrip")
-                    trip.id = (id ?: "0").toInt()
-                    val db = Room.databaseBuilder(
-                        this,
-                        AppDatabase::class.java, "database-name"
-                    ).build()
-                    db.locationDao().insertAll(trip.startingPoint.toLocation())
-                    val tripId = db.tripDao()
-                        .insertAll(trip.toTripDb(trip.startingPoint.id))[0]
+            
 
-                    val tripDao = db.tripStepDao()
-                    trip.getTripStep(tripId.toInt()).forEach {
-                        tripDao.insertAll(it)
-                    }
-                    finish()
-                }.start()
-            }
-            fun save() {
-                if (thumbnail.value != null && thumbnailUrl == null) {
-                    val bitmap = thumbnail.value
-                    val baos = ByteArrayOutputStream()
-                    bitmap?.compress(Bitmap.CompressFormat.JPEG, 100, baos)
-                    val data = baos.toByteArray()
-                    val storage = FirebaseStorage.getInstance()
-                    val storageRef = storage.reference
-                    val path = "images/${Date().time}.jpg"
-                    val mountainImagesRef = storageRef.child(path)
+            
 
-                    val uploadTask = mountainImagesRef.putBytes(data)
-                    uploadTask.addOnFailureListener {
-                        upload()
-                    }.addOnSuccessListener {
-                        storageRef.child(path).downloadUrl.addOnSuccessListener {
-                            upload(it.toString())
-                        }
+            Travel_AppTheme(systemTheme = systemTheme) {
 
-                    }
-                } else {
-                    upload(thumbnailUrl)
-                }
-            }
-            fun addStep(destination: Destination) {
-                val destinationsPerDay =
-                    destinations.clone() as ArrayList<ArrayList<TripDestination>>
-                val newDestination = (TripDestination)(destination)
-                if (destinations[selectedDay].size > 0 && stepCursor > 0) {
-                    val oldDestination = (destinations[selectedDay])[stepCursor - 1]
-                    oldDestination.kmToNextDestination = 1f
-                    oldDestination.minutesToNextDestination = 1f
-                    oldDestination.mediumToNextDestination = MediumType.Foot
-                }
-                destinationsPerDay[selectedDay].add(stepCursor++, newDestination)
-                destinations = destinationsPerDay
-            }
-            if (tripId > -1) {
-                fillUp()
-            }
-            Travel_AppTheme {
-
-                if (locationSelection) {
+                if (viewModel.locationSelection) {
                     LocationSelection(this, this, onBack = {
-                        locationSelection = false
+                        viewModel.locationSelection = false
                     },
                         onAddStep = {
                             if (it != null) {
-                                addStep(it)
+                                viewModel.addStep(it)
                             }
                         },
                         onStartingPointSelected = {
                             if (it != null) {
-                                startingPoint = it
+                                viewModel.startingPoint = it
                             }
                         })
                 } else {
@@ -323,11 +147,11 @@ class TripCreationActivity : ComponentActivity() {
                                     )
                                 }
                                 TextField(
-                                    value = name,
+                                    value = viewModel.name,
                                     onValueChange = {
-                                        name = it
+                                        viewModel.name = it
                                     },
-                                    isError = confirmed && name.isEmpty(),
+                                    isError = viewModel.confirmed && viewModel.name.isEmpty(),
                                     modifier = Modifier
                                         .weight(1f),
                                     colors = TextFieldDefaults.textFieldColors(
@@ -357,7 +181,7 @@ class TripCreationActivity : ComponentActivity() {
                                     keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences)
                                 )
                                 Button(background = Transparent, onClick = {
-                                    save()
+                                    viewModel.save()
                                 }) {
                                     FaIcon(
                                         FaIcons.Check,
@@ -373,7 +197,7 @@ class TripCreationActivity : ComponentActivity() {
                                 horizontalAlignment = CenterHorizontally
                             ) {
                                 item {
-                                    if (thumbnail.value != null || thumbnailUrl != null) {
+                                    if (viewModel.thumbnail != null || viewModel.thumbnailUrl != null) {
                                         Card(
                                             elevation = cardElevation,
                                             backgroundColor = colors.onBackground,
@@ -386,7 +210,7 @@ class TripCreationActivity : ComponentActivity() {
                                             }
                                         ) {
                                             GlideImage(
-                                                imageModel = thumbnail.value ?: thumbnailUrl,
+                                                imageModel = viewModel.thumbnail ?: viewModel.thumbnailUrl,
                                                 contentDescription = "",
                                                 contentScale = ContentScale.Crop,
                                                 modifier = Modifier
@@ -414,7 +238,7 @@ class TripCreationActivity : ComponentActivity() {
                                                 Text(
                                                     "Add a thumbnail",
                                                     color = colors.surface,
-
+                                                    fontSize = textNormal
                                                     )
                                             }
                                         }
@@ -423,11 +247,11 @@ class TripCreationActivity : ComponentActivity() {
                                     Heading("Description")
 
                                     TextField(
-                                        value = description,
+                                        value = viewModel.description,
                                         onValueChange = {
-                                            description = it
+                                            viewModel.description = it
                                         },
-                                        isError = confirmed && description.isEmpty(),
+                                        isError = viewModel.confirmed && viewModel.description.isEmpty(),
                                         shape = RoundedCornerShape(cardRadius),
                                         modifier = Modifier
                                             .fillMaxWidth(),
@@ -440,6 +264,7 @@ class TripCreationActivity : ComponentActivity() {
                                         placeholder = {
                                             Text(
                                                 "Trip description",
+                                                fontSize = textNormal,
                                                 color = colors.surface,
                                                 modifier = Modifier
                                                     .alpha(0.5f)
@@ -457,29 +282,29 @@ class TripCreationActivity : ComponentActivity() {
 
                                     Row {
                                         Button (
-                                            background = if(sharedWith.size == 0) primaryColor else colors.onBackground,
-                                            onClick = {sharedWith = arrayListOf()}
+                                            background = if(viewModel.sharedWith.size == 0) primaryColor else colors.onBackground,
+                                            onClick = {viewModel.sharedWith = arrayListOf()}
                                                 ) {
-                                            Text("World")
+                                            Text("World",fontSize = textNormal)
                                         }
                                         Button (
-                                            background = if(sharedWith.size > 0) primaryColor else colors.onBackground,
-                                            onClick = {sharedWith = arrayListOf(user.email)}
+                                            background = if(viewModel.sharedWith.size > 0) primaryColor else colors.onBackground,
+                                            onClick = {viewModel.sharedWith = arrayListOf(user.email)}
                                         ) {
-                                            Text("Me")
+                                            Text("Me",fontSize = textNormal)
                                         }
                                     }
 
                                     Heading("Tags")
 
-                                    Tags(tags)
+                                    Tags(viewModel.tags)
 
                                     Heading("Central location")
 
-                                    if (startingPoint == null) {
+                                    if (viewModel.startingPoint == null) {
                                         Button(
-                                            onClick = { locationSelection = true },
-                                            border = if (confirmed) BorderStroke(
+                                            onClick = { viewModel.locationSelection = true },
+                                            border = if (viewModel.confirmed) BorderStroke(
                                                 2.dp,
                                                 danger
                                             ) else null,
@@ -493,8 +318,8 @@ class TripCreationActivity : ComponentActivity() {
                                                 Spacer(modifier = Modifier.width(5.dp))
                                                 Text(
                                                     "Central location",
-                                                    color = colors.surface
-
+                                                    color = colors.surface,
+                                                    fontSize = textNormal
                                                 )
                                             }
                                         }
@@ -502,7 +327,7 @@ class TripCreationActivity : ComponentActivity() {
                                         Row {
 
                                             GlideImage(
-                                                imageModel = startingPoint?.thumbnailUrl,
+                                                imageModel = viewModel.startingPoint?.thumbnailUrl,
                                                 contentDescription = "",
                                                 modifier = Modifier
                                                     .width(50.dp)
@@ -520,7 +345,7 @@ class TripCreationActivity : ComponentActivity() {
 
 
                                             Text(
-                                                startingPoint?.name!!,
+                                                viewModel.startingPoint?.name!!,
                                                 color = colors.surface,
                                                 modifier = Modifier
                                                     .padding(5.dp)
@@ -537,13 +362,13 @@ class TripCreationActivity : ComponentActivity() {
                                     LazyRow(
                                         horizontalArrangement = Arrangement.SpaceAround,
                                     ) {
-                                        items(days) { i ->
+                                        items(viewModel.days) { i ->
                                             val background =
-                                                if (i == selectedDay) primaryColor else colors.onBackground
+                                                if (i == viewModel.selectedDay) primaryColor else colors.onBackground
                                             val foreground =
-                                                if (i == selectedDay) White else colors.surface
+                                                if (i == viewModel.selectedDay) White else colors.surface
                                             Button(
-                                                onClick = { selectedDay = i; stepCursor = 0 },
+                                                onClick = { viewModel.selectedDay = i; viewModel.stepCursor = 0 },
                                                 modifier = Modifier.padding(5.dp),
                                                 background = background
                                             ) {
@@ -564,14 +389,14 @@ class TripCreationActivity : ComponentActivity() {
                                         item {
                                             Button(
                                                 onClick = {
-                                                    days++
+                                                    viewModel.days++
                                                     val destinationsPerDay =
-                                                        destinations.clone() as ArrayList<ArrayList<TripDestination>>
+                                                        viewModel.destinations.clone() as ArrayList<ArrayList<TripDestination>>
                                                     destinationsPerDay.add(ArrayList())
-                                                    destinations = destinationsPerDay
+                                                    viewModel.destinations = destinationsPerDay
 
-                                                    selectedDay = days - 1
-                                                    stepCursor = 0
+                                                    viewModel.selectedDay = viewModel.days - 1
+                                                    viewModel.stepCursor = 0
                                                 },
                                                 modifier = Modifier.padding(5.dp)
                                             ) {
@@ -593,9 +418,9 @@ class TripCreationActivity : ComponentActivity() {
 
                                     Heading("Steps", modifier = Modifier.padding(cardPadding))
 
-                                    if (destinations[selectedDay].size <= 0) {
+                                    if (viewModel.destinations[viewModel.selectedDay].size <= 0) {
                                         Button(
-                                            onClick = { locationSelection = true },
+                                            onClick = { viewModel.locationSelection = true },
                                         ) {
                                             Row {
                                                 FaIcon(
@@ -611,7 +436,7 @@ class TripCreationActivity : ComponentActivity() {
                                             }
                                         }
                                     } else {
-                                        destinations[selectedDay].forEachIndexed { index, place ->
+                                        viewModel.destinations[viewModel.selectedDay].forEachIndexed { index, place ->
                                             Column(horizontalAlignment = Start) {
                                                 if (index > 0) {
                                                     Box(
@@ -625,7 +450,7 @@ class TripCreationActivity : ComponentActivity() {
                                                     )
                                                 }
                                                 TripStepCard(place, index, changeable = true)
-                                                if (index < destinations[selectedDay].size - 1) {
+                                                if (index < viewModel.destinations[viewModel.selectedDay].size - 1) {
                                                     Box(
                                                         modifier = Modifier
                                                             .padding(start = 25.dp)
@@ -669,8 +494,8 @@ class TripCreationActivity : ComponentActivity() {
                                                             }
                                                             IconButton(
                                                                 onClick = {
-                                                                    stepCursor = index + 1
-                                                                    locationSelection = true
+                                                                    viewModel.stepCursor = index + 1
+                                                                    viewModel.locationSelection = true
                                                                 },
                                                                 modifier = Modifier
                                                                     .size(22.dp, 22.dp)
@@ -690,8 +515,8 @@ class TripCreationActivity : ComponentActivity() {
                                         }
                                         Button(
                                             onClick = {
-                                                stepCursor = destinations[selectedDay].size
-                                                locationSelection = true
+                                                viewModel.stepCursor = viewModel.destinations[viewModel.selectedDay].size
+                                                viewModel.locationSelection = true
                                             },
                                         ) {
                                             Row {
@@ -712,6 +537,18 @@ class TripCreationActivity : ComponentActivity() {
                             }
                         }
 
+                    }
+                }
+                if (viewModel.loading) {
+                    val color = colors.background.copy(alpha = 0.8f)
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(color),
+                        contentAlignment = Center
+
+                    ) {
+                        Loader()
                     }
                 }
             }

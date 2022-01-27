@@ -19,6 +19,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
 import com.apps.travel_app.ui.theme.cardPadding
 import com.apps.travel_app.ui.theme.primaryColor
+import com.apps.travel_app.ui.theme.textNormal
 import com.guru.fontawesomecomposelib.FaIcon
 import com.guru.fontawesomecomposelib.FaIconType
 
@@ -129,6 +130,7 @@ fun NiceSwitch(
         if (!label.isNullOrEmpty()) {
             Text(
                 label,
+                fontSize = textNormal,
                 color = MaterialTheme.colors.surface,
                 modifier = Modifier
                     .align(CenterVertically)

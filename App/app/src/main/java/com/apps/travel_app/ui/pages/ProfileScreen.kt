@@ -34,6 +34,7 @@ import com.apps.travel_app.ui.components.NiceSwitchStates
 import com.apps.travel_app.ui.theme.cardPadding
 import com.apps.travel_app.ui.theme.followSystem
 import com.apps.travel_app.ui.theme.smallPadding
+import com.apps.travel_app.ui.theme.textNormal
 import com.apps.travel_app.user
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.UserProfileChangeRequest
@@ -126,7 +127,7 @@ fun drawButton(function:() ->Unit,text:String,icon: FaIconType?,colorText:Color,
         Row {
             if (icon != null) FaIcon(faIcon = icon, tint = colorText)
             Spacer(modifier = Modifier.width(8.dp))
-            Text(text, color = colorText)
+            Text(text, color = colorText,fontSize = textNormal)
         }
     }
 }
@@ -202,6 +203,7 @@ fun detailsChange(oneTwo:Boolean, activity:MainActivity){
                 ) {
                     Text(
                         "Current $text",
+                        fontSize = textNormal,
                         color = MaterialTheme.colors.surface,
                         modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp)
                     )
@@ -210,16 +212,12 @@ fun detailsChange(oneTwo:Boolean, activity:MainActivity){
 
                         Text(
                             textThree.value!!,
+                            fontSize = textNormal,
                             color = MaterialTheme.colors.surface,
                             modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
                             fontWeight = FontWeight.Bold
                         )
                     }
-                        ?: Text(
-                            "Not set",
-                            color = MaterialTheme.colors.surface,
-                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp)
-                        )
                 }
                 drawTextField(textTwo, newName)
                 if(oneTwo) drawTextField("New real surname", newSurname)
@@ -264,6 +262,7 @@ fun drawTextField(placeholder:String, returnText: MutableState<TextFieldValue>){
                 placeholder = {
                     Text(
                         placeholder,
+                        fontSize = textNormal,
                         color = MaterialTheme.colors.onSecondary,
                         modifier = Modifier.alpha(0.5f)
                     )

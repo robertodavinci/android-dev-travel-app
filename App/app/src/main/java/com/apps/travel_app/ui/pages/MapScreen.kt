@@ -2,44 +2,33 @@ package com.apps.travel_app.ui.pages
 
 import FaIcons
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.Color
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.IconButton
+import androidx.compose.material.MaterialTheme.colors
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color.Companion.Transparent
 import androidx.compose.ui.graphics.Color.Companion.White
-import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.apps.travel_app.MainActivity
-import com.apps.travel_app.models.Destination
+import com.apps.travel_app.ui.components.Button
 import com.apps.travel_app.ui.components.DestinationCard
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.MaterialTheme.colors
-import com.apps.travel_app.ui.theme.*
-import com.apps.travel_app.ui.utils.*
-import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import com.apps.travel_app.ui.pages.viewmodels.MapViewModel
+import com.apps.travel_app.ui.theme.cardPadding
+import com.apps.travel_app.ui.theme.mapStyle
+import com.apps.travel_app.ui.theme.primaryColor
+import com.apps.travel_app.ui.theme.textHeading
+import com.apps.travel_app.ui.utils.rememberMapViewWithLifecycle
 import com.google.android.libraries.maps.CameraUpdateFactory
-import com.google.android.libraries.maps.GoogleMap
 import com.google.android.libraries.maps.MapView
-import com.google.android.libraries.maps.model.*
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
+import com.google.android.libraries.maps.model.MapStyleOptions
 import com.guru.fontawesomecomposelib.FaIcon
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -47,156 +36,32 @@ import kotlinx.coroutines.launch
 
 
 class MapScreen {
-    private val destinations = HashMap<Int, Destination>()
+
     @Composable
     fun MapScreen(context: Context, activity: MainActivity) {
-        val center = LatLng(44.0, 10.0)
-        var polygonOpt = PolygonOptions()
-        val currentDestination: MutableState<Destination?> = remember { mutableStateOf(null) }
-        val map: MutableState<GoogleMap?> = remember { mutableStateOf(null) }
-        val mapLoaded = remember { mutableStateOf(false) }
-        val destinationSelected = remember { mutableStateOf(false) }
-        val drawingEnabled = remember { mutableStateOf(false) }
-        val loadingScreen = remember { mutableStateOf(0) }
 
-        fun switchTo3D() {
-            if (map.value != null) {
-                val cameraPosition: CameraPosition = CameraPosition.Builder()
-                    .target(map.value!!.cameraPosition.target)
-                    .tilt(if (map.value!!.cameraPosition.tilt > 0f) 30f else 0f)
-                    .build()
-                map.value?.animateCamera(
-                    CameraUpdateFactory.newCameraPosition(
-                        cameraPosition
-                    )
-                )
-            }
-        }
-
-        fun toggleDrawing() {
-            destinationSelected.value = false
-            drawingEnabled.value = !drawingEnabled.value
-            map.value?.uiSettings?.isScrollGesturesEnabled = !drawingEnabled.value
-        }
-
-        fun populateMapDrawing(activity: MainActivity) {
-            if (polygonOpt.points.size <= 0)
-                return
-
-
-            val points = line(polygonOpt.points)
-            val polygonOpt2 = PolygonOptions()
-                .strokeColor(Color.parseColor("#FF0083FF"))
-                .fillColor(Color.parseColor("#550083FF"))
-            for (point in points) {
-                map.value?.clear()
-                polygonOpt2.add(point)
-                map.value?.addPolygon(polygonOpt2)
-            }
-
-            points.add(points[0])
-            val request = points.joinToString(",", "[", "]") { e ->
-                "[${e.latitude},${e.longitude}]"
-            }
-
-            Thread {
-                val citiesText = sendPostRequest(request, action = "polygonCities")
-                val gson = Gson()
-                val itemType = object : TypeToken<List<Destination>>() {}.type
-                val cities: List<Destination> = gson.fromJson(citiesText, itemType)
-                for (city in cities) {
-
-                    val downloadedImage = getBitmapFromURL(city.thumbnailUrl)
-                    var thumbnail: Bitmap? = null
-                    if (downloadedImage != null) {
-                        val baseImage =
-                            cropToSquare(downloadedImage)
-                        thumbnail =
-                            getCroppedBitmap(baseImage, 100, 100, 5f)
-
-                        city.thumbnail = baseImage.asImageBitmap()
-                    }
-                    val markerOptions = MarkerOptions()
-                        .position(
-                            LatLng(
-                                city.latitude,
-                                city.longitude
-                            )
-                        )
-                        .title(city.name)
-                        .zIndex(5f)
-                    if (thumbnail != null)
-                        markerOptions.icon(
-                            BitmapDescriptorFactory.fromBitmap(
-                                thumbnail
-                            )
-                        )
-                    activity.runOnUiThread {
-                        val marker = map.value!!.addMarker(markerOptions)
-                        destinations[marker.hashCode()] = city
-                        markerPopUp(marker)
-                    }
-                }
-            }.start()
-
-        }
-
-        fun mapDrawingReset(position: Offset) {
-            map.value?.clear()
-            destinations.clear()
-            polygonOpt = PolygonOptions()
-            polygonOpt.add(screenCoordinatesToLatLng(position, map.value))
-            polygonOpt
-                .strokeColor(Color.parseColor("#FF0083FF"))
-                .fillColor(Color.parseColor("#550083FF"))
-            map.value?.addPolygon(polygonOpt)
-        }
-
-        fun mapDrawing(motionEvent: PointerInputChange, polygonOpt: PolygonOptions) {
-
-            val latLng = screenCoordinatesToLatLng(motionEvent.position, map.value) ?: return
-
-            if (!polygonOpt.points.none { point -> point.equals(latLng) })
-                return
-
-            map.value?.clear()
-            polygonOpt.add(latLng)
-
-            map.value?.addPolygon(polygonOpt)
-        }
-
-        fun markerClick(marker: Marker): Boolean {
-            val destination = destinations[marker.hashCode()]
-            if (destination != null) {
-                currentDestination.value = destination
-                destinationSelected.value = true
-                return true
-            }
-            destinationSelected.value = false
-            return false
-        }
-
+        val viewModel = remember { MapViewModel() }
 
         fun mapInit(context: Context) {
-            map.value!!.uiSettings.isZoomControlsEnabled = false
+            viewModel.map!!.uiSettings.isZoomControlsEnabled = false
 
-            map.value?.setMapStyle(
+            viewModel.map?.setMapStyle(
                 MapStyleOptions.loadRawResourceStyle(
                     context,
                     mapStyle
                 )
             )
 
-            map.value!!.uiSettings.isMapToolbarEnabled = false
+            viewModel.map!!.uiSettings.isMapToolbarEnabled = false
 
-            map.value?.moveCamera(CameraUpdateFactory.newLatLngZoom(center, 6f))
+            viewModel.map?.moveCamera(CameraUpdateFactory.newLatLngZoom(viewModel.center, 6f))
 
-            map.value?.setOnMarkerClickListener { marker -> markerClick(marker) }
+            viewModel.map?.setOnMarkerClickListener { marker -> viewModel.markerClick(marker) }
         }
 
 
         var mapView: MapView? = null
-        if (loadingScreen.value > 5)
+        if (viewModel.loadingScreen > 5)
             mapView = rememberMapViewWithLifecycle()
 
         Box(modifier = Modifier.fillMaxSize()) {
@@ -210,12 +75,12 @@ class MapScreen {
                 ) {
                     AndroidView({ mapView }) { mapView ->
                         CoroutineScope(Dispatchers.Main).launch {
-                            if (!mapLoaded.value) {
+                            if (!viewModel.mapLoaded) {
                                 mapView.getMapAsync { mMap ->
-                                    if (!mapLoaded.value) {
-                                        map.value = mMap
+                                    if (!viewModel.mapLoaded) {
+                                        viewModel.map = mMap
                                         mapInit(context)
-                                        mapLoaded.value = true
+                                        viewModel.mapLoaded = true
                                     }
                                 }
                             }
@@ -236,7 +101,7 @@ class MapScreen {
                     .align(Alignment.TopCenter)
                     .padding(cardPadding * 2)
             )
-            if (drawingEnabled.value) {
+            if (viewModel.drawingEnabled) {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
@@ -244,17 +109,17 @@ class MapScreen {
                         .pointerInput(Unit) {
                             detectDragGestures(
                                 onDragStart = { position ->
-                                    mapDrawingReset(position)
+                                    viewModel.mapDrawingReset(position)
                                 },
                                 onDrag = { event, _ ->
-                                    mapDrawing(
+                                    viewModel.mapDrawing(
                                         event,
-                                        polygonOpt
+                                        viewModel.polygonOpt
                                     )
                                 },
                                 onDragEnd = {
-                                    populateMapDrawing(activity)
-                                    toggleDrawing()
+                                    viewModel.populateMapDrawing(activity)
+                                    viewModel.toggleDrawing()
                                 }
                             )
                         }
@@ -272,29 +137,27 @@ class MapScreen {
                     modifier = Modifier.fillMaxWidth()
                 ) {
 
-                    IconButton(
+                    Button(
+                        background = colors.background,
                         modifier = Modifier
                             .align(Alignment.CenterStart)
-                            .padding(cardPadding)
-                            .width(30.dp)
-                            .height(30.dp),
+                            .padding(cardPadding),
                         onClick = {
-                            toggleDrawing()
+                            viewModel.toggleDrawing()
                         }) {
                         FaIcon(
                             faIcon = FaIcons.HandPointUpRegular,
-                            tint = if (drawingEnabled.value) primaryColor else iconLightColor
+                            tint = if (viewModel.drawingEnabled) primaryColor else colors.surface
                         )
                     }
 
-                    IconButton(
+                    Button(
+                        background = colors.background,
                         modifier = Modifier
                             .align(Alignment.CenterEnd)
-                            .padding(cardPadding)
-                            .width(30.dp)
-                            .height(30.dp),
+                            .padding(cardPadding),
                         onClick = {
-                            switchTo3D()
+                            viewModel.switchTo3D()
                         }) {
                         FaIcon(
                             faIcon = FaIcons.BuildingRegular,
@@ -304,13 +167,14 @@ class MapScreen {
                 }
 
                 DestinationCard(
-                    destination = currentDestination.value,
-                    open = destinationSelected.value && !drawingEnabled.value
+                    destination = viewModel.currentDestination,
+                    open = viewModel.destinationSelected && !viewModel.drawingEnabled,
+                    activity = activity
                 )
 
             }
 
-            if (!mapLoaded.value) {
+            if (!viewModel.mapLoaded) {
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
@@ -325,7 +189,7 @@ class MapScreen {
                         textAlign = TextAlign.Center,
                         fontSize = textHeading
                     )
-                    loadingScreen.value++
+                    viewModel.loadingScreen++
                 }
             }
         }

@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import com.apps.travel_app.models.Rating
 import com.apps.travel_app.ui.theme.cardPadding
 import com.apps.travel_app.ui.theme.cardRadius
+import com.apps.travel_app.ui.theme.textNormal
 import com.guru.fontawesomecomposelib.FaIcon
 
 @Composable
@@ -46,6 +47,7 @@ fun RatingField(
             placeholder = {
                 Text(
                     "What do you think?",
+                    fontSize = textNormal,
                     color = colors.surface,
                     modifier = Modifier.alpha(0.5f)
                 )

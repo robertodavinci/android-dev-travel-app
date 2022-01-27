@@ -259,8 +259,9 @@ fun TripCard(
                                     .padding(start = cardPadding)
                                     .fillMaxWidth(),
                                 color = Color.White,
-                                fontSize = textHeading,
-                                fontWeight = FontWeight.Bold
+                                fontSize = textNormal,
+                                fontWeight = FontWeight.Bold,
+                                maxLines = 1
                             )
                         }
                         if (rating > 0) {

@@ -1,6 +1,7 @@
 package com.apps.travel_app.ui.pages
 
 import FaIcons
+import androidx.activity.viewModels
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -24,6 +25,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.room.Room
 import com.apps.travel_app.MainActivity
@@ -32,6 +34,8 @@ import com.apps.travel_app.models.Destination
 import com.apps.travel_app.models.Rating
 import com.apps.travel_app.models.Trip
 import com.apps.travel_app.ui.components.*
+import com.apps.travel_app.ui.components.login.LoginViewModel
+import com.apps.travel_app.ui.pages.viewmodels.LocationViewModel
 import com.apps.travel_app.ui.theme.*
 import com.apps.travel_app.ui.utils.isOnline
 import com.apps.travel_app.ui.utils.rememberMapViewWithLifecycle
@@ -63,30 +67,21 @@ fun LocationScreen(
         AppDatabase::class.java, "database-name"
     ).build()
 
-    val loaded: MutableState<Boolean> = remember { mutableStateOf(false) }
-    val ratings: MutableState<ArrayList<Rating>> = remember { mutableStateOf(ArrayList()) }
-    val facilities: MutableState<ArrayList<Destination>> = remember { mutableStateOf(ArrayList()) }
-    val trips: MutableState<ArrayList<Trip>> = remember { mutableStateOf(ArrayList()) }
-    val loadingScreen = remember { mutableStateOf(0) }
-    val map: MutableState<GoogleMap?> = remember { mutableStateOf(null) }
-    val mapLoaded = remember { mutableStateOf(false) }
-    val openMap = remember { mutableStateOf(false) }
-    var isSaved by remember { mutableStateOf(false) }
-
+    val viewModel = remember { LocationViewModel(destination, db, mainActivity) }
 
     fun mapInit() {
-        map.value!!.uiSettings.isZoomControlsEnabled = false
+        viewModel.map.value!!.uiSettings.isZoomControlsEnabled = false
 
-        map.value?.setMapStyle(
+        viewModel.map.value?.setMapStyle(
             MapStyleOptions.loadRawResourceStyle(
                 mainActivity,
                 mapStyle
             )
         )
 
-        map.value!!.uiSettings.isMapToolbarEnabled = false
+        viewModel.map.value!!.uiSettings.isMapToolbarEnabled = false
 
-        map.value?.moveCamera(
+        viewModel.map.value?.moveCamera(
             CameraUpdateFactory.newLatLngZoom(
                 LatLng(
                     destination.latitude,
@@ -96,89 +91,7 @@ fun LocationScreen(
         )
     }
 
-    fun getRatings(destination: Destination) {
-        loaded.value = true
-
-        if (ratings.value.size <= 0) {
-            Thread {
-                try {
-                    val result = ArrayList<Rating>()
-
-                    val request = "${destination.latitude},${destination.longitude}"
-                    val ratingsText = sendPostRequest(request, action = "ratings")
-                    val gson = Gson()
-                    val itemType = object : TypeToken<List<Rating>>() {}.type
-                    val _ratings: List<Rating> = gson.fromJson(ratingsText, itemType)
-                    for (rating in _ratings) {
-                        rating.rating = random().toFloat() * 5f
-                        result.add(rating)
-                    }
-                    ratings.value = result
-                } catch (e: Exception) {
-
-                }
-            }.start()
-        }
-    }
-
-    fun getFacilities(destination: Destination) {
-        loaded.value = true
-
-        if (facilities.value.size <= 0) {
-            Thread {
-
-                try {
-                    val request =
-                        "{\"lat\":${destination.latitude},\"lng\":${destination.longitude}}"
-                    val results = sendPostRequest(request, action = "nearby")
-                    val gson = Gson()
-                    val itemType = object : TypeToken<List<Destination>>() {}.type
-                    val result: ArrayList<Destination> = gson.fromJson(results, itemType)
-                    facilities.value = result
-                } catch (e: Exception) {
-
-                }
-            }.start()
-        }
-    }
-
-    fun getTrips(destination: Destination) {
-        loaded.value = true
-
-        if (trips.value.size <= 0) {
-            Thread {
-                try {
-                    val request =
-                        "[[${destination.latitude - 1},${destination.longitude - 1}],[${destination.latitude - 1},${destination.longitude + 1}],[${destination.latitude + 1},${destination.longitude + 1}],[${destination.latitude + 1},${destination.longitude - 1}]]"
-                    val results = sendPostRequest(request, action = "polygonTrips")
-                    val gson = Gson()
-                    val itemType = object : TypeToken<List<Trip>>() {}.type
-                    val result: ArrayList<Trip> = gson.fromJson(results, itemType)
-                    trips.value = result
-                } catch (e: Exception) {
-
-                }
-            }.start()
-        }
-    }
-
-    val activities = arrayListOf<String>()
-
-
-    if (!loaded.value) {
-        activities.add(destination.type)
-        getRatings(destination)
-        getFacilities(destination)
-        getTrips(destination)
-        Thread {
-            try {
-                isSaved = db.locationDao().getSavedById(destination.id) != null
-            } catch (e: Exception) {
-            }
-        }.start()
-
-    }
-
+    val activities = arrayListOf(destination.type)
 
     val scrollState = rememberScrollState()
     val maxScroll = 100
@@ -186,13 +99,13 @@ fun LocationScreen(
     percentage = if (percentage > 1) 1f else percentage
 
     var mapView: MapView? = null
-    if (loadingScreen.value > 5)
+    if (viewModel.loadingScreen.value > 5)
         mapView = rememberMapViewWithLifecycle()
 
     BoxWithConstraints {
         Box(
             modifier = Modifier
-                .background(MaterialTheme.colors.background)
+                .background(colors.background)
                 .fillMaxSize()
                 .verticalScroll(scrollState)
                 .padding(top = cardPadding * 2)
@@ -233,7 +146,7 @@ fun LocationScreen(
                             Text(activity)
                         }
                     }
-                    Button(onClick = { openMap.value = true }, modifier = Modifier.padding(5.dp)) {
+                    Button(onClick = { viewModel.openMap.value = true }, modifier = Modifier.padding(5.dp)) {
                         FaIcon(
                             FaIcons.LocationArrow,
                             tint = colors.surface
@@ -242,7 +155,7 @@ fun LocationScreen(
                     Button(onClick = {
                         Thread {
                             try {
-                                if (!isSaved) {
+                                if (!viewModel.isSaved.value) {
                                     val location = destination.toLocation()
                                     location.saved = true
                                     db.locationDao().insertAll(location)
@@ -252,19 +165,19 @@ fun LocationScreen(
                                     location.saved = false
                                     db.locationDao().delete(location)
                                 }
-                                isSaved = !isSaved
+                                viewModel.isSaved.value = !viewModel.isSaved.value
                             } catch (e: Exception) {
 
                             }
                         }.start()
                     }, modifier = Modifier.padding(5.dp)) {
                         FaIcon(
-                            if (isSaved) FaIcons.Heart else FaIcons.HeartRegular,
-                            tint = if (isSaved) danger else colors.surface
+                            if (viewModel.isSaved.value) FaIcons.Heart else FaIcons.HeartRegular,
+                            tint = if (viewModel.isSaved.value) danger else colors.surface
                         )
                     }
                 }
-                if (trips.value.size > 0) {
+                if (viewModel.trips.value.size > 0) {
                     Heading(
                         "Trips"
                     )
@@ -273,8 +186,8 @@ fun LocationScreen(
                 LazyRow(
                     modifier = Modifier.padding(cardPadding)
                 ) {
-                    items(trips.value.size) { i ->
-                        val trip = trips.value[i]
+                    items(viewModel.trips.value.size) { i ->
+                        val trip = viewModel.trips.value[i]
                         Box(
                             modifier = Modifier
                                 .weight(1f)
@@ -296,12 +209,12 @@ fun LocationScreen(
                     }
                 }
 
-                if (!isSaved && !isOnline(mainActivity)) {
+                if (!viewModel.isSaved.value && !isOnline(mainActivity)) {
                     Box(Modifier.fillMaxSize(), contentAlignment = Center) {
                         NetworkError()
                     }
                 } else {
-                    if (facilities.value.size > 0) {
+                    if (viewModel.facilities.value.size > 0) {
                         Heading(
                             "Attractions"
                         )
@@ -310,9 +223,9 @@ fun LocationScreen(
                     LazyRow(
                         modifier = Modifier.padding(cardPadding)
                     ) {
-                        items(facilities.value.size) { i ->
+                        items(viewModel.facilities.value.size) { i ->
 
-                            val facility = facilities.value[i]
+                            val facility = viewModel.facilities.value[i]
                             val badges = arrayListOf("€".repeat(facility.priceLevel.toInt() + 1))
                             Box(
                                 modifier = Modifier
@@ -333,7 +246,7 @@ fun LocationScreen(
                             }
                         }
                     }
-                    if (ratings.value.size > 0) {
+                    if (viewModel.ratings.value.size > 0) {
                         Heading(
                             "Ratings"
                         )
@@ -348,7 +261,7 @@ fun LocationScreen(
                                 .padding(cardPadding)
                         ) {
 
-                            ratings.value.forEach { rating ->
+                            viewModel.ratings.value.forEach { rating ->
                                 RatingCard(
                                     rating
                                 )
@@ -378,15 +291,15 @@ fun LocationScreen(
 
     }
     val scale: Float by animateFloatAsState(
-        if (openMap.value) 1f else 0f, animationSpec = tween(
+        if (viewModel.openMap.value) 1f else 0f, animationSpec = tween(
             durationMillis = 500,
             easing = LinearOutSlowInEasing
         )
     )
-    if (openMap.value) {
+    if (viewModel.openMap.value) {
         androidx.compose.ui.window.Dialog(
             onDismissRequest = {
-                openMap.value = false
+                viewModel.openMap.value = false
             },
 
             ) {
@@ -409,12 +322,12 @@ fun LocationScreen(
                     if (mapView != null) {
                         AndroidView({ mapView }) { mapView ->
                             CoroutineScope(Dispatchers.Main).launch {
-                                if (!mapLoaded.value) {
+                                if (!viewModel.mapLoaded.value) {
                                     mapView.getMapAsync { mMap ->
-                                        if (!mapLoaded.value) {
-                                            map.value = mMap
+                                        if (!viewModel.mapLoaded.value) {
+                                            viewModel.map.value = mMap
                                             mapInit()
-                                            mapLoaded.value = true
+                                            viewModel.mapLoaded.value = true
                                         }
                                     }
                                 }
@@ -429,7 +342,7 @@ fun LocationScreen(
                                 cardPadding
                             )
                         )
-                        loadingScreen.value++
+                        viewModel.loadingScreen.value++
                     }
                 }
             }
