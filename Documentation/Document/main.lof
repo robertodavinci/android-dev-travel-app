@@ -1,7 +1,22 @@
-\contentsline {figure}{\numberline {1}{\ignorespaces \textbf {Internal structure of the system}\relax }}{9}{figure.caption.6}%
-\contentsline {figure}{\numberline {2}{\ignorespaces \textbf {Structure of the NoSQL user database}\relax }}{15}{figure.caption.7}%
-\contentsline {figure}{\numberline {3}{\ignorespaces \textbf {Structure of the "Destination" entities}\relax }}{16}{figure.caption.8}%
-\contentsline {figure}{\numberline {4}{\ignorespaces \textbf {Structure of the "Trip" entities}\relax }}{17}{figure.caption.9}%
-\contentsline {figure}{\numberline {5}{\ignorespaces \textbf {Sequence diagram 1 - Create a Trip}\relax }}{19}{figure.caption.10}%
-\contentsline {figure}{\numberline {6}{\ignorespaces \textbf {Sequence diagram 2 - Edit a Trip}\relax }}{20}{figure.caption.11}%
-\contentsline {figure}{\numberline {7}{\ignorespaces \textbf {Sequence diagram 3 - Add a destination}\relax }}{21}{figure.caption.12}%
+\contentsline {figure}{\numberline {1}{\ignorespaces \textbf {Internal structure of the system}\relax }}{10}{figure.caption.6}%
+\contentsline {figure}{\numberline {2}{\ignorespaces \textbf {Structure of the NoSQL user database}\relax }}{16}{figure.caption.7}%
+\contentsline {figure}{\numberline {3}{\ignorespaces \textbf {Structure of the "Destination" entities}\relax }}{17}{figure.caption.8}%
+\contentsline {figure}{\numberline {4}{\ignorespaces \textbf {Structure of the "Trip" entities}\relax }}{18}{figure.caption.9}%
+\contentsline {figure}{\numberline {5}{\ignorespaces \textbf {Sequence diagram 1 - Create a Trip}\relax }}{20}{figure.caption.10}%
+\contentsline {figure}{\numberline {6}{\ignorespaces \textbf {Sequence diagram 2 - Edit a Trip}\relax }}{21}{figure.caption.11}%
+\contentsline {figure}{\numberline {7}{\ignorespaces \textbf {Sequence diagram 3 - Add a destination}\relax }}{22}{figure.caption.12}%
+\contentsline {figure}{\numberline {8}{\ignorespaces \textbf {'Polaris' icon featuring an astronaut on a blue background}\relax }}{25}{figure.caption.13}%
+\contentsline {figure}{\numberline {9}{\ignorespaces \textbf {Primary color \#0083FF}\relax }}{25}{figure.caption.14}%
+\contentsline {figure}{\numberline {10}{\ignorespaces \textbf {Secondary color \#0460D9}\relax }}{25}{figure.caption.14}%
+\contentsline {figure}{\numberline {11}{\ignorespaces \textbf {Background colours for light theme}\relax }}{26}{figure.caption.15}%
+\contentsline {figure}{\numberline {12}{\ignorespaces \textbf {Background colours for dark theme}\relax }}{26}{figure.caption.16}%
+\contentsline {figure}{\numberline {13}{\ignorespaces \textbf {Main screen in light style}\relax }}{27}{figure.caption.17}%
+\contentsline {figure}{\numberline {14}{\ignorespaces \textbf {Main screen in dark style}\relax }}{27}{figure.caption.17}%
+\contentsline {figure}{\numberline {15}{\ignorespaces \textbf {Map screen in light style}\relax }}{28}{figure.caption.18}%
+\contentsline {figure}{\numberline {16}{\ignorespaces \textbf {Map screen in dark style}\relax }}{28}{figure.caption.18}%
+\contentsline {figure}{\numberline {17}{\ignorespaces \textbf {Saved trips screen in light style}\relax }}{29}{figure.caption.19}%
+\contentsline {figure}{\numberline {18}{\ignorespaces \textbf {Saved trips screen in dark style}\relax }}{29}{figure.caption.19}%
+\contentsline {figure}{\numberline {19}{\ignorespaces \textbf {Explore screen in light style}\relax }}{30}{figure.caption.20}%
+\contentsline {figure}{\numberline {20}{\ignorespaces \textbf {Explore screen in dark style}\relax }}{30}{figure.caption.20}%
+\contentsline {figure}{\numberline {21}{\ignorespaces \textbf {Settings screen in light style}\relax }}{31}{figure.caption.21}%
+\contentsline {figure}{\numberline {22}{\ignorespaces \textbf {Settings screen in dark style}\relax }}{31}{figure.caption.21}%

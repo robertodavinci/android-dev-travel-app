@@ -35,4 +35,11 @@
 \BOOKMARK [3][-]{subsubsection.3.5.1}{Hardware limitations}{subsection.3.5}% 35
 \BOOKMARK [3][-]{subsubsection.3.5.2}{Privacy limitations}{subsection.3.5}% 36
 \BOOKMARK [1][-]{section.4}{User Interface Design}{}% 37
-\BOOKMARK [1][-]{section.5}{Testing}{}% 38
+\BOOKMARK [2][-]{subsection.4.1}{Identity and colours}{section.4}% 38
+\BOOKMARK [2][-]{subsection.4.2}{User interface design}{section.4}% 39
+\BOOKMARK [3][-]{subsubsection.4.2.1}{Main screen}{subsection.4.2}% 40
+\BOOKMARK [3][-]{subsubsection.4.2.2}{Map screen}{subsection.4.2}% 41
+\BOOKMARK [2][-]{subsection.4.3}{Saved trips screen}{section.4}% 42
+\BOOKMARK [3][-]{subsubsection.4.3.1}{Explore screen}{subsection.4.3}% 43
+\BOOKMARK [3][-]{subsubsection.4.3.2}{Settings screen}{subsection.4.3}% 44
+\BOOKMARK [1][-]{section.5}{Testing}{}% 45
