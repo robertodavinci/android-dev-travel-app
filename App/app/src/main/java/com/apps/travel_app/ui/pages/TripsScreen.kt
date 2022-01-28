@@ -16,10 +16,12 @@ import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.room.Room
 import com.apps.travel_app.MainActivity
+import com.apps.travel_app.R
 import com.apps.travel_app.data.room.AppDatabase
 import com.apps.travel_app.data.room.entity.Location
 import com.apps.travel_app.data.room.entity.Trip
@@ -64,7 +66,7 @@ fun TripsScreen(mainActivity: MainActivity) {
 
         ) {
             Heading(
-                "${user.displayName ?: user.email}'s trips",
+                "${user.displayName ?: user.email}'s",
                 color = White,
                 modifier = Modifier.padding(top = cardPadding * 3, bottom = cardPadding * 2)
             )
@@ -99,7 +101,7 @@ fun TripsScreen(mainActivity: MainActivity) {
                         Row {
                             FaIcon(FaIcons.Hiking, tint = White, size = 18.dp)
                             Spacer(modifier = Modifier.width(5.dp))
-                            Text("Create yours!", color = White)
+                            Text(stringResource(R.string.create_yours), color = White)
 
                         }
                     }
@@ -107,7 +109,7 @@ fun TripsScreen(mainActivity: MainActivity) {
                     Spacer(modifier = Modifier.height(cardPadding))
 
                     if (viewModel.saved.size > 0 || viewModel.savedTrips.size > 0) {
-                        Heading("Saved")
+                        Heading(stringResource(R.string.saved))
 
                         Column {
                             viewModel.saved.forEachIndexed { index, destination ->
@@ -223,7 +225,7 @@ fun TripsScreen(mainActivity: MainActivity) {
                             )
 
                             Heading(
-                                "There is nothing saved yet",
+                                stringResource(R.string.nothing_saved),
                                 Modifier.padding(
                                     cardPadding
                                 )
@@ -234,7 +236,7 @@ fun TripsScreen(mainActivity: MainActivity) {
 
                             ) {
                                 Text(
-                                    "Get inspired", color = MaterialTheme.colors.surface,
+                                    stringResource(R.string.inspired), color = MaterialTheme.colors.surface,
                                     modifier = Modifier.padding(
                                         cardPadding
                                     ),

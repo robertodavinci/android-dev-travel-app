@@ -23,12 +23,14 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.room.Room
 import com.apps.travel_app.MainActivity
+import com.apps.travel_app.R
 import com.apps.travel_app.data.room.AppDatabase
 import com.apps.travel_app.models.Destination
 import com.apps.travel_app.models.Rating
@@ -179,7 +181,7 @@ fun LocationScreen(
                 }
                 if (viewModel.trips.value.size > 0) {
                     Heading(
-                        "Trips"
+                        stringResource(R.string.trips)
                     )
                 }
 
@@ -216,7 +218,7 @@ fun LocationScreen(
                 } else {
                     if (viewModel.facilities.value.size > 0) {
                         Heading(
-                            "Attractions"
+                            stringResource(R.string.attractions)
                         )
                     }
 
@@ -248,7 +250,7 @@ fun LocationScreen(
                     }
                     if (viewModel.ratings.value.size > 0) {
                         Heading(
-                            "Ratings"
+                            stringResource(R.string.ratings)
                         )
                     }
 
@@ -336,7 +338,7 @@ fun LocationScreen(
 
                     } else {
                         Text(
-                            "Loading...",
+                            stringResource(R.string.loading),
                             color = colors.surface,
                             modifier = Modifier.padding(
                                 cardPadding

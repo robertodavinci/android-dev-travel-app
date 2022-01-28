@@ -10,8 +10,10 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.apps.travel_app.R
 import com.apps.travel_app.ui.theme.cardPadding
 import com.apps.travel_app.ui.theme.textNormal
 import com.guru.fontawesomecomposelib.FaIcon
@@ -24,13 +26,13 @@ fun NetworkError() {
         FaIcon(FaIcons.Meteor, tint = MaterialTheme.colors.surface, size = 50.dp)
 
         Heading(
-            "Dear astronaut, it seems that you are alone without any connectivity signal with other humans",
+            stringResource(R.string.alone),
             Modifier.padding(
                 cardPadding
             )
         )
         Text(
-            "Please, check the connection signal. We'll keep waiting for you",
+            stringResource(R.string.alone_2),
             color = MaterialTheme.colors.surface,
             modifier = Modifier.padding(
                 cardPadding

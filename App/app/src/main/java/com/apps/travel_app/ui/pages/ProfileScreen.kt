@@ -20,11 +20,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.preference.PreferenceManager
 import com.apps.travel_app.MainActivity
+import com.apps.travel_app.R
 import com.apps.travel_app.models.updateUserInfo
 import com.apps.travel_app.models.updateUserRealcredentials
 import com.apps.travel_app.ui.components.Button
@@ -66,7 +68,7 @@ fun ProfileScreen(activity: MainActivity) {
     ) {
         val sharedPref = PreferenceManager.getDefaultSharedPreferences(activity)
         Spacer(Modifier.height(cardPadding * 2))
-        Heading("General settings")
+        Heading(stringResource(R.string.settings))
 
         NiceSwitch(checked = followSystem.value, onChecked = {
             followSystem.value = it
@@ -92,21 +94,22 @@ fun ProfileScreen(activity: MainActivity) {
                 putBoolean("receiveNotification", it)
                 apply()
             }
-        }, states =  NiceSwitchStates(FaIcons.BellRegular, FaIcons.BellSlashRegular), label = "Receive personal notification")
+        }, states =  NiceSwitchStates(FaIcons.BellRegular, FaIcons.BellSlashRegular), label = stringResource(
+            R.string.receive_notifications))
 
-        Heading("Astronaut preferences")
-        drawButton(function = { displayChangeBox(true) },"Change username",FaIcons.User, MaterialTheme.colors.surface, MaterialTheme.colors.onBackground)
+        Heading(stringResource(R.string.astronaut_prefs))
+        drawButton(function = { displayChangeBox(true) },stringResource(R.string.change_usr),FaIcons.User, MaterialTheme.colors.surface, MaterialTheme.colors.onBackground)
         //if (showUsernameChange.value)
         AnimatedVisibility(visible = showUsernameChange.value, enter = expandVertically(expandFrom = Alignment.Top), exit = shrinkVertically(shrinkTowards = Alignment.Top)) {
             detailsChange(false, activity)
         }
         Spacer(Modifier.padding(smallPadding))
-        drawButton(function = { displayChangeBox(false) },"Change real credentials",FaIcons.UserTag,MaterialTheme.colors.surface, MaterialTheme.colors.onBackground)
+        drawButton(function = { displayChangeBox(false) },stringResource(R.string.change_cred),FaIcons.UserTag,MaterialTheme.colors.surface, MaterialTheme.colors.onBackground)
         AnimatedVisibility(visible = showRealNameChange.value, enter = expandVertically(expandFrom = Alignment.Top), exit = shrinkVertically(shrinkTowards = Alignment.Top)) {
             detailsChange(true, activity)
         }
         Spacer(Modifier.padding(smallPadding))
-        drawButton(function = { activity.signOut()},"Log out",FaIcons.DoorOpen,MaterialTheme.colors.surface, MaterialTheme.colors.onBackground)
+        drawButton(function = { activity.signOut()},stringResource(R.string.logout),FaIcons.DoorOpen,MaterialTheme.colors.surface, MaterialTheme.colors.onBackground)
     }
 }
 
@@ -146,8 +149,8 @@ fun detailsChange(oneTwo:Boolean, activity:MainActivity){
         }
     }
     var textTwo = when(oneTwo){
-        false -> { "New username" }
-        true -> { "New real name" }
+        false -> { stringResource(R.string.new_usr) }
+        true -> { stringResource(R.string.new_name) }
     }
     var textThree = remember { mutableStateOf("") }
     textThree.value = when(oneTwo){
@@ -161,19 +164,19 @@ fun detailsChange(oneTwo:Boolean, activity:MainActivity){
             user.realName = newName.value.text
             user.realSurname = newSurname.value.text
             val sharedPref = activity.getSharedPreferences("CURRENT_USER", Context.MODE_PRIVATE)
-            var editor = sharedPref.edit()
+            val editor = sharedPref.edit()
             editor.putString("realName", user.realName)
             editor.putString("realSurname", user.realSurname)
-            editor.commit()
+            editor.apply()
         }
     } else {
         {
             updateUserInfo(activity.db, user.id,newName.value.text)
             user.displayName = newName.value.text
             val sharedPref = activity.getSharedPreferences("CURRENT_USER", Context.MODE_PRIVATE)
-            var editor = sharedPref.edit()
+            val editor = sharedPref.edit()
             editor.putString("displayName", user.displayName)
-            editor.commit()
+            editor.apply()
             val profileUpdates: UserProfileChangeRequest = UserProfileChangeRequest.Builder()
                 .setDisplayName(user.displayName).build()
             activity.auth.currentUser?.updateProfile(profileUpdates)
@@ -202,13 +205,13 @@ fun detailsChange(oneTwo:Boolean, activity:MainActivity){
                     horizontalArrangement = Arrangement.Start
                 ) {
                     Text(
-                        "Current $text",
+                        stringResource(R.string.current) + " " + text,
                         fontSize = textNormal,
                         color = MaterialTheme.colors.surface,
                         modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp)
                     )
                     //if (textThree == "") textThree = "Not set"
-                    textThree?.let {
+                    textThree.let {
 
                         Text(
                             textThree.value!!,
@@ -220,7 +223,7 @@ fun detailsChange(oneTwo:Boolean, activity:MainActivity){
                     }
                 }
                 drawTextField(textTwo, newName)
-                if(oneTwo) drawTextField("New real surname", newSurname)
+                if(oneTwo) drawTextField(stringResource(R.string.new_surname), newSurname)
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -229,7 +232,7 @@ fun detailsChange(oneTwo:Boolean, activity:MainActivity){
                 ) {
                     drawButton(
                         function = function,
-                        text = "Set new $text",
+                        text = stringResource(R.string.set_new) + " " + text,
                         icon = null,
                         colorText = MaterialTheme.colors.onPrimary,
                         colorButton = MaterialTheme.colors.onSurface

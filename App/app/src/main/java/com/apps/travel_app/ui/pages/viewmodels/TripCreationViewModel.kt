@@ -57,8 +57,8 @@ class TripCreationViewModel(activity: Activity, tripId: Int) : ViewModel() {
         Thread {
             if (isOnline(mainActivity)) {
                 try {
-                    val request = id.toString()
-                    val ratingsText = sendPostRequest(request, action = "trip")
+                    val request = id.toString() // NON-NLS
+                    val ratingsText = sendPostRequest(request, action = "trip") // NON-NLS
                     val gson = Gson()
                     val itemType = object : TypeToken<Trip>() {}.type
                     mainActivity.runOnUiThread {
@@ -122,9 +122,9 @@ class TripCreationViewModel(activity: Activity, tripId: Int) : ViewModel() {
                 trip.creator = user.email
                 trip.destinationsPerDay = destinations
                 trip.sharedWith = sharedWith
-                val request = gson.toJson(trip)
+                val request = gson.toJson(trip) // NON-NLS
                 println(request)
-                val id = sendPostRequest(request, action = "saveTrip")
+                val id = sendPostRequest(request, action = "saveTrip") // NON-NLS
                 mainActivity.runOnUiThread { loading = false }
 
                 if (id?.toInt()!! <= 0) {

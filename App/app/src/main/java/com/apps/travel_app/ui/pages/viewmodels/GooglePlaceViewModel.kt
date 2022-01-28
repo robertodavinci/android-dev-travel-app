@@ -33,10 +33,10 @@ class GooglePlaceViewModel(destination: Destination, activity: Activity) : ViewM
         loaded = true
 
         Thread {
-            val request = "{\"id\":\"${destination.id}\"}"
+            val request = "{\"id\":\"${destination.id}\"}" // NON-NLS
             println(request)
             try {
-                val text = sendPostRequest(request, action = "placeDetails")
+                val text = sendPostRequest(request, action = "placeDetails") // NON-NLS
                 val gson = Gson()
                 val itemType = object : TypeToken<GooglePlaceResponse>() {}.type
                 val response: GooglePlaceResponse = gson.fromJson(text, itemType)

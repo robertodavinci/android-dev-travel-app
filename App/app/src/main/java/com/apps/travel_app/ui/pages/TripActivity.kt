@@ -32,6 +32,7 @@ import androidx.compose.ui.graphics.Color.Companion.Transparent
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight.Companion.Bold
 import androidx.compose.ui.text.font.FontWeight.Companion.ExtraBold
 import androidx.compose.ui.text.style.TextAlign
@@ -39,6 +40,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.preference.PreferenceManager
 import androidx.room.Room
+import com.apps.travel_app.R
 import com.apps.travel_app.data.room.AppDatabase
 import com.apps.travel_app.models.MediumType
 import com.apps.travel_app.models.Trip
@@ -138,7 +140,7 @@ class TripActivity : ComponentActivity() {
                 ) {
                     Row {
                         Text(
-                            "More",
+                            stringResource(R.string.more),
                             fontSize = textNormal
                         )
                         Spacer(Modifier.size(10.dp))
@@ -266,7 +268,7 @@ class TripActivity : ComponentActivity() {
                         textAlign = TextAlign.Center,
                         color = White,
                         fontSize = textNormal,
-                        text = "Loading..."
+                        text = stringResource(R.string.loading)
                     )
                     viewModel.loadingScreen++
                 }
@@ -362,11 +364,11 @@ class TripActivity : ComponentActivity() {
                                         Row {
                                             FaIcon(FaIcons.CopyRegular, tint = White, size = 18.dp)
                                             Spacer(modifier = Modifier.width(5.dp))
-                                            Text("Duplicate", fontSize = textNormal, color = White)
+                                            Text(stringResource(R.string.duplicate), fontSize = textNormal, color = White)
                                         }
                                     }
                                     Text(
-                                        "If you want to customize this trip, copy it",
+                                        stringResource(R.string.if_customize_copy),
                                         fontSize = textExtraSmall,
                                         textAlign = TextAlign.Center,
                                         modifier = Modifier.fillMaxWidth()
@@ -390,7 +392,7 @@ class TripActivity : ComponentActivity() {
                                         Row {
                                             FaIcon(FaIcons.Pen, tint = White, size = 18.dp)
                                             Spacer(modifier = Modifier.width(5.dp))
-                                            Text("Edit", color = White, fontSize = textNormal)
+                                            Text(stringResource(R.string.edit), color = White, fontSize = textNormal)
                                         }
                                     }
                                 }
@@ -440,12 +442,7 @@ class TripActivity : ComponentActivity() {
                                         .padding(start = cardPadding, end = cardPadding)
                                 ) {
                                     Text(
-                                        "Created by ${trip.creator} on ${trip.creationDate}",
-                                        color = colors.surface,
-                                        fontSize = textExtraSmall
-                                    )
-                                    Text(
-                                        "Perfect during ${trip.season}",
+                                        stringResource(R.string.created_by) + " " + trip.creator + " - " + trip.creationDate,
                                         color = colors.surface,
                                         fontSize = textExtraSmall
                                     )
@@ -516,7 +513,7 @@ class TripActivity : ComponentActivity() {
                                                     fontSize = textHeading
                                                 )
                                                 Text(
-                                                    "day",
+                                                    stringResource(R.string.day),
                                                     color = foreground,
                                                     fontSize = textSmall
                                                 )
@@ -537,7 +534,7 @@ class TripActivity : ComponentActivity() {
                                     Column(
                                         modifier = Modifier.padding(10.dp)
                                     ) {
-                                        Heading("Steps")
+                                        Heading(stringResource(R.string.steps))
                                         viewModel.steps.forEachIndexed { index, place ->
                                             if (index > 0) {
                                                 Box(
@@ -585,7 +582,7 @@ class TripActivity : ComponentActivity() {
                                                                 tint = colors.surface
                                                             )
                                                             Text(
-                                                                "${place.minutesToNextDestination.toInt()} minutes (${place.kmToNextDestination} km)",
+                                                                "${place.minutesToNextDestination.toInt()} ${stringResource(R.string.minutes)} (${place.kmToNextDestination} km)",
                                                                 color = colors.surface,
                                                                 fontSize = textSmall,
                                                                 modifier = Modifier
@@ -624,7 +621,7 @@ class TripActivity : ComponentActivity() {
 
                                 }
 
-                                Heading("Ratings")
+                                Heading(stringResource(R.string.ratings))
 
                                 Box(
                                     modifier = Modifier.padding(bottom = 60.dp)

@@ -1,24 +1,20 @@
 package com.apps.travel_app.ui.utils
 
-import android.app.Activity
 import android.content.Context
+import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.util.Log
 import android.view.View
-import android.widget.TextView
-import androidx.compose.material.MaterialTheme.colors
 import androidx.compose.ui.graphics.toArgb
+import com.apps.travel_app.R
 import com.apps.travel_app.models.Destination
 import com.apps.travel_app.models.Trip
 import com.apps.travel_app.ui.theme.danger
-import com.apps.travel_app.ui.theme.primaryColor
-import com.apps.travel_app.ui.theme.textSmall
 import com.apps.travel_app.user
 import com.google.android.material.snackbar.Snackbar
-import com.guru.fontawesomecomposelib.FaIconType
 import java.io.*
 import java.net.HttpURLConnection
 import java.net.URL
@@ -61,7 +57,7 @@ fun isOnline(context: Context): Boolean {
     return false
 }
 
-fun sendPostRequest(body: String, url: String = API, action: String = ""): String? {
+fun sendPostRequest(body: String, url: String = API, action: String = ""): String? { // NON-NLS
    val mURL = URL("${url}?action=${action}&user=${user.id}&user_m=${user.email}&lang=${Locale.getDefault().language}")
 
 
@@ -98,7 +94,8 @@ fun sendPostRequest(body: String, url: String = API, action: String = ""): Strin
     return responseBody
 }
 
-fun errorMessage(view: View, text: String = "Ops, there is a connectivity problem"): Snackbar {
+fun errorMessage(view: View, text: String = view.context.resources.getString(R.string.connectivity_problem)): Snackbar {
+
     val sb = Snackbar.make(
         view, text,
         Snackbar.LENGTH_LONG)

@@ -35,6 +35,7 @@ import androidx.compose.ui.graphics.Color.Companion.Transparent
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
@@ -43,6 +44,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import androidx.preference.PreferenceManager
+import com.apps.travel_app.R
 import com.apps.travel_app.models.MediumType
 import com.apps.travel_app.models.TripDestination
 import com.apps.travel_app.ui.components.*
@@ -157,7 +159,7 @@ class TripCreationActivity : ComponentActivity() {
                                     ),
                                     placeholder = {
                                         Text(
-                                            "Trip name",
+                                            stringResource(R.string.trip_name),
                                             color = White,
                                             fontSize = textHeading,
                                             textAlign = TextAlign.Center,
@@ -231,7 +233,7 @@ class TripCreationActivity : ComponentActivity() {
                                                 )
                                                 Spacer(modifier = Modifier.width(5.dp))
                                                 Text(
-                                                    "Add a thumbnail",
+                                                    stringResource(R.string.add_thumbnail),
                                                     color = colors.surface,
                                                     fontSize = textNormal
                                                     )
@@ -239,7 +241,7 @@ class TripCreationActivity : ComponentActivity() {
                                         }
                                     }
 
-                                    Heading("Description")
+                                    Heading(stringResource(R.string.description))
 
                                     TextField(
                                         value = viewModel.description,
@@ -258,7 +260,7 @@ class TripCreationActivity : ComponentActivity() {
                                         ),
                                         placeholder = {
                                             Text(
-                                                "Trip description",
+                                                stringResource(R.string.description),
                                                 fontSize = textNormal,
                                                 color = colors.surface,
                                                 modifier = Modifier
@@ -273,28 +275,34 @@ class TripCreationActivity : ComponentActivity() {
                                         ),
                                     )
 
-                                    Heading("Visibility")
+                                    Heading(stringResource(R.string.visibility))
 
                                     Row {
                                         Button (
                                             background = if(viewModel.sharedWith.size == 0) primaryColor else colors.onBackground,
                                             onClick = {viewModel.sharedWith = arrayListOf()}
                                                 ) {
-                                            Text("World",fontSize = textNormal)
+                                            FaIcon(
+                                                FaIcons.Globe,
+                                                tint = if(viewModel.sharedWith.size == 0) primaryColor else colors.surface
+                                            )
                                         }
                                         Button (
                                             background = if(viewModel.sharedWith.size > 0) primaryColor else colors.onBackground,
                                             onClick = {viewModel.sharedWith = arrayListOf(user.email)}
                                         ) {
-                                            Text("Me",fontSize = textNormal)
+                                            FaIcon(
+                                                FaIcons.Lock,
+                                                tint = if(viewModel.sharedWith.size > 0) White else colors.surface
+                                            )
                                         }
                                     }
 
-                                    Heading("Tags")
+                                    Heading(stringResource(R.string.tags))
 
                                     Tags(viewModel.tags)
 
-                                    Heading("Central location")
+                                    Heading(stringResource(R.string.main_destination))
 
                                     if (viewModel.mainDestination == null) {
                                         Button(
@@ -312,7 +320,7 @@ class TripCreationActivity : ComponentActivity() {
                                                 )
                                                 Spacer(modifier = Modifier.width(5.dp))
                                                 Text(
-                                                    "Central location",
+                                                    stringResource(R.string.main_destination),
                                                     color = colors.surface,
                                                     fontSize = textNormal
                                                 )
@@ -352,7 +360,7 @@ class TripCreationActivity : ComponentActivity() {
                                         }
                                     }
 
-                                    Heading("Days", modifier = Modifier.padding(cardPadding))
+                                    Heading(stringResource(R.string.days), modifier = Modifier.padding(cardPadding))
 
                                     LazyRow(
                                         horizontalArrangement = Arrangement.SpaceAround,
@@ -374,7 +382,7 @@ class TripCreationActivity : ComponentActivity() {
                                                         fontSize = textHeading
                                                     )
                                                     Text(
-                                                        "day",
+                                                        stringResource(R.string.day),
                                                         color = foreground,
                                                         fontSize = textSmall
                                                     )
@@ -402,7 +410,7 @@ class TripCreationActivity : ComponentActivity() {
                                                         modifier = Modifier.padding(4.dp)
                                                     )
                                                     Text(
-                                                        "day",
+                                                        stringResource(R.string.day),
                                                         color = colors.surface,
                                                         fontSize = textSmall
                                                     )
@@ -411,7 +419,7 @@ class TripCreationActivity : ComponentActivity() {
                                         }
                                     }
 
-                                    Heading("Steps", modifier = Modifier.padding(cardPadding))
+                                    Heading(stringResource(R.string.steps), modifier = Modifier.padding(cardPadding))
 
                                     if (viewModel.destinations[viewModel.selectedDay].size <= 0) {
                                         Button(
@@ -424,7 +432,7 @@ class TripCreationActivity : ComponentActivity() {
                                                 )
                                                 Spacer(modifier = Modifier.width(5.dp))
                                                 Text(
-                                                    "First step",
+                                                    stringResource(R.string.first_step),
                                                     color = colors.surface
 
                                                 )
@@ -479,7 +487,7 @@ class TripCreationActivity : ComponentActivity() {
                                                                     tint = colors.surface
                                                                 )
                                                                 Text(
-                                                                    "${place.minutesToNextDestination.toInt()} minutes (${place.kmToNextDestination} km)",
+                                                                    "${place.minutesToNextDestination.toInt()} ${stringResource(R.string.minutes)} (${place.kmToNextDestination} km)",
                                                                     color = colors.surface,
                                                                     fontSize = textSmall,
                                                                     modifier = Modifier
@@ -521,7 +529,7 @@ class TripCreationActivity : ComponentActivity() {
                                                 )
                                                 Spacer(modifier = Modifier.width(5.dp))
                                                 Text(
-                                                    "Add step",
+                                                    stringResource(R.string.add_step),
                                                     color = colors.surface
 
                                                 )
@@ -621,7 +629,7 @@ class TripCreationActivity : ComponentActivity() {
                 ),
                 placeholder = {
                     Text(
-                        "Tags split by comma",
+                        stringResource(R.string.tags_comma),
                         color = colors.surface,
                         textAlign = TextAlign.Center,
                         modifier = Modifier

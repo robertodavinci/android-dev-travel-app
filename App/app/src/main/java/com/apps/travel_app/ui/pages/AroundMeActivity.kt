@@ -44,6 +44,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -156,13 +157,13 @@ class AroundMeActivity : ComponentActivity() {
             bounds.southwest,
             LatLng(bounds.southwest.latitude, bounds.northeast.longitude)
         )
-        val request = points.joinToString(",", "[", "]") { e ->
+        val request = points.joinToString(",", "[", "]") { e -> // NON-NLS
             "[${e.latitude},${e.longitude}]"
         }
 
         Thread {
             try {
-                val citiesText = sendPostRequest(request, action = "polygonCities")
+                val citiesText = sendPostRequest(request, action = "polygonCities") // NON-NLS
                 val gson = Gson()
                 val type1 = object : TypeToken<List<Destination>>() {}.type
                 locations.value = gson.fromJson(citiesText, type1)
@@ -254,13 +255,15 @@ class AroundMeActivity : ComponentActivity() {
                                         size = 50.dp
                                     )
                                     Heading(
-                                        "Dear astronaut, we need to know your position in order to access this fantastic tool",
+                                        stringResource(R.string.position_request)
+                                        ,
                                         Modifier.padding(
                                             cardPadding
                                         )
                                     )
                                     Text(
-                                        "Please, turn on your GPS signal. We'll keep waiting for you",
+                                        stringResource(R.string.position_request2)
+                                        ,
                                         color = colors.surface,
                                         modifier = Modifier.padding(
                                             cardPadding
@@ -365,7 +368,7 @@ class AroundMeActivity : ComponentActivity() {
 
                                 Column {
                                     Heading(
-                                        "Discover the nearest destinations",
+                                        stringResource(R.string.discover_nearest_destinations),
                                         modifier = Modifier
                                             .align(Start)
                                             .padding(

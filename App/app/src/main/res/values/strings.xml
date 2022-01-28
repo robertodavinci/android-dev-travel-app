@@ -1,17 +1,100 @@
 <resources>
-    <string name="app_name">Polaris</string>
-    <string name="prompt_email">Email</string>
-    <string name="prompt_password">Password</string>
+    <string name="app_name" translatable="false">Polaris</string>
+    <string name="prompt_email" translatable="false">Email</string>
+    <string name="prompt_password" translatable="false">Password</string>
     <string name="action_sign_in">Sign in or register</string>
     <string name="action_sign_in_short">Sign in</string>
     <string name="welcome">"Welcome !"</string>
     <string name="invalid_username">Not a valid username</string>
     <string name="invalid_password">Password must be >5 characters</string>
     <string name="login_failed">"Login failed"</string>
-    <string name="title_activity_main">MainActivity</string>
-    <string name="facebook_app_id">1357827314650465</string>
-    <string name="fb_login_protocol_scheme">fb1357827314650465</string>
-    <string name="fb_client_token">[TOKEN]</string>
-    <string name="title_activity_facebook">FacebookActivity</string>
-    <string name="title_activity_custom_login_button">CustomLoginButton</string>
+    <string name="title_activity_main" translatable="false">MainActivity</string>
+    <string name="facebook_app_id" translatable="false">1357827314650465</string>
+    <string name="fb_login_protocol_scheme" translatable="false">fb1357827314650465</string>
+    <string name="fb_client_token" translatable="false">[TOKEN]</string>
+    <string name="title_activity_facebook" translatable="false">FacebookActivity</string>
+    <string name="title_activity_custom_login_button" translatable="false">CustomLoginButton</string>
+    <string name="loading">Loading…</string>
+    <string name="position_request">Dear astronaut, we need to know your position in order to access this fantastic tool</string>
+    <string name="position_request2">Please, turn on your GPS signal. We\'ll keep waiting for you</string>
+    <string name="discover_nearest_destinations">Discover the nearest destinations</string>
+    <string name="search_your_places">Search your places…</string>
+    <string name="trips">Trips</string>
+    <string name="destinations">Destinations</string>
+    <string name="places">Places</string>
+    <string name="something_stupid_1">Take a deep breath…</string>
+    <string name="something_stupid_2">Just a moment for you to get inspired by the wonder of our world</string>
+    <string name="something_stupid_3">… and make it yours</string>
+    <string name="map">Map</string>
+    <string name="map_drawing">Map drawing</string>
+    <string name="wall">The Wall</string>
+    <string name="around_you">Around you</string>
+    <string name="open">Open</string>
+    <string name="closed">Closed</string>
+    <string name="covid19" translatable="false">Travel safe\nduring COVID-19</string>
+    <string name="covid19_plus" translatable="false">"What you can expect during your visit\nFace masks required for staff in public areas\nHand sanitizer available to guests and staff\nSocially distanced dining tables\nStaff required to regularly wash hands\nTables disinfected between guests\nFace masks required for guests in public areas"</string>
+    <string name="todo">Do</string>
+    <string name="eat">eat</string>
+    <string name="stay">stay</string>
+    <string name="do_description">Places to see, ways to wander, and signature experiences.</string>
+    <string name="eat_description">Can\'t-miss spots to dine, drink, and feast.</string>
+    <string name="stay_description">A mix of the charming, modern, and tried and true.</string>
+    <string name="experiences">Experiences</string>
+    <string name="explore_new">Explore new</string>
+    <string name="hi">Hi,</string>
+    <string name="ratings">Ratings</string>
+    <string name="attractions">Attractions</string>
+    <string name="search">Search</string>
+    <string name="not_what_i_want">Not what I\'m searching for</string>
+    <string name="pin_place">Pin a place</string>
+    <string name="set_main">Set as main destination</string>
+    <string name="add_step">Add step</string>
+    <string name="please_more_info">Please, give us some information about this place</string>
+    <string name="name">Name</string>
+    <string name="description">Description</string>
+    <string name="type">Type</string>
+    <string name="add_thumbnail">Add a thumbnail</string>
+    <string name="save">Save</string>
+    <string name="close">Close</string>
+    <string name="continue_fb">Continue with Meta</string>
+    <string name="logout">Log Out</string>
+    <string name="alone">Dear astronaut, it seems that you are alone without any connectivity signal with other humans</string>
+    <string name="alone_2">Please, check the connection signal. We\'ll keep waiting for you</string>
+    <string name="connectivity_problem">Ops, there is a connectivity problem with our base</string>
+    <string name="settings">General settings</string>
+    <string name="astronaut_prefs">Astronaut preferences</string>
+    <string name="receive_notifications">Receive notifications</string>
+    <string name="change_usr">Change username</string>
+    <string name="change_cred">Change real credentials</string>
+    <string name="new_usr">New username</string>
+    <string name="new_name">New name</string>
+    <string name="current">Current</string>
+    <string name="new_surname">New surname</string>
+    <string name="set_new">Set new</string>
+    <string name="share_what_you_think">Share what you think</string>
+    <string name="more">More</string>
+    <string name="duplicate">Duplicate</string>
+    <string name="if_customize_copy">If you want to customize the trip, make a copy</string>
+    <string name="edit">Edit</string>
+    <string name="created_by">Create by</string>
+    <string name="day">day</string>
+    <string name="steps">Steps</string>
+    <string name="minutes">minutes</string>
+    <string name="trip_name">Trip name</string>
+    <string name="visibility">Visibility</string>
+    <string name="tags">Tags</string>
+    <string name="main_destination">Main destination</string>
+    <string name="first_step">First step</string>
+    <string name="tags_comma">Tags split by comma</string>
+    <string name="create_yours">Create yours!</string>
+    <string name="saved">Saved</string>
+    <string name="nothing_saved">There is nothing saved yet</string>
+    <string name="inspired">Get inspired</string>
+    <string name="notes">Notes</string>
+    <string name="add_note">Add note</string>
+    <string name="arrival_hour">Arrival hour</string>
+    <string name="visit_duration">Visit duration (min)</string>
+    <string name="know_place_write">If you know the place, write a note</string>
+    <string name="top_ratings">Top ratings</string>
+    <string name="days">Days</string>
 </resources>

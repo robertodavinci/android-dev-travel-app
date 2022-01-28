@@ -13,11 +13,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.apps.travel_app.MainActivity
+import com.apps.travel_app.R
 import com.apps.travel_app.ui.components.Button
 import com.apps.travel_app.ui.components.DestinationCard
 import com.apps.travel_app.ui.pages.viewmodels.MapViewModel
@@ -182,7 +184,7 @@ class MapScreen {
                         .wrapContentSize(Alignment.Center)
                 ) {
                     Text(
-                        text = "Loading...",
+                        text = stringResource(R.string.loading),
                         fontWeight = FontWeight.Bold,
                         color = colors.surface,
                         modifier = Modifier.align(Alignment.CenterHorizontally),

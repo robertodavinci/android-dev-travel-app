@@ -35,6 +35,7 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -42,6 +43,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.app.ActivityCompat
+import com.apps.travel_app.R
 import com.apps.travel_app.models.Destination
 import com.apps.travel_app.ui.pages.viewmodels.LocationSelectionViewModel
 import com.apps.travel_app.ui.theme.*
@@ -169,7 +171,7 @@ fun LocationSelection(
                     ),
                     placeholder = {
                         Text(
-                            "Search",
+                            stringResource(R.string.search),
                             color = colors.surface,
                             fontSize = textNormal,
                             modifier = Modifier.alpha(0.5f)
@@ -198,14 +200,14 @@ fun LocationSelection(
                         viewModel.userIsAddingAPlace = true
                     }, background = primaryColor) {
                         Text(
-                            "Not what I'm searching for",
+                            stringResource(R.string.not_what_i_want),
                             color = White,
                             fontSize = textNormal
                         )
                     }
                 } else
                     Text(
-                        "Pin a place",
+                        stringResource(R.string.pin_place),
                         color = colors.surface,
                         fontSize = textNormal
                     )
@@ -272,14 +274,14 @@ fun LocationSelection(
                         },
                         background = if (viewModel.mainDestinationSelected) success else primaryColor
                     ) {
-                        Text("Set as starting point", fontSize = textNormal, color = White)
+                        Text(stringResource(R.string.set_main), fontSize = textNormal, color = White)
                     }
                     Spacer(modifier = Modifier.padding(5.dp))
                     Button(onClick = {
                         onAddStep(viewModel.currentDestination)
                         viewModel.stepAdded = true
                     }, background = if (viewModel.stepAdded) success else primaryColor) {
-                        Text("Add as step", color = White, fontSize = textNormal)
+                        Text(stringResource(R.string.add_step), color = White, fontSize = textNormal)
                     }
                 }
             }
@@ -331,11 +333,11 @@ fun LocationSelection(
                         horizontalAlignment = CenterHorizontally
                     ) {
                         Text(
-                            "Please, give us some information about this place",
+                            stringResource(R.string.please_more_info),
                             color = colors.surface,
                             fontSize = textSmall
                         )
-                        Heading("Name")
+                        Heading(stringResource(R.string.name))
                         TextField(
                             value = viewModel.newDestinationName, onValueChange = { viewModel.newDestinationName = it },
                             shape = RoundedCornerShape(cardRadius),
@@ -347,7 +349,7 @@ fun LocationSelection(
                             ),
                             placeholder = {
                                 Text(
-                                    "Name",
+                                    stringResource(R.string.name),
                                     color = colors.surface,
                                     fontSize = textNormal,
                                     modifier = Modifier.alpha(0.5f)
@@ -362,7 +364,7 @@ fun LocationSelection(
                                 fontWeight = FontWeight.Bold
                             )
                         )
-                        Heading("Description")
+                        Heading(stringResource(R.string.description))
                         TextField(
                             value = viewModel.newDestinationDesc, onValueChange = { viewModel.newDestinationDesc = it },
                             shape = RoundedCornerShape(cardRadius),
@@ -374,7 +376,7 @@ fun LocationSelection(
                             ),
                             placeholder = {
                                 Text(
-                                    "Description",
+                                    stringResource(R.string.description),
                                     color = colors.surface,
                                     fontSize = textNormal,
                                     modifier = Modifier.alpha(0.5f)
@@ -389,7 +391,7 @@ fun LocationSelection(
                                 fontWeight = FontWeight.Bold
                             )
                         )
-                        Heading("Type")
+                        Heading(stringResource(R.string.type))
                         TextField(
                             value = viewModel.newDestinationType, onValueChange = { viewModel.newDestinationType = it },
                             shape = RoundedCornerShape(cardRadius),
@@ -401,7 +403,7 @@ fun LocationSelection(
                             ),
                             placeholder = {
                                 Text(
-                                    "Name",
+                                    stringResource(R.string.type),
                                     color = colors.surface,
                                     fontSize = textNormal,
                                     modifier = Modifier.alpha(0.5f)
@@ -452,7 +454,7 @@ fun LocationSelection(
                                     )
                                     Spacer(modifier = Modifier.width(5.dp))
                                     Text(
-                                        "Add a thumbnail",
+                                        stringResource(R.string.add_thumbnail),
                                         color = colors.surface,
                                         fontSize = textNormal
                                     )
@@ -466,12 +468,12 @@ fun LocationSelection(
                             Button(onClick = {
                                 viewModel.saveNewDestination()
                             }, background = success) {
-                                Text("Save", color = White)
+                                Text(stringResource(R.string.save) ,color = White)
                             }
                             Button(onClick = {
                                 viewModel.closeNewDestination()
                             }, background = danger) {
-                                Text("Close", color = White)
+                                Text(stringResource(R.string.save) ,color = White)
                             }
                         }
 

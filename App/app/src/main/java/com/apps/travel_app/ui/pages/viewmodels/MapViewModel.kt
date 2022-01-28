@@ -66,13 +66,13 @@ class MapViewModel : ViewModel() {
         }
 
         points.add(points[0])
-        val request = points.joinToString(",", "[", "]") { e ->
+        val request = points.joinToString(",", "[", "]") { e -> // NON-NLS
             "[${e.latitude},${e.longitude}]"
         }
 
         Thread {
             try {
-                val citiesText = sendPostRequest(request, action = "polygonCities")
+                val citiesText = sendPostRequest(request, action = "polygonCities") // NON-NLS
                 val gson = Gson()
                 val itemType = object : TypeToken<List<Destination>>() {}.type
                 val cities: List<Destination> = gson.fromJson(citiesText, itemType)

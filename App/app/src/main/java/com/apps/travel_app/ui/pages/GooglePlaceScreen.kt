@@ -26,12 +26,14 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation.NavController
 import com.apps.travel_app.MainActivity
+import com.apps.travel_app.R
 import com.apps.travel_app.models.Destination
 import com.apps.travel_app.models.GooglePlace
 import com.apps.travel_app.ui.components.*
@@ -204,7 +206,7 @@ fun GooglePlaceScreen(
                         background = if (viewModel.googlePlace?.isOpen == true) success else danger
                     ) {
                         Text(
-                            if (viewModel.googlePlace?.isOpen == true) "Open" else "Close",
+                            if (viewModel.googlePlace?.isOpen == true) stringResource(R.string.open) else stringResource(R.string.closed),
                             color = Color.White
                         )
                     }
@@ -256,7 +258,7 @@ fun GooglePlaceScreen(
                                 size = 60.dp
                             )
                             Text(
-                                "Travel safe\nduring COVID-19",
+                                stringResource(R.string.covid19),
                                 fontSize = textNormal,
                                 textAlign = TextAlign.Center,
                                 maxLines = 2,
@@ -265,13 +267,8 @@ fun GooglePlaceScreen(
                             )
                         }
                         Text(
-                            "What you can expect during your visit\n" +
-                                    "Face masks required for staff in public areas\n" +
-                                    "Hand sanitizer available to guests & staff\n" +
-                                    "Socially distanced dining tables\n" +
-                                    "Staff required to regularly wash hands\n" +
-                                    "Tables disinfected between guests\n" +
-                                    "Face masks required for guests in public areas",
+                            stringResource(R.string.covid19_plus)
+                            ,
                             fontSize = textSmall,
                             color = colors.surface,
                             modifier = Modifier.weight(1f)
@@ -280,23 +277,23 @@ fun GooglePlaceScreen(
                     }
                 }
 
-                Heading("Do")
-                Subheading("Places to see, ways to wander, and signature experiences.")
+                Heading(stringResource(R.string.todo))
+                Subheading(stringResource(R.string.do_description))
 
                 AttractionsRow(viewModel.todo, mainActivity)
 
-                Heading("Eat")
-                Subheading("Can't-miss spots to dine, drink, and feast.")
+                Heading(stringResource(R.string.eat))
+                Subheading(stringResource(R.string.eat_description))
 
                 AttractionsRow(viewModel.eat, mainActivity)
 
-                Heading("Stay")
-                Subheading("A mix of the charming, modern, and tried and true.")
+                Heading(stringResource(R.string.stay))
+                Subheading(stringResource(R.string.stay_description))
 
                 AttractionsRow(viewModel.stay, mainActivity)
 
                 Heading(
-                    "Top ratings"
+                    stringResource(R.string.top_ratings)
                 )
 
                 Box(
@@ -391,7 +388,7 @@ fun GooglePlaceScreen(
 
                     } else {
                         Text(
-                            "Loading...",
+                            stringResource(R.string.loading),
                             color = colors.surface,
                             modifier = Modifier.padding(
                                 cardPadding

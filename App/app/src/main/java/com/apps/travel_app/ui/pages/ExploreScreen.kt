@@ -17,11 +17,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat.startActivity
 import androidx.navigation.NavController
 import com.apps.travel_app.MainActivity
+import com.apps.travel_app.R
 import com.apps.travel_app.models.Destination
 import com.apps.travel_app.models.Trip
 import com.apps.travel_app.ui.components.Heading
@@ -34,25 +36,6 @@ import com.guru.fontawesomecomposelib.FaIconType
 import com.skydoves.landscapist.glide.GlideImage
 
 
-val filterIcons = arrayListOf(
-    FilterIcon(FaIcons.Cocktail, "Bar"),
-    FilterIcon(FaIcons.DrumstickBite, "Restaurant"),
-    FilterIcon(FaIcons.Hotel, "Lodging"),
-    FilterIcon(FaIcons.DollarSign, "Bank"),
-    FilterIcon(FaIcons.Opencart, "Supermarket"),
-    FilterIcon(FaIcons.GasPump, "Gas_Station"),
-    FilterIcon(FaIcons.HatCowboy, "Tourist_attraction"),
-    FilterIcon(FaIcons.Monument, "Museum"),
-    FilterIcon(FaIcons.Running, "Gym"),
-    FilterIcon(FaIcons.Taxi, "Taxi_stand"),
-    FilterIcon(FaIcons.Bus, "Bus_station"),
-    FilterIcon(FaIcons.Train, "Train_station"),
-    FilterIcon(FaIcons.Parking, "parking"),
-    FilterIcon(FaIcons.Film, "cinema"),
-    FilterIcon(FaIcons.Coffee, "cafe"),
-    FilterIcon(FaIcons.Church, "church"),
-    FilterIcon(FaIcons.Mosque, "mosque")
-)
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -66,12 +49,12 @@ fun ExploreScreen(navController: NavController, mainActivity: MainActivity) {
 
         ) {
         Heading(
-            "Take a deep breath...",
+            stringResource(R.string.something_stupid_1) ,
             color = colors.surface,
             modifier = Modifier.padding(cardPadding * 2)
         )
         Text(
-            "Just a moment for you to get inspired by the wonder of our world",
+            stringResource(R.string.something_stupid_2),
             color = colors.surface,
             modifier = Modifier
                 .padding(cardPadding)
@@ -80,7 +63,7 @@ fun ExploreScreen(navController: NavController, mainActivity: MainActivity) {
             fontSize = textSmall
         )
         Heading(
-            "... and make it yours",
+            stringResource(R.string.something_stupid_3),
             color = colors.surface,
             modifier = Modifier.padding(cardPadding)
         )
@@ -99,7 +82,7 @@ fun ExploreScreen(navController: NavController, mainActivity: MainActivity) {
                         .pointerInput(Unit) {
                             detectTapGestures(
                                 onTap = {
-                                    navController.navigate("Map") {
+                                    navController.navigate("map") {
 
                                         navController.graph.startDestinationRoute?.let { route ->
                                             popUpTo(route) {
@@ -119,7 +102,8 @@ fun ExploreScreen(navController: NavController, mainActivity: MainActivity) {
                         contentScale = ContentScale.Crop,
                     )
                     Heading(
-                        "Map drawing",
+                        stringResource(R.string.map_drawing)
+                        ,
                         modifier = Modifier
                             .align(CenterStart)
                             .padding(cardPadding),
@@ -156,7 +140,7 @@ fun ExploreScreen(navController: NavController, mainActivity: MainActivity) {
                         contentScale = ContentScale.Crop,
                     )
                     Heading(
-                        "The wall",
+                        stringResource(R.string.wall),
                         modifier = Modifier
                             .align(CenterStart)
                             .padding(cardPadding),
@@ -192,7 +176,8 @@ fun ExploreScreen(navController: NavController, mainActivity: MainActivity) {
                         contentScale = ContentScale.Crop,
                     )
                     Heading(
-                        "Around you",
+                        stringResource(R.string.around_you)
+                        ,
                         modifier = Modifier
                             .align(CenterStart)
                             .padding(cardPadding),

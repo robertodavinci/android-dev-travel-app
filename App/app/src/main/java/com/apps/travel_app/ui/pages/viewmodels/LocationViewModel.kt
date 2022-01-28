@@ -49,8 +49,8 @@ class LocationViewModel(destination: Destination, db: AppDatabase, val activity:
                 try {
                     val result = ArrayList<Rating>()
 
-                    val request = "${destination.latitude},${destination.longitude}"
-                    val ratingsText = sendPostRequest(request, action = "ratings")
+                    val request = "${destination.latitude},${destination.longitude}" // NON-NLS
+                    val ratingsText = sendPostRequest(request, action = "ratings") // NON-NLS
                     val gson = Gson()
                     val itemType = object : TypeToken<List<Rating>>() {}.type
                     val _ratings: List<Rating> = gson.fromJson(ratingsText, itemType)
@@ -74,8 +74,8 @@ class LocationViewModel(destination: Destination, db: AppDatabase, val activity:
 
                 try {
                     val request =
-                        "{\"lat\":${destination.latitude},\"lng\":${destination.longitude}}"
-                    val results = sendPostRequest(request, action = "nearby")
+                        "{\"lat\":${destination.latitude},\"lng\":${destination.longitude}}" // NON-NLS
+                    val results = sendPostRequest(request, action = "nearby") // NON-NLS
                     val gson = Gson()
                     val itemType = object : TypeToken<List<Destination>>() {}.type
                     val result: ArrayList<Destination> = gson.fromJson(results, itemType)
@@ -97,7 +97,7 @@ class LocationViewModel(destination: Destination, db: AppDatabase, val activity:
                 try {
                     val request =
                         "[[${destination.latitude - 1},${destination.longitude - 1}],[${destination.latitude - 1},${destination.longitude + 1}],[${destination.latitude + 1},${destination.longitude + 1}],[${destination.latitude + 1},${destination.longitude - 1}]]"
-                    val results = sendPostRequest(request, action = "polygonTrips")
+                    val results = sendPostRequest(request, action = "polygonTrips") // NON-NLS
                     val gson = Gson()
                     val itemType = object : TypeToken<List<Trip>>() {}.type
                     val result: ArrayList<Trip> = gson.fromJson(results, itemType)

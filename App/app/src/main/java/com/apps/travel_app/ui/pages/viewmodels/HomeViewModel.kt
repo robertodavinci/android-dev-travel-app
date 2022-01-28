@@ -26,7 +26,7 @@ class HomeViewModel(activity: Activity): ViewModel() {
         if (trips.size <= 0 && adventures.size <= 0 && cities.size <= 0) {
             Thread {
 
-                val citiesText = sendPostRequest("", action = "home")
+                val citiesText = sendPostRequest("", action = "home") // NON-NLS
                 if (!citiesText.isNullOrEmpty()) {
                     try {
                         val gson = Gson()

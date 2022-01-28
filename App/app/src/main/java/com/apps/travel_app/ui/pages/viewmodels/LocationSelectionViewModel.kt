@@ -108,11 +108,11 @@ class LocationSelectionViewModel(activity: Activity, val onAddStep: (Destination
                 region.nearRight,
                 region.nearLeft
             )
-            val request = "{\"area\":" + points.joinToString(",", "[", "]") { e ->
+            val request = "{\"area\":" + points.joinToString(",", "[", "]") { e -> // NON-NLS
                 "[${e.latitude},${e.longitude}]"
             } + ", \"text\": \"$text\"}"
             println(request)
-            val resultText = sendPostRequest(request, action = "search")
+            val resultText = sendPostRequest(request, action = "search") // NON-NLS
             if (!resultText.isNullOrEmpty()) {
                 try {
                 val gson = Gson()
@@ -233,7 +233,7 @@ class LocationSelectionViewModel(activity: Activity, val onAddStep: (Destination
 
         try {
             var request = "{\"name\":\"${newDestination.name}\",\"pos\":[${newDestination.latitude},${newDestination.longitude}]}"
-            val names = sendPostRequest(request, action = "similarCities")
+            val names = sendPostRequest(request, action = "similarCities") // NON-NLS
             if (!names.isNullOrEmpty()) {
                 error = "There exist other locations with similar name. Your submission will be evaluated."
             }
@@ -244,7 +244,7 @@ class LocationSelectionViewModel(activity: Activity, val onAddStep: (Destination
 
                 request = gson.toJson(newDestination)
                 println(request)
-                val id = sendPostRequest(request, action = "saveCity")
+                val id = sendPostRequest(request, action = "saveCity") // NON-NLS
 
                 if (id.isNullOrEmpty() || id.toInt() <= 0) {
                     errorMessage(mainActivity.window.decorView.rootView).show()

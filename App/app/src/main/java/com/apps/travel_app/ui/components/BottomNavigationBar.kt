@@ -27,12 +27,14 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.apps.travel_app.MainActivity
+import com.apps.travel_app.R
 import com.apps.travel_app.models.Destination
 import com.apps.travel_app.models.Trip
 import com.apps.travel_app.ui.theme.iconLightColor
@@ -76,9 +78,9 @@ fun BottomNavigationBar(navController: NavController, mainActivity: MainActivity
 
         Thread {
 
-            val request = "{\"text\": \"${text.replace('\n',' ').trim()}\"}"
+            val request = "{\"text\": \"${text.replace('\n',' ').trim()}\"}" // NON-NLS
             println(request)
-            val resultText = sendPostRequest(request, action = "search")
+            val resultText = sendPostRequest(request, action = "search") //NON-NLS // NON-NLS
             if (!resultText.isNullOrEmpty()) {
                 try {
                     val gson = Gson()
@@ -157,13 +159,13 @@ fun BottomNavigationBar(navController: NavController, mainActivity: MainActivity
                     LazyColumn {
                         if (places.value.size ==  0 && cities.value.size == 0 && trips.value.size == 0) {
                             item {
-                                Heading("Search your places...")
+                                Heading(stringResource(R.string.search_your_places) )
 
                             }
                         }
                         if (places.value.size > 0) {
                             item {
-                                Heading("Places")
+                                Heading(stringResource(R.string.places))
                             }
                         }
                         val loaded = arrayListOf<Destination>()
@@ -220,7 +222,7 @@ fun BottomNavigationBar(navController: NavController, mainActivity: MainActivity
                         }
                         if (trips.value.size > 0) {
                             item {
-                                Heading("Trips")
+                                Heading(stringResource(R.string.trips))
                             }
                         }
                         val loadedTrips = arrayListOf<Trip>()
@@ -271,7 +273,7 @@ fun BottomNavigationBar(navController: NavController, mainActivity: MainActivity
                         }
                         if (cities.value.size > 0) {
                             item {
-                                Heading("Destinations")
+                                Heading(stringResource(R.string.destinations))
                             }
                         }
                         loaded.clear()

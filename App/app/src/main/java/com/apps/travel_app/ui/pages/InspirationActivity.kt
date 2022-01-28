@@ -50,7 +50,7 @@ class InspirationActivity : ComponentActivity() {
         val sharedPref = PreferenceManager.getDefaultSharedPreferences(this)
         val systemTheme = sharedPref.getBoolean("darkTheme", true)
 
-        val request = "x"
+        val request = "x" // NON-NLS
 
 
 
@@ -59,7 +59,7 @@ class InspirationActivity : ComponentActivity() {
             destinations = remember { ArrayList() }
             var loaded by remember { mutableStateOf(false) }
             Thread {
-                val citiesText = sendPostRequest(request, action = "polygonCities")
+                val citiesText = sendPostRequest(request, action = "polygonCities") // NON-NLS
                 if (!citiesText.isNullOrEmpty()) {
                     try {
                         val gson = Gson()

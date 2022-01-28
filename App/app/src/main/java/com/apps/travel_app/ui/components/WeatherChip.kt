@@ -12,8 +12,8 @@ fun weatherChip(
 
     var condition: String
     Thread {
-        val request = "{\"lat\":${latitude},\"lng\":${longitude}}"
-        condition = sendPostRequest(request, action = "weather") ?: ""
+        val request = "{\"lat\":${latitude},\"lng\":${longitude}}" // NON-NLS
+        condition = sendPostRequest(request, action = "weather") ?: "" // NON-NLS
         callback(
             when (condition) {
                 "clear sky" -> FaIcons.SunRegular

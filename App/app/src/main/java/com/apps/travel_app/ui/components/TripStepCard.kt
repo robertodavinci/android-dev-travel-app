@@ -26,6 +26,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
@@ -33,6 +34,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign.Companion.Center
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.apps.travel_app.R
 import com.apps.travel_app.models.Trip
 import com.apps.travel_app.models.TripDestination
 import com.apps.travel_app.ui.theme.*
@@ -157,7 +159,7 @@ fun TripStepCard(
                         }
                         if (destination.minutes > 0) {
                             Text(
-                                "${destination.minutes} min",
+                                "${destination.minutes} ${stringResource(R.string.minutes)}",
                                 color = colors.surface,
                                 modifier = Modifier.padding(5.dp),
                                 fontSize = textSmall
@@ -271,7 +273,7 @@ fun Dialog(openDialog: MutableState<Boolean>, destination: TripDestination, trip
 
             if (destination.notes.isNotEmpty()) {
                 Text(
-                    "Notes",
+                    stringResource(R.string.notes),
                     color = colors.surface,
                     modifier = Modifier
                         .padding(cardPadding)
@@ -304,37 +306,7 @@ fun Dialog(openDialog: MutableState<Boolean>, destination: TripDestination, trip
                 }
             }
 
-            /*if (destination.images.isNotEmpty()) {
 
-                Text(
-                    "Images",
-                    color = colors.surface,
-                    modifier = Modifier
-                        .padding(cardPadding)
-                        .fillMaxWidth(),
-                    textAlign = Center,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = textNormal
-                )
-
-                LazyRow(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(cardPadding)
-                ) {
-                    items(destination.images) {
-                        GlideImage(
-                            imageModel = it,
-                            modifier = Modifier
-                                .size(50.dp)
-                                .padding(end = 5.dp)
-                                .graphicsLayer {
-                                    shape = RoundedCornerShape(10.dp)
-                                    clip = true
-                                })
-                    }
-                }
-            }*/
             if (tripId > 0   && note != null) {
 
                 TextField(
@@ -352,7 +324,7 @@ fun Dialog(openDialog: MutableState<Boolean>, destination: TripDestination, trip
                     ),
                     placeholder = {
                         Text(
-                            "If you know the place, write a note",
+                            stringResource(R.string.know_place_write),
                             color = colors.surface,
                             fontSize = textSmall,
                             modifier = Modifier
@@ -378,15 +350,15 @@ fun Dialog(openDialog: MutableState<Boolean>, destination: TripDestination, trip
                         if (note!!.isNotEmpty()) {
                             Thread {
                                 val request =
-                                    "{\"id\":${tripId},\"step_id\":\"${destination.id}\",\"note\":\"${note}\"}"
-                                sendPostRequest(request, action = "addNote")
+                                    "{\"id\":${tripId},\"step_id\":\"${destination.id}\",\"note\":\"${note}\"}" // NON-NLS
+                                sendPostRequest(request, action = "addNote") // NON-NLS
 
                                 note = null
 
                             }.start()
                         }
                     }) {
-                        Text("Add note", color = colors.surface)
+                        Text(stringResource(R.string.add_note), color = colors.surface)
                     }
                 }
             }
@@ -472,7 +444,7 @@ fun EditDialog(openDialog: MutableState<Boolean>, destination: TripDestination) 
 
             }
 
-            Heading("Description")
+            Heading(stringResource(R.string.description))
 
             BasicTextField(
                 value = description, onValueChange = { description = it },
@@ -488,7 +460,7 @@ fun EditDialog(openDialog: MutableState<Boolean>, destination: TripDestination) 
                 cursorBrush = SolidColor(colors.surface)
             )
 
-            Heading("Arrival hour")
+            Heading(stringResource(R.string.arrival_hour))
 
             BasicTextField(
                 value = hour, onValueChange = { hour = it },
@@ -505,7 +477,7 @@ fun EditDialog(openDialog: MutableState<Boolean>, destination: TripDestination) 
                 cursorBrush = SolidColor(colors.surface)
             )
 
-            Heading("Minutes of visit duration")
+            Heading(stringResource(R.string.visit_duration))
 
             BasicTextField(
                 value = minutes, onValueChange = { minutes = it },

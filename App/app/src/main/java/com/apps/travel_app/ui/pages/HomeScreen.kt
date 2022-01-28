@@ -18,6 +18,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Transparent
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.font.FontStyle
@@ -45,9 +46,9 @@ fun HomeScreen(navController: NavController, mainActivity: MainActivity) {
     val viewModel = remember { HomeViewModel(mainActivity) }
     
     val tabs = arrayListOf(
-        "Destinations",
+        stringResource(R.string.destinations),
         //"Adventures",
-        "Trips")
+        stringResource(R.string.trips))
 
     
 
@@ -105,7 +106,7 @@ fun HomeScreen(navController: NavController, mainActivity: MainActivity) {
                     ) {
                         val text = with(AnnotatedString.Builder("")) {
                             pushStyle(SpanStyle(fontStyle = FontStyle.Italic))
-                            append("Hi,")
+                            append(stringResource(R.string.hi))
                             pop()
                             pushStyle(SpanStyle(fontFamily = pacifico))
                             append(user.displayName ?: user.email)
@@ -144,7 +145,7 @@ fun HomeScreen(navController: NavController, mainActivity: MainActivity) {
                     Column(Modifier.weight(1f), verticalArrangement = Arrangement.Center) {
                         Text(
                             modifier = Modifier.fillMaxWidth(),
-                            text = "Explore new",
+                            text = stringResource(R.string.explore_new),
                             color = Color.White,
                             textAlign = Center,
                             fontSize = textHeading,
@@ -152,7 +153,7 @@ fun HomeScreen(navController: NavController, mainActivity: MainActivity) {
                         )
                         Text(
                             modifier = Modifier.fillMaxWidth(),
-                            text = "Experiences",
+                            text = stringResource(R.string.experiences),
                             color = Color.White,
                             textAlign = Center,
                             fontFamily = pacifico,

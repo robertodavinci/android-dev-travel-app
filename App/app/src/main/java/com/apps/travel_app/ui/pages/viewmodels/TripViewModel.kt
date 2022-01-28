@@ -36,8 +36,8 @@ class TripViewModel(trip: Trip, db: AppDatabase, val activity: Activity) : ViewM
                 try {
                     val result = ArrayList<Rating>()
 
-                    val request = "${trip.id}"
-                    val ratingsText = sendPostRequest(request, action = "ratings")
+                    val request = "${trip.id}" // NON-NLS
+                    val ratingsText = sendPostRequest(request, action = "ratings") // NON-NLS
                     val gson = Gson()
                     val itemType = object : TypeToken<List<Rating>>() {}.type
                     val _ratings: List<Rating> = gson.fromJson(ratingsText, itemType)
@@ -75,8 +75,8 @@ class TripActivityViewModel(activity: Activity, tripId: Int) : ViewModel() {
         Thread {
             if (isOnline(activity)) {
                 try {
-                    val request = tripId.toString()
-                    val ratingsText = sendPostRequest(request, action = "trip")
+                    val request = tripId.toString() // NON-NLS
+                    val ratingsText = sendPostRequest(request, action = "trip") // NON-NLS
                     val gson = Gson()
                     val itemType = object : TypeToken<Trip>() {}.type
                     activity.runOnUiThread {

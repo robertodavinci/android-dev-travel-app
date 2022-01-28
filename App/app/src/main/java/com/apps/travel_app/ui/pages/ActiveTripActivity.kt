@@ -31,10 +31,12 @@ import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight.Companion.Bold
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import com.apps.travel_app.R
 import com.apps.travel_app.models.MediumType
 import com.apps.travel_app.models.Rating
 import com.apps.travel_app.models.Trip
@@ -74,8 +76,8 @@ class ActiveTripActivity : ComponentActivity() {
         setContent {
             var trip: Trip? by remember { mutableStateOf(null) }
             Thread {
-                val request = tripId.toString()
-                val ratingsText = sendPostRequest(request, action = "trip")
+                val request = tripId.toString() // NON-NLS
+                val ratingsText = sendPostRequest(request, action = "trip") // NON-NLS
                 val gson = Gson()
                 val itemType = object : TypeToken<Trip>() {}.type
                 trip = gson.fromJson(ratingsText, itemType)
@@ -211,7 +213,7 @@ class ActiveTripActivity : ComponentActivity() {
                             .padding(50.dp),
                         textAlign = TextAlign.Center,
                         color = White,
-                        text = "Loading..."
+                        text = stringResource(R.string.loading)
                     )
                     loadingScreen.value++
                 }
@@ -508,8 +510,8 @@ class ActiveTripActivity : ComponentActivity() {
     private fun uploadRating(rating: Rating, callback: (Boolean) -> Unit) {
         Thread {
             val gson = Gson()
-            val request = gson.toJson(rating)
-            val tripText = sendPostRequest(request, action = "newRating")
+            val request = gson.toJson(rating) // NON-NLS
+            val tripText = sendPostRequest(request, action = "newRating") // NON-NLS
             if (!tripText.isNullOrEmpty())
                 callback(true)
             else
