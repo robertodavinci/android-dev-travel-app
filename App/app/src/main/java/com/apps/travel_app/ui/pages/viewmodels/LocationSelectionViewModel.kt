@@ -32,7 +32,7 @@ import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 
-class LocationSelectionViewModel(activity: Activity, val onAddStep: (Destination) -> Unit): ViewModel() {
+class LocationSelectionViewModel(activity: Activity, val onAddStep: (Destination) -> Unit,val onMainDestinationSelected: (Destination) -> Unit): ViewModel() {
     private val destinations = HashMap<Int, Destination>()
 
     var center = LatLng(44.0, 10.0)
@@ -256,6 +256,7 @@ class LocationSelectionViewModel(activity: Activity, val onAddStep: (Destination
                     ).build()
                     db.locationDao().insertAll(newDestination.toLocation())
                     onAddStep(newDestination)
+                    onMainDestinationSelected(newDestination)
                     newDestination = Destination()
                     stepAdded = true
                     addedMarker = null

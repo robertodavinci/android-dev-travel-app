@@ -74,9 +74,11 @@ fun LocationSelection(
     val permissionStorage = arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
 
     val viewModel = remember {
-        LocationSelectionViewModel(activity) {
+        LocationSelectionViewModel(activity, {
             onAddStep(it)
-        }
+        }, {
+            onMainDestinationSelected(it)
+        })
     }
 
     fun mapInit(context: Context) {
