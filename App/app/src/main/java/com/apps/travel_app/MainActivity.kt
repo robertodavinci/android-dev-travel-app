@@ -33,6 +33,7 @@ import com.apps.travel_app.ui.components.login.LoginActivity
 import com.apps.travel_app.ui.components.login.models.User
 import com.apps.travel_app.ui.pages.*
 import com.apps.travel_app.ui.theme.MainActivity_Travel_AppTheme
+import com.apps.travel_app.ui.theme.requireFullscreenMode
 import com.apps.travel_app.ui.utils.Response
 import com.apps.travel_app.ui.utils.errorMessage
 import com.facebook.login.LoginManager
@@ -164,48 +165,11 @@ class MainActivity : ComponentActivity() {
         user.realName = getSharedPreferences("CURRENT_USER", Context.MODE_PRIVATE).getString("realName", "")
         user.realSurname = getSharedPreferences("CURRENT_USER", Context.MODE_PRIVATE).getString("realSurname", "")
 
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            window.setDecorFitsSystemWindows(false)
-        } else {
-            window.setFlags(
-                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
-                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
-            )
-        }
-
-
-        // maybe do this Async way - Room DB creation
-        /*  val db = Room.databaseBuilder(
-              applicationContext,
-              DB::class.java, "travel-db"
-          ).build()*/
+        requireFullscreenMode(window, this)
 
 
         // Firebase database auth
         db = Firebase.firestore
-        /* val settings = firestoreSettings {
-             isPersistenceEnabled = true
-         }
-         db.firestoreSettings = settings
-         */
-
-        // Create a new user with a first and last name
-        /* val user = hashMapOf(
-             "first" to "Ada",
-             "last" to "Lovelace",
-             "born" to 1815
-         )
- // Add a new document with a generated ID
-         db.collection("users")
-             .add(user)
-             .addOnSuccessListener { documentReference ->
-                 Log.d("Firestore", "DocumentSnapshot added with ID: ${documentReference.id}")
-             }
-             .addOnFailureListener { e ->
-                 Log.w("Firestore", "Error adding document", e)
-             }
- */
         FirebaseMessaging.getInstance().subscribeToTopic("all").addOnCompleteListener {
             Log.d("FCM","Subscribed")
         }

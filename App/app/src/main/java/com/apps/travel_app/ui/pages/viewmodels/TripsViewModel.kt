@@ -22,22 +22,25 @@ class TripsViewModel(db: AppDatabase): ViewModel() {
         )
 
     init {
-        val locations = db.locationDao().getAllSaved() as ArrayList<Location>
-        val savedLocations = arrayListOf<Destination>()
-        locations.forEach {
-            val destination = Destination()
-            destination.fromLocation(it)
-            savedLocations.add(destination)
-        }
-        val trips = db.tripDao().getAll() as ArrayList<com.apps.travel_app.data.room.entity.Trip>
-        val finalSavedTrips = arrayListOf<Trip>()
-        trips.forEach {
-            val trip = Trip()
-            trip.fromTripDb(it)
-            finalSavedTrips.add(trip)
-        }
-        saved = savedLocations
-        savedTrips = finalSavedTrips
+        Thread {
+            val locations = db.locationDao().getAllSaved() as ArrayList<Location>
+            val savedLocations = arrayListOf<Destination>()
+            locations.forEach {
+                val destination = Destination()
+                destination.fromLocation(it)
+                savedLocations.add(destination)
+            }
+            val trips =
+                db.tripDao().getAll() as ArrayList<com.apps.travel_app.data.room.entity.Trip>
+            val finalSavedTrips = arrayListOf<Trip>()
+            trips.forEach {
+                val trip = Trip()
+                trip.fromTripDb(it)
+                finalSavedTrips.add(trip)
+            }
+            saved = savedLocations
+            savedTrips = finalSavedTrips
+        }.start()
     }
 
 }

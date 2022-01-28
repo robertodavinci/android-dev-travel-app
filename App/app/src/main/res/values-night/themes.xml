@@ -9,13 +9,15 @@
         <item name="colorSecondaryVariant">@color/secondary</item>
         <item name="android:alertDialogStyle">@style/Theme.D1NoTitleDim</item>
         <!-- Status bar color. -->
-        <!-- Customize your theme here. -->
+        <item name="android:navigationBarColor">@color/cardview_dark_background</item>
     </style>
 
     <style name="Theme.D1NoTitleDim" parent="android:style/Theme.Translucent">
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowContentOverlay">@null</item>
         <item name="android:backgroundDimEnabled">true</item>
+
         <item name="android:background">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@color/cardview_dark_background</item>
     </style>
 </resources>
