@@ -110,12 +110,7 @@ class MapViewModel : ViewModel() {
                     }
                 }
             } catch (e: Exception) {
-                activity.currentFocus?.let {
-                    Snackbar.make(
-                        it, "Ops, there is a connectivity problem",
-                        Snackbar.LENGTH_LONG
-                    ).show()
-                }
+                errorMessage(activity.window.decorView.rootView).show()
             }
         }.start()
 

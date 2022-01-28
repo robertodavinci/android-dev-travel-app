@@ -7,11 +7,13 @@ import android.graphics.BitmapFactory
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.util.Log
+import android.view.View
 import android.widget.TextView
 import androidx.compose.material.MaterialTheme.colors
 import androidx.compose.ui.graphics.toArgb
 import com.apps.travel_app.models.Destination
 import com.apps.travel_app.models.Trip
+import com.apps.travel_app.ui.theme.danger
 import com.apps.travel_app.ui.theme.primaryColor
 import com.apps.travel_app.ui.theme.textSmall
 import com.apps.travel_app.user
@@ -94,6 +96,15 @@ fun sendPostRequest(body: String, url: String = API, action: String = ""): Strin
         }
     }
     return responseBody
+}
+
+fun errorMessage(view: View, text: String = "Ops, there is a connectivity problem"): Snackbar {
+    val sb = Snackbar.make(
+        view, text,
+        Snackbar.LENGTH_LONG)
+    sb.view.setBackgroundColor(danger.toArgb());
+    return sb
+
 }
 
 

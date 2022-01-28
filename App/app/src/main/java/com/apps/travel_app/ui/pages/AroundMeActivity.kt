@@ -55,6 +55,7 @@ import com.apps.travel_app.ui.components.DestinationCard
 import com.apps.travel_app.ui.components.Heading
 import com.apps.travel_app.ui.components.NetworkError
 import com.apps.travel_app.ui.theme.*
+import com.apps.travel_app.ui.utils.errorMessage
 import com.apps.travel_app.ui.utils.isOnline
 import com.apps.travel_app.ui.utils.sendPostRequest
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -166,12 +167,7 @@ class AroundMeActivity : ComponentActivity() {
                 val type1 = object : TypeToken<List<Destination>>() {}.type
                 locations.value = gson.fromJson(citiesText, type1)
             } catch (e: Exception) {
-                currentFocus?.let {
-                    Snackbar.make(
-                        it, "Ops, there is a connectivity problem",
-                        Snackbar.LENGTH_LONG
-                    ).show()
-                }
+                errorMessage(window.decorView.rootView).show()
             }
 
         }.start()

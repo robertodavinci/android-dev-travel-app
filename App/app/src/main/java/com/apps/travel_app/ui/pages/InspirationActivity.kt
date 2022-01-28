@@ -27,6 +27,7 @@ import com.apps.travel_app.ui.theme.Travel_AppTheme
 import com.apps.travel_app.ui.theme.cardRadius
 import com.apps.travel_app.ui.theme.darkBackground
 import com.apps.travel_app.ui.theme.requireFullscreenMode
+import com.apps.travel_app.ui.utils.errorMessage
 import com.apps.travel_app.ui.utils.sendPostRequest
 import com.google.android.material.snackbar.Snackbar
 import com.google.gson.Gson
@@ -69,11 +70,7 @@ class InspirationActivity : ComponentActivity() {
                         }
                         loaded = true
                     } catch (e: Exception) {
-                        currentFocus?.let {
-                            Snackbar.make(
-                                it, "Ops, there is a connectivity problem",
-                                Snackbar.LENGTH_LONG).show()
-                        }
+                        errorMessage(window.decorView.rootView).show()
                     }
                 }
             }.start()

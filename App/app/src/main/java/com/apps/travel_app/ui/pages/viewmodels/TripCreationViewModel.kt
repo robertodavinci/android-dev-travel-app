@@ -19,6 +19,7 @@ import com.apps.travel_app.models.Destination
 import com.apps.travel_app.models.MediumType
 import com.apps.travel_app.models.Trip
 import com.apps.travel_app.models.TripDestination
+import com.apps.travel_app.ui.utils.errorMessage
 import com.apps.travel_app.ui.utils.getRealPathFromURI
 import com.apps.travel_app.ui.utils.isOnline
 import com.apps.travel_app.ui.utils.sendPostRequest
@@ -73,12 +74,7 @@ class TripCreationViewModel(activity: Activity, tripId: Int) : ViewModel() {
                         thumbnailUrl = trip.thumbnailUrl
                     }
                 } catch (e: Exception) {
-                    mainActivity.currentFocus?.let {
-                        Snackbar.make(
-                            it, "Ops, there is a connectivity problem",
-                            Snackbar.LENGTH_LONG
-                        ).show()
-                    }
+                    errorMessage(mainActivity.window.decorView.rootView).show()
                 }
             } else {
                 val db = Room.databaseBuilder(
@@ -132,7 +128,7 @@ class TripCreationViewModel(activity: Activity, tripId: Int) : ViewModel() {
                 mainActivity.runOnUiThread { loading = false }
 
                 if (id?.toInt()!! <= 0) {
-                    Toast.makeText(mainActivity, "Ops, an error occurred", Toast.LENGTH_LONG).show()
+                    errorMessage(mainActivity.window.decorView.rootView).show()
                 } else {
                     trip.id = id.toInt()
                     val db = Room.databaseBuilder(
@@ -150,12 +146,7 @@ class TripCreationViewModel(activity: Activity, tripId: Int) : ViewModel() {
                     mainActivity.finish()
                 }
             } catch (e: Exception) {
-                mainActivity.currentFocus?.let {
-                    Snackbar.make(
-                        it, "Ops, there is a connectivity problem",
-                        Snackbar.LENGTH_LONG
-                    ).show()
-                }
+                errorMessage(mainActivity.window.decorView.rootView).show()
             }
         }.start()
     }

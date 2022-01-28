@@ -58,6 +58,7 @@ import com.apps.travel_app.ui.components.Heading
 import com.apps.travel_app.ui.components.login.buttons.GoogleSignInButtonUI
 import com.apps.travel_app.ui.components.login.models.User
 import com.apps.travel_app.ui.theme.*
+import com.apps.travel_app.ui.utils.errorMessage
 import com.facebook.AccessToken
 import com.facebook.CallbackManager
 import com.facebook.FacebookCallback
@@ -103,9 +104,10 @@ class LoginActivity : ComponentActivity() {
 
         super.onCreate(savedInstanceState)
         var currentUser: FirebaseUser? = null
+        var loginEntry = false
         installSplashScreen().apply {
             setKeepOnScreenCondition {
-                currentUser == null
+                currentUser == null && !loginEntry
             }
 
         }
@@ -130,6 +132,7 @@ class LoginActivity : ComponentActivity() {
             startActivity(intent)
             finish()
         } else {
+            loginEntry = true
             setContent {
                 Travel_AppTheme {
                     Surface(color = primaryColor) {
@@ -242,6 +245,7 @@ class LoginActivity : ComponentActivity() {
                                     /*Log.d("CurUsr - ", auth.currentUser?.email.toString())
                                     Log.d("CurUsr Name - ", auth.currentUser?.displayName.toString())
                                     Log.d("CurUsr Name CU - ", auth.currentUser?.displayName.toString())*/
+
                                     Toast.makeText(
                                         baseContext, "Account creation successful.",
                                         Toast.LENGTH_SHORT
@@ -783,9 +787,7 @@ class LoginActivity : ComponentActivity() {
                     loginSuccess(user,this)
                 } else {
                     Log.w("LinkCredential", "linkWithCredential:failure", task.exception)
-                    Toast.makeText(baseContext, "Authentication failed.",
-                        Toast.LENGTH_SHORT).show()
-                    //updateUI(null)
+                    errorMessage(window.decorView.rootView, "Ops, authentication failed").show()
                 }
             }
         // [END link_credential]

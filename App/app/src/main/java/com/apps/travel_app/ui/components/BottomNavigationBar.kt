@@ -38,6 +38,7 @@ import com.apps.travel_app.models.Trip
 import com.apps.travel_app.ui.theme.iconLightColor
 import com.apps.travel_app.ui.theme.primaryColor
 import com.apps.travel_app.ui.utils.Response
+import com.apps.travel_app.ui.utils.errorMessage
 import com.apps.travel_app.ui.utils.isOnline
 import com.apps.travel_app.ui.utils.sendPostRequest
 import com.google.android.material.snackbar.Snackbar
@@ -88,11 +89,7 @@ fun BottomNavigationBar(navController: NavController, mainActivity: MainActivity
                     cities.value = response.cities
                     places.value = response.places
                 } catch (e: Exception) {
-                    mainActivity.currentFocus?.let {
-                        Snackbar.make(
-                            it, "Ops, there is a connectivity problem",
-                            Snackbar.LENGTH_LONG).show()
-                    }
+                    errorMessage(mainActivity.window.decorView.rootView).show()
                 }
 
             }

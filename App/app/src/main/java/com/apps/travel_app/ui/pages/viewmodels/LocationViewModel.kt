@@ -8,6 +8,7 @@ import com.apps.travel_app.data.room.AppDatabase
 import com.apps.travel_app.models.Destination
 import com.apps.travel_app.models.Rating
 import com.apps.travel_app.models.Trip
+import com.apps.travel_app.ui.utils.errorMessage
 import com.apps.travel_app.ui.utils.sendPostRequest
 import com.google.android.libraries.maps.GoogleMap
 import com.google.android.material.snackbar.Snackbar
@@ -59,11 +60,7 @@ class LocationViewModel(destination: Destination, db: AppDatabase, val activity:
                     }
                     ratings.value = result
                 } catch (e: Exception) {
-                    activity.currentFocus?.let {
-                        Snackbar.make(
-                            it, "Ops, there is a connectivity problem",
-                            Snackbar.LENGTH_LONG).show()
-                    }
+                    errorMessage(activity.window.decorView.rootView).show()
                 }
             }.start()
         }
@@ -85,11 +82,7 @@ class LocationViewModel(destination: Destination, db: AppDatabase, val activity:
                     facilities.value = result
                 } catch (e: Exception) {
 
-                    activity.currentFocus?.let {
-                        Snackbar.make(
-                            it, "Ops, there is a connectivity problem",
-                            Snackbar.LENGTH_LONG).show()
-                    }
+                    errorMessage(activity.window.decorView.rootView).show()
 
                 }
             }.start()
@@ -110,11 +103,7 @@ class LocationViewModel(destination: Destination, db: AppDatabase, val activity:
                     val result: ArrayList<Trip> = gson.fromJson(results, itemType)
                     trips.value = result
                 } catch (e: Exception) {
-                    activity.currentFocus?.let {
-                        Snackbar.make(
-                            it, "Ops, there is a connectivity problem",
-                            Snackbar.LENGTH_LONG).show()
-                    }
+                    errorMessage(activity.window.decorView.rootView).show()
                 }
             }.start()
         }

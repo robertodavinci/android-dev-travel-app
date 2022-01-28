@@ -8,6 +8,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.apps.travel_app.models.Destination
 import com.apps.travel_app.models.GooglePlace
+import com.apps.travel_app.ui.utils.errorMessage
 import com.apps.travel_app.ui.utils.sendPostRequest
 import com.google.android.libraries.maps.GoogleMap
 import com.google.android.material.snackbar.Snackbar
@@ -44,12 +45,7 @@ class GooglePlaceViewModel(destination: Destination, activity: Activity) : ViewM
                 eat = response.eat
                 stay = response.stay
             } catch (e: Exception) {
-                activity.currentFocus?.let {
-                    Snackbar.make(
-                        it, "Ops, there is a connectivity problem",
-                        Snackbar.LENGTH_LONG
-                    ).show()
-                }
+                errorMessage(activity.window.decorView.rootView).show()
             }
         }.start()
         if (destination.id != id) {

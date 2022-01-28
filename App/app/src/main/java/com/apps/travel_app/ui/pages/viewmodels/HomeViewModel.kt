@@ -4,9 +4,12 @@ import android.app.Activity
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.ViewModel
 import com.apps.travel_app.models.Destination
 import com.apps.travel_app.models.Trip
+import com.apps.travel_app.ui.theme.danger
+import com.apps.travel_app.ui.utils.errorMessage
 import com.apps.travel_app.ui.utils.sendPostRequest
 import com.google.android.material.snackbar.Snackbar
 import com.google.gson.Gson
@@ -36,11 +39,9 @@ class HomeViewModel(activity: Activity): ViewModel() {
                             adventures = output.adventures
                         }
                     } catch (e: Exception) {
-                        activity.currentFocus?.let {
-                            Snackbar.make(
-                                it, "Ops, there is a connectivity problem",
-                                Snackbar.LENGTH_LONG).show()
-                        }
+
+                        errorMessage(activity.window.decorView.rootView).show()
+
                     }
                 }
             }.start()

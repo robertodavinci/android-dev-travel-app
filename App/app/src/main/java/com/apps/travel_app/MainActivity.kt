@@ -34,6 +34,7 @@ import com.apps.travel_app.ui.components.login.models.User
 import com.apps.travel_app.ui.pages.*
 import com.apps.travel_app.ui.theme.MainActivity_Travel_AppTheme
 import com.apps.travel_app.ui.utils.Response
+import com.apps.travel_app.ui.utils.errorMessage
 import com.facebook.login.LoginManager
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
@@ -151,11 +152,7 @@ class MainActivity : ComponentActivity() {
                 setDestination(dest, true)
             } catch (e: Exception) {
 
-                currentFocus?.let {
-                    Snackbar.make(
-                        it, "Ops, there is a connectivity problem",
-                        Snackbar.LENGTH_LONG).show()
-                }
+                errorMessage(window.decorView.rootView).show()
 
             }
         }

@@ -28,6 +28,7 @@ import com.apps.travel_app.ui.components.Button
 import com.apps.travel_app.ui.components.Heading
 import com.apps.travel_app.ui.components.MainCard
 import com.apps.travel_app.ui.components.TripCard
+import com.apps.travel_app.ui.pages.viewmodels.TripsViewModel
 import com.apps.travel_app.ui.theme.cardPadding
 import com.apps.travel_app.ui.theme.cardRadius
 import com.apps.travel_app.ui.theme.danger
@@ -49,37 +50,7 @@ fun TripsScreen(mainActivity: MainActivity) {
         AppDatabase::class.java, "database-name"
     ).build()
 
-    val saved = remember {
-        mutableStateOf(
-            ArrayList<Destination>()
-        )
-    }
-    val savedTrips = remember {
-        mutableStateOf(
-            ArrayList<com.apps.travel_app.models.Trip>()
-        )
-    }
-
-    Thread {
-        val locations = db.locationDao().getAllSaved() as ArrayList<Location>
-        val savedLocations = arrayListOf<Destination>()
-        locations.forEach {
-            val destination = Destination()
-            destination.fromLocation(it)
-            savedLocations.add(destination)
-        }
-        val trips = db.tripDao().getAll() as ArrayList<Trip>
-        val finalSavedTrips = arrayListOf<com.apps.travel_app.models.Trip>()
-        trips.forEach {
-            val trip = com.apps.travel_app.models.Trip()
-            trip.fromTripDb(it)
-            finalSavedTrips.add(trip)
-        }
-        mainActivity.runOnUiThread {
-            saved.value = savedLocations
-            savedTrips.value = finalSavedTrips
-        }
-    }.start()
+    val viewModel = remember {TripsViewModel(db)}
 
     Column(modifier = Modifier.background(MaterialTheme.colors.background)) {
 
@@ -135,11 +106,11 @@ fun TripsScreen(mainActivity: MainActivity) {
 
                     Spacer(modifier = Modifier.height(cardPadding))
 
-                    if (saved.value.size > 0) {
+                    if (viewModel.saved.size > 0 || viewModel.savedTrips.size > 0) {
                         Heading("Saved")
 
                         Column {
-                            saved.value.forEachIndexed { index, destination ->
+                            viewModel.saved.forEachIndexed { index, destination ->
                                 val state = rememberDismissState(
                                     confirmStateChange = {
                                         if (it == DismissValue.DismissedToStart || it == DismissValue.DismissedToEnd) {
@@ -147,9 +118,9 @@ fun TripsScreen(mainActivity: MainActivity) {
                                                 db.locationDao().delete(destination.toLocation())
                                             }.start()
                                             val _saved =
-                                                saved.value.clone() as ArrayList<Destination>
+                                                viewModel.saved.clone() as ArrayList<Destination>
                                             _saved.removeAt(index)
-                                            saved.value = _saved
+                                            viewModel.saved = _saved
                                         }
                                         true
                                     }
@@ -188,14 +159,58 @@ fun TripsScreen(mainActivity: MainActivity) {
                                 }
                             }
 
-                            savedTrips.value.forEach { trip ->
-                                TripCard(
-                                    trip = trip,
-                                    rating = trip.rating,
-                                    mainActivity = mainActivity,
-                                    imageMaxHeight = 100f
+                            viewModel.savedTrips.forEachIndexed { index, trip ->
+                                val state = rememberDismissState(
+                                    confirmStateChange = {
+                                        if (it == DismissValue.DismissedToStart || it == DismissValue.DismissedToEnd) {
+                                            Thread {
+                                                db.tripDao().delete(trip.toTripDb(trip.mainDestination.id))
+                                                trip.getTripStep(trip.id).forEach { step ->
+                                                    db.tripStepDao().delete(step)
+                                                }
+                                            }.start()
+                                            val _saved =
+                                                viewModel.savedTrips.clone() as ArrayList<com.apps.travel_app.models.Trip>
+                                            _saved.removeAt(index)
+                                            viewModel.savedTrips = _saved
+                                        }
+                                        true
+                                    }
                                 )
+                                SwipeToDismiss(state = state, background = {
+                                    Row(
+                                        Modifier
+                                            .fillMaxSize()
+                                            .padding(cardPadding)
+                                            .graphicsLayer {
+                                                shape = RoundedCornerShape(cardRadius)
+                                                clip = true
+                                            }
+                                            .background(danger),
+                                        verticalAlignment = CenterVertically,
+                                        horizontalArrangement = SpaceBetween
+                                    ) {
+                                        FaIcon(
+                                            FaIcons.Trash,
+                                            tint = White,
+                                            modifier = Modifier.padding(cardPadding)
+                                        )
+                                        FaIcon(
+                                            FaIcons.Trash,
+                                            tint = White,
+                                            modifier = Modifier.padding(cardPadding)
+                                        )
+                                    }
+                                }) {
+                                    TripCard(
+                                        trip = trip,
+                                        rating = trip.rating,
+                                        mainActivity = mainActivity,
+                                        imageMaxHeight = 100f
+                                    )
+                                }
                             }
+
                         }
                     } else {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {

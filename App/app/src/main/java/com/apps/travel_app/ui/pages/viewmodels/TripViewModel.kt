@@ -8,6 +8,7 @@ import androidx.room.Room
 import com.apps.travel_app.data.room.AppDatabase
 import com.apps.travel_app.models.Rating
 import com.apps.travel_app.models.Trip
+import com.apps.travel_app.ui.utils.errorMessage
 import com.apps.travel_app.ui.utils.isOnline
 import com.apps.travel_app.ui.utils.sendPostRequest
 import com.google.android.libraries.maps.GoogleMap
@@ -46,12 +47,7 @@ class TripViewModel(trip: Trip, db: AppDatabase, val activity: Activity) : ViewM
                     }
                     ratings = result
                 } catch (e: Exception) {
-                    activity.currentFocus?.let {
-                        Snackbar.make(
-                            it, "Ops, there is a connectivity problem",
-                            Snackbar.LENGTH_LONG
-                        ).show()
-                    }
+                    errorMessage(activity.window.decorView.rootView).show()
                 }
             }.start()
         }
@@ -87,12 +83,7 @@ class TripActivityViewModel(activity: Activity, tripId: Int) : ViewModel() {
                         trip = gson.fromJson(ratingsText, itemType)
                     }
                 } catch (e: Exception) {
-                    activity.currentFocus?.let {
-                        Snackbar.make(
-                            it, "Ops, there is a connectivity problem",
-                            Snackbar.LENGTH_LONG
-                        ).show()
-                    }
+                    errorMessage(activity.window.decorView.rootView).show()
                 }
             } else {
                 val db = Room.databaseBuilder(

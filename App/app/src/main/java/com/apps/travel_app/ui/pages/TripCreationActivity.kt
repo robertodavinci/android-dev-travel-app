@@ -42,8 +42,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
-import androidx.exifinterface.media.ExifInterface.*
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.preference.PreferenceManager
 import com.apps.travel_app.models.MediumType
 import com.apps.travel_app.models.TripDestination
@@ -100,9 +98,6 @@ class TripCreationActivity : ComponentActivity() {
         requireFullscreenMode(window, this)
 
         setContent {
-            
-
-            
 
             Travel_AppTheme(systemTheme = systemTheme) {
 
