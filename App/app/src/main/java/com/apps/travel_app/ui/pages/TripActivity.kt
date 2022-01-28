@@ -4,6 +4,7 @@ import FaIcons
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -12,12 +13,11 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement.SpaceBetween
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.IconButton
+import androidx.compose.material.*
 import androidx.compose.material.MaterialTheme.colors
-import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment.Companion.BottomStart
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
@@ -33,6 +33,7 @@ import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight.Companion.Bold
 import androidx.compose.ui.text.font.FontWeight.Companion.ExtraBold
 import androidx.compose.ui.text.style.TextAlign
@@ -43,6 +44,7 @@ import androidx.room.Room
 import com.apps.travel_app.R
 import com.apps.travel_app.data.room.AppDatabase
 import com.apps.travel_app.models.MediumType
+import com.apps.travel_app.models.Message
 import com.apps.travel_app.models.Trip
 import com.apps.travel_app.models.TripDestination
 import com.apps.travel_app.ui.components.*
@@ -52,15 +54,19 @@ import com.apps.travel_app.ui.theme.*
 import com.apps.travel_app.ui.utils.markerPopUp
 import com.apps.travel_app.ui.utils.numberedMarker
 import com.apps.travel_app.ui.utils.rememberMapViewWithLifecycle
+import com.apps.travel_app.ui.utils.sendPostRequest
 import com.apps.travel_app.user
 import com.google.android.libraries.maps.CameraUpdateFactory
 import com.google.android.libraries.maps.MapView
 import com.google.android.libraries.maps.model.*
+import com.google.gson.Gson
 import com.guru.fontawesomecomposelib.FaIcon
 import com.skydoves.landscapist.glide.GlideImage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.*
 
 class TripActivity : ComponentActivity() {
 
@@ -77,13 +83,14 @@ class TripActivity : ComponentActivity() {
 
         val tripId = intent.getIntExtra("tripId", 0)
 
-
+        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
         setContent {
 
             val viewModel = remember { TripActivityViewModel(this, tripId) }
             Travel_AppTheme(systemTheme = systemTheme) {
 
                 if (viewModel.trip != null) {
+
                     if (!viewModel.phase) {
                         TripWallpaper(viewModel.trip!!, next = {
                             viewModel.phase = true
@@ -170,9 +177,15 @@ class TripActivity : ComponentActivity() {
             AppDatabase::class.java, "database-name"
         ).build()
 
-        val viewModel = remember { TripViewModel(
-             trip,  db, this
-        ) }
+        val viewModel = remember {
+            TripViewModel(
+                trip, db, this
+            )
+        }
+
+        val discussion = remember { mutableStateListOf(*trip.discussion.toTypedArray()) }
+        var writeRating by remember { mutableStateOf(false) }
+        var writeMessage by remember { mutableStateOf(false) }
 
         fun mapInit() {
             viewModel.map!!.uiSettings.isZoomControlsEnabled = false
@@ -301,33 +314,7 @@ class TripActivity : ComponentActivity() {
                 FullHeightBottomSheet(button = {
                     Button(
                         onClick = {
-                            Thread {
-                                try {
-                                    if (!viewModel.isSaved) {
-                                        db.locationDao()
-                                            .insertAll(trip.mainDestination.toLocation())
-                                        val tripId = db.tripDao()
-                                            .insertAll(trip.toTripDb(trip.mainDestination.id))[0]
-
-                                        val tripDao = db.tripStepDao()
-                                        trip.getTripStep(tripId.toInt()).forEach {
-                                            tripDao.insertAll(it)
-                                        }
-
-                                    } else {
-                                        db.locationDao()
-                                            .delete(trip.mainDestination.toLocation())
-                                        trip.getTripStep(trip.id).forEach {
-                                            db.tripStepDao().delete(it)
-                                        }
-
-                                        db.tripDao().deleteById(trip.id)
-                                    }
-                                    viewModel.isSaved = !viewModel.isSaved
-                                } catch (e: Exception) {
-                                    Log.e("ERROR", e.localizedMessage)
-                                }
-                            }.start()
+                            viewModel.save()
                         },
                         modifier = Modifier
                             .size(40.dp),
@@ -364,13 +351,18 @@ class TripActivity : ComponentActivity() {
                                         Row {
                                             FaIcon(FaIcons.CopyRegular, tint = White, size = 18.dp)
                                             Spacer(modifier = Modifier.width(5.dp))
-                                            Text(stringResource(R.string.duplicate), fontSize = textNormal, color = White)
+                                            Text(
+                                                stringResource(R.string.duplicate),
+                                                fontSize = textNormal,
+                                                color = White
+                                            )
                                         }
                                     }
                                     Text(
                                         stringResource(R.string.if_customize_copy),
                                         fontSize = textExtraSmall,
                                         textAlign = TextAlign.Center,
+                                        color = colors.surface,
                                         modifier = Modifier.fillMaxWidth()
                                     )
                                 } else {
@@ -384,15 +376,17 @@ class TripActivity : ComponentActivity() {
                                             finish()
                                             startActivity(intent)
                                         }, background = primaryColor, modifier = Modifier
-                                            .align(
-                                                CenterHorizontally
-                                            )
+                                            .align(CenterHorizontally)
                                             .padding(5.dp)
                                     ) {
                                         Row {
                                             FaIcon(FaIcons.Pen, tint = White, size = 18.dp)
                                             Spacer(modifier = Modifier.width(5.dp))
-                                            Text(stringResource(R.string.edit), color = White, fontSize = textNormal)
+                                            Text(
+                                                stringResource(R.string.edit),
+                                                color = White,
+                                                fontSize = textNormal
+                                            )
                                         }
                                     }
                                 }
@@ -403,36 +397,19 @@ class TripActivity : ComponentActivity() {
                                         .padding(start = cardPadding, end = cardPadding),
                                     horizontalArrangement = Arrangement.Center
                                 ) {
-                                    GlideImage(
-                                        imageModel = trip.thumbnailUrl,
-                                        modifier = Modifier
-                                            .size(80.dp)
-                                            .padding(10.dp)
-                                            .graphicsLayer {
-                                                shape = RoundedCornerShape(20)
-                                                clip = true
-                                            }
-                                    )
-                                    GlideImage(
-                                        imageModel = trip.thumbnailUrl,
-                                        modifier = Modifier
-                                            .size(80.dp)
-                                            .padding(10.dp)
-                                            .graphicsLayer {
-                                                shape = RoundedCornerShape(20)
-                                                clip = true
-                                            }
-                                    )
-                                    GlideImage(
-                                        imageModel = trip.thumbnailUrl,
-                                        modifier = Modifier
-                                            .size(80.dp)
-                                            .padding(10.dp)
-                                            .graphicsLayer {
-                                                shape = RoundedCornerShape(20)
-                                                clip = true
-                                            }
-                                    )
+                                    (1..3).forEach {
+                                        GlideImage(
+                                            imageModel = trip.thumbnailUrl,
+                                            modifier = Modifier
+                                                .size(80.dp)
+                                                .padding(10.dp)
+                                                .graphicsLayer {
+                                                    shape = RoundedCornerShape(20)
+                                                    clip = true
+                                                }
+                                        )
+                                    }
+
                                 }
 
                                 Row(
@@ -501,7 +478,8 @@ class TripActivity : ComponentActivity() {
                                             onClick = {
                                                 viewModel.selectedDay = i
                                                 if (viewModel.selectedDay < trip.destinationsPerDay.size)
-                                                    viewModel.steps = trip.destinationsPerDay[viewModel.selectedDay]
+                                                    viewModel.steps =
+                                                        trip.destinationsPerDay[viewModel.selectedDay]
                                             },
                                             modifier = Modifier.padding(5.dp),
                                             background = background
@@ -582,7 +560,11 @@ class TripActivity : ComponentActivity() {
                                                                 tint = colors.surface
                                                             )
                                                             Text(
-                                                                "${place.minutesToNextDestination.toInt()} ${stringResource(R.string.minutes)} (${place.kmToNextDestination} km)",
+                                                                "${place.minutesToNextDestination.toInt()} ${
+                                                                    stringResource(
+                                                                        R.string.minutes
+                                                                    )
+                                                                } (${place.kmToNextDestination} km)",
                                                                 color = colors.surface,
                                                                 fontSize = textSmall,
                                                                 modifier = Modifier
@@ -626,7 +608,7 @@ class TripActivity : ComponentActivity() {
                                 Box(
                                     modifier = Modifier.padding(bottom = 60.dp)
                                 ) {
-                                    if (viewModel.ratings.size <= 0) {
+                                    if (viewModel.ratings == null) {
                                         Box(
                                             modifier = Modifier
                                                 .align(Center)
@@ -641,7 +623,7 @@ class TripActivity : ComponentActivity() {
                                                 .padding(cardPadding)
                                         ) {
 
-                                            viewModel.ratings.forEach { rating ->
+                                            viewModel.ratings?.forEach { rating ->
                                                 RatingCard(
                                                     rating
                                                 )
@@ -651,12 +633,73 @@ class TripActivity : ComponentActivity() {
                                         }
                                     }
                                 }
+
+                                if (!viewModel.isReviewed) {
+                                    Button(
+                                        onClick = { writeRating = true },
+                                        background = primaryColor
+                                    ) {
+                                        Text(
+                                            stringResource(R.string.share_what_you_think),
+                                            color = White
+                                        )
+                                    }
+                                }
+
                             }
+                        }
+                        item {
+                            Heading(stringResource(R.string.discussion))
+                        }
+
+                        items(
+                            discussion
+                        ) { message ->
+                            MessageCard(message, tripId = trip.id)
+                        }
+                        item {
+                            Button(onClick = { writeMessage = true }, background = primaryColor, modifier = Modifier.align(
+                                Center)) {
+                                Text(stringResource(R.string.new_message), color = White)
+                            }
+                            Spacer(Modifier.height(60.dp))
                         }
                     }
                 }
             }
 
+        }
+        if (writeRating || writeMessage) {
+            androidx.compose.ui.window.Dialog(
+                onDismissRequest = {
+                    writeRating = false
+                    writeMessage = false
+                },
+            ) {
+                Column(Modifier.padding(cardPadding)) {
+                    if (writeMessage) {
+                        MessageField(tripId = trip.id) {
+                            discussion.add(0, it)
+                            writeRating = false
+                            writeMessage = false
+                        }
+                    }
+                    if (writeRating) {
+                        RatingField {
+                            val rating = it
+                            rating.entityId = trip.id
+                            rating.userId = user.id
+                            rating.username = user.displayName ?: ""
+                            viewModel.uploadRating(rating) { result ->
+                                if (result) {
+                                    viewModel.isReviewed = true
+                                }
+                            }
+                        }
+                    }
+                }
+
+            }
         }
 
     }

@@ -425,6 +425,11 @@ private fun PhotosRow(attractions: List<String>) {
                         )
 
                     }
+                    .padding(10.dp)
+                    .graphicsLayer {
+                        shape = RoundedCornerShape(20)
+                        clip = true
+                    }
             )
 
         }

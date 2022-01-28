@@ -2,36 +2,41 @@ package com.apps.travel_app.ui.pages.viewmodels
 
 import android.app.Activity
 import android.content.Context
+import android.util.Log
 import androidx.compose.runtime.*
 import androidx.lifecycle.ViewModel
 import androidx.room.Room
 import com.apps.travel_app.data.room.AppDatabase
+import com.apps.travel_app.models.Message
 import com.apps.travel_app.models.Rating
 import com.apps.travel_app.models.Trip
 import com.apps.travel_app.ui.utils.errorMessage
 import com.apps.travel_app.ui.utils.isOnline
 import com.apps.travel_app.ui.utils.sendPostRequest
+import com.apps.travel_app.user
 import com.google.android.libraries.maps.GoogleMap
 import com.google.android.material.snackbar.Snackbar
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 
-class TripViewModel(trip: Trip, db: AppDatabase, val activity: Activity) : ViewModel() {
+class TripViewModel(val trip: Trip, val db: AppDatabase, val activity: Activity) : ViewModel() {
     var open by mutableStateOf(false)
     var loaded by mutableStateOf(false)
-    var ratings by mutableStateOf(ArrayList<Rating>())
+    var ratings by mutableStateOf<ArrayList<Rating>?>(null)
     var loadingScreen by mutableStateOf(0)
     var map: GoogleMap? by mutableStateOf(null)
     var mapLoaded by mutableStateOf(false)
     var selectedDay by mutableStateOf(0)
     var isSaved by mutableStateOf(false)
+    var isReviewed by mutableStateOf(false)
+
 
     var steps by mutableStateOf(if (selectedDay < trip.destinationsPerDay.size) trip.destinationsPerDay[selectedDay] else ArrayList())
 
     private fun getRatings(trip: Trip) {
         loaded = true
 
-        if (ratings.size <= 0) {
+        if (ratings == null) {
             Thread {
                 try {
                     val result = ArrayList<Rating>()
@@ -42,7 +47,7 @@ class TripViewModel(trip: Trip, db: AppDatabase, val activity: Activity) : ViewM
                     val itemType = object : TypeToken<List<Rating>>() {}.type
                     val _ratings: List<Rating> = gson.fromJson(ratingsText, itemType)
                     for (rating in _ratings) {
-                        rating.rating = Math.random().toFloat() * 5f
+                        isReviewed = isReviewed || rating.userId == user.id
                         result.add(rating)
                     }
                     ratings = result
@@ -65,11 +70,56 @@ class TripViewModel(trip: Trip, db: AppDatabase, val activity: Activity) : ViewM
             }
         }.start()
     }
+
+    fun uploadRating(rating: Rating, callback: (Boolean) -> Unit) {
+        Thread {
+            val gson = Gson()
+            val request = gson.toJson(rating) // NON-NLS
+            val tripText = sendPostRequest(request, action = "newRating") // NON-NLS
+            if (!tripText.isNullOrEmpty())
+                callback(true)
+            else
+                callback(false)
+        }.start()
+    }
+
+    fun save() {
+        Thread {
+            try {
+                if (!isSaved) {
+                    db.locationDao()
+                        .insertAll(trip.mainDestination.toLocation())
+                    val tripId = db.tripDao()
+                        .insertAll(trip.toTripDb(trip.mainDestination.id))[0]
+
+                    val tripDao = db.tripStepDao()
+                    trip.getTripStep(tripId.toInt()).forEach {
+                        tripDao.insertAll(it)
+                    }
+
+                } else {
+                    db.locationDao()
+                        .delete(trip.mainDestination.toLocation())
+                    trip.getTripStep(trip.id).forEach {
+                        db.tripStepDao().delete(it)
+                    }
+
+                    db.tripDao().deleteById(trip.id)
+                }
+                isSaved = !isSaved
+            } catch (e: Exception) {
+                Log.e("ERROR", e.localizedMessage)
+            }
+        }.start()
+    }
 }
 
 class TripActivityViewModel(activity: Activity, tripId: Int) : ViewModel() {
     var trip: Trip? by mutableStateOf(null)
     var phase by mutableStateOf(false)
+
+
+
 
     init {
         Thread {
@@ -79,9 +129,8 @@ class TripActivityViewModel(activity: Activity, tripId: Int) : ViewModel() {
                     val ratingsText = sendPostRequest(request, action = "trip") // NON-NLS
                     val gson = Gson()
                     val itemType = object : TypeToken<Trip>() {}.type
-                    activity.runOnUiThread {
-                        trip = gson.fromJson(ratingsText, itemType)
-                    }
+                    trip = gson.fromJson(ratingsText, itemType)
+
                 } catch (e: Exception) {
                     errorMessage(activity.window.decorView.rootView).show()
                 }

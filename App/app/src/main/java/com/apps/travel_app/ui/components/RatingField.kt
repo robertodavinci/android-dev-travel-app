@@ -59,7 +59,7 @@ fun RatingField(
                     onClick = {
                         onSubmit(createRating(ratingText, ratingValue))
                     }) {
-                    FaIcon(FaIcons.PaperPlane, tint = colors.surface)
+                    FaIcon(FaIcons.PaperPlaneRegular, tint = colors.surface)
                 }
             },
             textStyle = TextStyle(

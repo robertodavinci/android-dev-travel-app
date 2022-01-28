@@ -100,4 +100,6 @@
     <string name="know_place_write">If you know the place, write a note</string>
     <string name="top_ratings">Top ratings</string>
     <string name="days">Days</string>
+    <string name="discussion">Discussion</string>
+    <string name="new_message">New message</string>
 </resources>

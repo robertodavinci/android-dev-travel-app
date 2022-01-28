@@ -21,6 +21,7 @@ class Trip() {
     var creationDate: String = ""
     var sharedWith: List<String> = arrayListOf()
     var creatorId: String = ""
+    var discussion: ArrayList<Message> = arrayListOf()
 
     fun getTripStep(tripId: Int): List<TripStep> {
         val steps = arrayListOf<TripStep>()

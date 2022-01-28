@@ -79,12 +79,14 @@
         <activity
             android:name=".ui.pages.TripActivity"
             android:exported="true"
+            android:windowSoftInputMode="adjustResize"
             android:theme="@style/Theme.Travel_App.NoActionBar"/>
 
 
         <activity
             android:name=".ui.pages.ActiveTripActivity"
             android:exported="true"
+            android:windowSoftInputMode="adjustResize"
             android:theme="@style/Theme.Travel_App.NoActionBar"/>
 
         <service

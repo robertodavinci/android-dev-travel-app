@@ -90,4 +90,6 @@
     <string name="know_place_write">Ako poznaješ ovo mjesto, napiši nešto</string>
     <string name="top_ratings">Najbolje ocjene</string>
     <string name="days">Dani</string>
+    <string name="discussion">Discussion</string>
+    <string name="new_message">New message</string>
 </resources>

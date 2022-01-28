@@ -90,4 +90,6 @@
     <string name="know_place_write">Se conosci questo posto, scrivi una nota per gli altri utenti</string>
     <string name="top_ratings">Top valutazioni</string>
     <string name="days">Giorni</string>
+    <string name="discussion">Discussione</string>
+    <string name="new_message">Nuovo messaggio</string>
 </resources>
