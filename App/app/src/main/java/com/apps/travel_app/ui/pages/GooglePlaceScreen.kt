@@ -6,6 +6,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.rememberScrollState
@@ -24,6 +25,8 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -46,6 +49,8 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.guru.fontawesomecomposelib.FaIcon
 import com.guru.fontawesomecomposelib.FaIconType
+import com.skydoves.landscapist.CircularReveal
+import com.skydoves.landscapist.glide.GlideImage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -132,8 +137,10 @@ fun GooglePlaceScreen(
                     )
                 }
 
+                viewModel.googlePlace?.let { PhotosRow(it.photos) }
+
                 FlexibleRow(
-                    alignment = Alignment.CenterHorizontally,
+                    alignment = CenterHorizontally,
                     modifier = Modifier
                         .padding(cardPadding / 2)
                         .fillMaxWidth()
@@ -169,13 +176,16 @@ fun GooglePlaceScreen(
                             Text(viewModel.googlePlace?.phoneNumber ?: "", color = colors.surface)
                         }
                     }
-                    Button(onClick = { viewModel.openMap = true }, modifier = Modifier.padding(5.dp)) {
+                    Button(
+                        onClick = { viewModel.openMap = true },
+                        modifier = Modifier.padding(5.dp)
+                    ) {
                         FaIcon(
                             FaIcons.LocationArrow,
                             tint = colors.surface
                         )
                     }
-                    Button(onClick = {  }, modifier = Modifier.padding(5.dp)) {
+                    Button(onClick = { }, modifier = Modifier.padding(5.dp)) {
                         Row {
                             for (i in 1..(viewModel.googlePlace?.priceLevel?.toInt() ?: 1)) {
                                 FaIcon(
@@ -188,7 +198,7 @@ fun GooglePlaceScreen(
                 }
 
                 FlexibleRow(
-                    alignment = Alignment.CenterHorizontally,
+                    alignment = CenterHorizontally,
                     modifier = Modifier
                         .padding(cardPadding / 2)
                         .fillMaxWidth()
@@ -238,7 +248,7 @@ fun GooglePlaceScreen(
                     shape = RoundedCornerShape(cardRadius)
                 ) {
                     Row(
-                        horizontalArrangement =  Arrangement.SpaceBetween,
+                        horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = CenterVertically,
                         modifier = Modifier.padding(cardPadding)
                     ) {
@@ -261,13 +271,13 @@ fun GooglePlaceScreen(
                             )
                         }
                         Text(
-                        "What you can expect during your visit\n" +
-                            "Face masks required for staff in public areas\n" +
-                            "Hand sanitizer available to guests & staff\n" +
-                            "Socially distanced dining tables\n" +
-                            "Staff required to regularly wash hands\n" +
-                            "Tables disinfected between guests\n" +
-                            "Face masks required for guests in public areas",
+                            "What you can expect during your visit\n" +
+                                    "Face masks required for staff in public areas\n" +
+                                    "Hand sanitizer available to guests & staff\n" +
+                                    "Socially distanced dining tables\n" +
+                                    "Staff required to regularly wash hands\n" +
+                                    "Tables disinfected between guests\n" +
+                                    "Face masks required for guests in public areas",
                             fontSize = textSmall,
                             color = colors.surface,
                             modifier = Modifier.weight(1f)
@@ -279,17 +289,17 @@ fun GooglePlaceScreen(
                 Heading("Do")
                 Subheading("Places to see, ways to wander, and signature experiences.")
 
-                AttractionsRow(viewModel.todo,mainActivity)
+                AttractionsRow(viewModel.todo, mainActivity)
 
                 Heading("Eat")
                 Subheading("Can't-miss spots to dine, drink, and feast.")
 
-                AttractionsRow(viewModel.eat,mainActivity)
+                AttractionsRow(viewModel.eat, mainActivity)
 
                 Heading("Stay")
                 Subheading("A mix of the charming, modern, and tried and true.")
 
-                AttractionsRow(viewModel.stay,mainActivity)
+                AttractionsRow(viewModel.stay, mainActivity)
 
                 Heading(
                     "Top ratings"
@@ -401,6 +411,76 @@ fun GooglePlaceScreen(
     }
 
 
+}
+
+
+@Composable
+private fun PhotosRow(attractions: List<String>) {
+    var selectedImage by remember { mutableStateOf("") }
+    LazyRow(
+        modifier = Modifier.padding(cardPadding)
+    ) {
+        items(attractions.size) { i ->
+            val image = attractions[i]
+            GlideImage(
+                imageModel = image,
+                modifier = Modifier
+                    .size(100.dp)
+                    .pointerInput(Unit) {
+                        detectTapGestures(
+                            onTap = {
+                                selectedImage = image
+                            }
+                        )
+
+                    }
+            )
+
+        }
+    }
+
+    val scale: Float by animateFloatAsState(
+        if (selectedImage.isNotEmpty()) 1f else 0f, animationSpec = tween(
+            durationMillis = 500,
+            easing = LinearOutSlowInEasing
+        )
+    )
+    if (selectedImage.isNotEmpty()) {
+
+        androidx.compose.ui.window.Dialog(
+            onDismissRequest = {
+                selectedImage = String()
+            },
+
+            ) {
+            Column(
+                modifier = Modifier
+                    .scale(scale)
+                    .padding(0.dp)
+                    .graphicsLayer {
+                        shape = RoundedCornerShape(cardRadius)
+                        clip = true
+                    }
+                    .background(colors.background)
+                    .fillMaxWidth()
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                ) {
+                    GlideImage(
+                        imageModel = selectedImage,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(200.dp),
+                        circularReveal = CircularReveal(duration = 700),
+
+                        )
+
+                }
+            }
+        }
+    }
 
 }
 
@@ -412,17 +492,17 @@ private fun AttractionsRow(attractions: ArrayList<GooglePlace>, activity: MainAc
         items(attractions.size) { i ->
             val attraction = attractions[i]
 
-                MainCard(
-                    destination = attraction,
-                    rating = attraction.rating,
-                    padding = 5.dp,
-                    shadow = 10.dp,
-                    imageMaxHeight = 200f,
-                    mainActivity = activity,
-                    infoScale = 0.8f,
-                    icon = FaIcons.Google,
-                    isGooglePlace = true
-                )
+            MainCard(
+                destination = attraction,
+                rating = attraction.rating,
+                padding = 5.dp,
+                shadow = 10.dp,
+                imageMaxHeight = 200f,
+                mainActivity = activity,
+                infoScale = 0.8f,
+                icon = FaIcons.Google,
+                isGooglePlace = true
+            )
 
         }
     }

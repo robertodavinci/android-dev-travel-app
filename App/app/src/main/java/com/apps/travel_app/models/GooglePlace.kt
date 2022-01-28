@@ -4,6 +4,7 @@ class GooglePlace : Destination() {
     var reviews: List<Rating> = arrayListOf()
     var openingHours: List<OpeningHour> = arrayListOf()
     var phoneNumber: String = ""
+    var photos: List<String> = arrayListOf()
 }
 
 class OpeningHour {
