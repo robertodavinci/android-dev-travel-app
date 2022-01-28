@@ -33,13 +33,17 @@ import com.apps.travel_app.ui.components.login.LoginActivity
 import com.apps.travel_app.ui.components.login.models.User
 import com.apps.travel_app.ui.pages.*
 import com.apps.travel_app.ui.theme.MainActivity_Travel_AppTheme
+import com.apps.travel_app.ui.utils.Response
 import com.facebook.login.LoginManager
+import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.messaging.FirebaseMessaging
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import com.guru.fontawesomecomposelib.FaIconType
 import java.util.prefs.Preferences
 import kotlin.reflect.KProperty
@@ -137,6 +141,24 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val destinationText = intent.getStringExtra("destination")
+        if (!destinationText.isNullOrEmpty() && intent.action == "destination") {
+            try {
+                val gson = Gson()
+                val itemType = object : TypeToken<Destination>() {}.type
+                val dest: Destination = gson.fromJson(destinationText, itemType)
+                setDestination(dest, true)
+            } catch (e: Exception) {
+
+                currentFocus?.let {
+                    Snackbar.make(
+                        it, "Ops, there is a connectivity problem",
+                        Snackbar.LENGTH_LONG).show()
+                }
+
+            }
+        }
 
         auth = Firebase.auth
         user.displayName = auth.currentUser?.displayName
