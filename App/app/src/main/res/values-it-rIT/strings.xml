@@ -22,6 +22,7 @@
     <string name="wall">The Wall</string>
     <string name="around_you">Intorno a te</string>
     <string name="open">Aperto</string>
+    <string name="theme">Tema</string>
     <string name="closed">Chiuso</string>
     <string name="todo">Fai</string>
     <string name="eat">Mangia</string>
@@ -58,6 +59,8 @@
     <string name="change_cred">Cambia credenziali</string>
     <string name="new_usr">Nuovo username</string>
     <string name="new_name">Nuovo nome</string>
+    <string name="username">nome utente</string>
+    <string name="real_credentials">credenziali reali</string>
     <string name="current">Presente</string>
     <string name="new_surname">Nuovo cognome</string>
     <string name="set_new">Imposta nuovo</string>

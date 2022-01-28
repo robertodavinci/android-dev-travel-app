@@ -78,7 +78,8 @@ fun ProfileScreen(activity: MainActivity) {
             }
             Log.i("Theme 1 - ", it.toString())
             Log.i("Theme 2 - ", sharedPref.getBoolean("darkTheme", false).toString())
-        }, states = NiceSwitchStates(T = FaIcons.MoonRegular, F = FaIcons.SunRegular), label = "Theme")
+        }, states = NiceSwitchStates(T = FaIcons.MoonRegular, F = FaIcons.SunRegular), label = stringResource(
+            R.string.theme))
 
         NiceSwitch(checked = sharedPref.getBoolean("receiveNotification", false), onChecked = {
             if (it) {
@@ -142,10 +143,12 @@ fun detailsChange(oneTwo:Boolean, activity:MainActivity){
     val newSurname = remember { mutableStateOf(TextFieldValue()) }
     var text = when(oneTwo){
         false -> {
-            "username"
+            stringResource(
+                R.string.username)
         }
         true -> {
-            "real credentials"
+            stringResource(
+                R.string.real_credentials)
         }
     }
     var textTwo = when(oneTwo){
