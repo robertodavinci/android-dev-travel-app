@@ -48,7 +48,7 @@ fun LocationSelection(
     activity: Activity,
     onBack: () -> Unit,
     onAddStep: (Destination?) -> Unit,
-    onStartingPointSelected: (Destination?) -> Unit
+    onMainDestinationSelected: (Destination?) -> Unit
 ) {
 
     val viewModel = remember { LocationSelectionViewModel(activity) }
@@ -222,9 +222,9 @@ fun LocationSelection(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     com.apps.travel_app.ui.components.Button(onClick = {
-                        onStartingPointSelected(viewModel.currentDestination)
-                        viewModel.startingPointSelected = true
-                    },background = if (viewModel.startingPointSelected) success else primaryColor) {
+                        onMainDestinationSelected(viewModel.currentDestination)
+                        viewModel.mainDestinationSelected = true
+                    },background = if (viewModel.mainDestinationSelected) success else primaryColor) {
                         Text("Set as starting point", fontSize = textNormal, color = White)
                     }
                     Spacer(modifier = Modifier.padding(5.dp))

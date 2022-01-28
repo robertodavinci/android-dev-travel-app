@@ -44,7 +44,7 @@ class TripCreationViewModel(activity: Activity, tripId: Int) : ViewModel() {
     private val initialDestinations: ArrayList<ArrayList<TripDestination>> =
         arrayListOf(ArrayList())
     var destinations by mutableStateOf(initialDestinations)
-    var startingPoint: Destination? by mutableStateOf(null)
+    var mainDestination: Destination? by mutableStateOf(null)
     var days by mutableStateOf(1)
     var sharedWith by mutableStateOf(ArrayList<String>())
     val mainActivity = activity
@@ -67,7 +67,7 @@ class TripCreationViewModel(activity: Activity, tripId: Int) : ViewModel() {
                         tags = trip.attributes as ArrayList<String>
                         selectedDay = 0
                         destinations = trip.destinationsPerDay
-                        startingPoint = trip.startingPoint
+                        mainDestination = trip.mainDestination
                         days = trip.destinationsPerDay.size
                         sharedWith = trip.sharedWith as ArrayList<String>
                         thumbnailUrl = trip.thumbnailUrl
@@ -95,7 +95,7 @@ class TripCreationViewModel(activity: Activity, tripId: Int) : ViewModel() {
                         tags = trip.attributes as ArrayList<String>
                         selectedDay = 0
                         destinations = trip.destinationsPerDay
-                        startingPoint = trip.startingPoint
+                        mainDestination = trip.mainDestination
                         days = trip.destinationsPerDay.size
                         sharedWith = trip.sharedWith as ArrayList<String>
                     }
@@ -106,7 +106,7 @@ class TripCreationViewModel(activity: Activity, tripId: Int) : ViewModel() {
 
     fun upload(thumbnailUrl: String? = null) {
         confirmed = true
-        if (name.isEmpty() || description.isEmpty() || startingPoint == null) {
+        if (name.isEmpty() || description.isEmpty() || mainDestination == null) {
             return
         }
         loading = true
@@ -117,7 +117,7 @@ class TripCreationViewModel(activity: Activity, tripId: Int) : ViewModel() {
                 trip.id = id
                 trip.creatorId = user.id
                 trip.thumbnailUrl = thumbnailUrl ?: ""
-                trip.startingPoint = startingPoint!!
+                trip.mainDestination = mainDestination!!
                 trip.name = name
                 trip.description = description
                 trip.attributes = tags
@@ -139,9 +139,9 @@ class TripCreationViewModel(activity: Activity, tripId: Int) : ViewModel() {
                         mainActivity,
                         AppDatabase::class.java, "database-name"
                     ).build()
-                    db.locationDao().insertAll(trip.startingPoint.toLocation())
+                    db.locationDao().insertAll(trip.mainDestination.toLocation())
                     val tripId = db.tripDao()
-                        .insertAll(trip.toTripDb(trip.startingPoint.id))[0]
+                        .insertAll(trip.toTripDb(trip.mainDestination.id))[0]
 
                     val tripDao = db.tripStepDao()
                     trip.getTripStep(tripId.toInt()).forEach {

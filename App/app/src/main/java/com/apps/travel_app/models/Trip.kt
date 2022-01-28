@@ -8,7 +8,7 @@ import com.apps.travel_app.data.room.entity.TripStep
 
 class Trip() {
     var id: Int = 0
-    var startingPoint: Destination = Destination()
+    var mainDestination: Destination = Destination()
     var attributes: List<String> = arrayListOf()
     var creator: String = ""
     var thumbnail: ImageBitmap? = null
@@ -75,9 +75,9 @@ class Trip() {
         description = trip.trip.description
         creationDate = trip.trip.creationDate ?: ""
         name = trip.trip.name
-        startingPoint = Destination()
+        mainDestination = Destination()
         creatorId = trip.trip.creator_id
-        startingPoint.fromLocation(trip.startingPoint)
+        mainDestination.fromLocation(trip.mainDestination)
         val steps = arrayListOf(ArrayList<TripDestination>())
         trip.days.forEach {
             if (it.day >= steps.size) {

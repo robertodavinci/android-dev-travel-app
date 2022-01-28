@@ -26,7 +26,7 @@ class LocationSelectionViewModel(activity: Activity): ViewModel() {
     var mapView: MapView? by  mutableStateOf(null)
     var mapLoaded by  mutableStateOf(false)
     var destinationSelected by  mutableStateOf(false)
-    var startingPointSelected by  mutableStateOf(false)
+    var mainDestinationSelected by  mutableStateOf(false)
     var stepAdded by mutableStateOf(false)
     val mainActivity = activity
 
@@ -114,7 +114,7 @@ class LocationSelectionViewModel(activity: Activity): ViewModel() {
 
 
     fun markerClick(marker: Marker): Boolean {
-        startingPointSelected = false
+        mainDestinationSelected = false
         stepAdded = false
         val destination = destinations[marker.hashCode()]
         if (destination != null) {

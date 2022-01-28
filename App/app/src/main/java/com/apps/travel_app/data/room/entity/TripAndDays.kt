@@ -15,5 +15,5 @@ data class TripAndDays(
         parentColumn = "starting_location",
         entityColumn = "lid"
     )
-    val startingPoint: Location
+    val mainDestination: Location
 )

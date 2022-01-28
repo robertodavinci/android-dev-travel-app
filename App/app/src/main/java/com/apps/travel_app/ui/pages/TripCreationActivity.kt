@@ -115,9 +115,9 @@ class TripCreationActivity : ComponentActivity() {
                                 viewModel.addStep(it)
                             }
                         },
-                        onStartingPointSelected = {
+                        onMainDestinationSelected = {
                             if (it != null) {
-                                viewModel.startingPoint = it
+                                viewModel.mainDestination = it
                             }
                         })
                 } else {
@@ -301,7 +301,7 @@ class TripCreationActivity : ComponentActivity() {
 
                                     Heading("Central location")
 
-                                    if (viewModel.startingPoint == null) {
+                                    if (viewModel.mainDestination == null) {
                                         Button(
                                             onClick = { viewModel.locationSelection = true },
                                             border = if (viewModel.confirmed) BorderStroke(
@@ -327,7 +327,7 @@ class TripCreationActivity : ComponentActivity() {
                                         Row {
 
                                             GlideImage(
-                                                imageModel = viewModel.startingPoint?.thumbnailUrl,
+                                                imageModel = viewModel.mainDestination?.thumbnailUrl,
                                                 contentDescription = "",
                                                 modifier = Modifier
                                                     .width(50.dp)
@@ -345,7 +345,7 @@ class TripCreationActivity : ComponentActivity() {
 
 
                                             Text(
-                                                viewModel.startingPoint?.name!!,
+                                                viewModel.mainDestination?.name!!,
                                                 color = colors.surface,
                                                 modifier = Modifier
                                                     .padding(5.dp)

@@ -187,8 +187,8 @@ class TripActivity : ComponentActivity() {
             viewModel.map!!.moveCamera(
                 CameraUpdateFactory.newLatLngZoom(
                     LatLng(
-                        trip.startingPoint.latitude,
-                        trip.startingPoint.longitude
+                        trip.mainDestination.latitude,
+                        trip.mainDestination.longitude
                     ), 6f
                 )
             )
@@ -303,9 +303,9 @@ class TripActivity : ComponentActivity() {
                                 try {
                                     if (!viewModel.isSaved) {
                                         db.locationDao()
-                                            .insertAll(trip.startingPoint.toLocation())
+                                            .insertAll(trip.mainDestination.toLocation())
                                         val tripId = db.tripDao()
-                                            .insertAll(trip.toTripDb(trip.startingPoint.id))[0]
+                                            .insertAll(trip.toTripDb(trip.mainDestination.id))[0]
 
                                         val tripDao = db.tripStepDao()
                                         trip.getTripStep(tripId.toInt()).forEach {
@@ -314,7 +314,7 @@ class TripActivity : ComponentActivity() {
 
                                     } else {
                                         db.locationDao()
-                                            .delete(trip.startingPoint.toLocation())
+                                            .delete(trip.mainDestination.toLocation())
                                         trip.getTripStep(trip.id).forEach {
                                             db.tripStepDao().delete(it)
                                         }

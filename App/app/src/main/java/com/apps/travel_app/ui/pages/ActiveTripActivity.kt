@@ -114,8 +114,8 @@ class ActiveTripActivity : ComponentActivity() {
 
         var icon: FaIconType? = null
         weatherChip(
-            latitude = trip.startingPoint.latitude,
-            longitude = trip.startingPoint.longitude
+            latitude = trip.mainDestination.latitude,
+            longitude = trip.mainDestination.longitude
         ) {
             icon = it
         }
@@ -137,8 +137,8 @@ class ActiveTripActivity : ComponentActivity() {
             map.value!!.moveCamera(
                 CameraUpdateFactory.newLatLngZoom(
                     LatLng(
-                        trip.startingPoint.latitude,
-                        trip.startingPoint.longitude
+                        trip.mainDestination.latitude,
+                        trip.mainDestination.longitude
                     ), 6f
                 )
             )

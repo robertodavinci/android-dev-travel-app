@@ -313,12 +313,12 @@ class AroundMeActivity : ComponentActivity() {
                                 }
 
                                 for (location in trips.value) {
-                                    val pos = getPosition(location.startingPoint)
+                                    val pos = getPosition(location.mainDestination)
                                     val distance = (SphericalUtil.computeDistanceBetween(
 
                                         com.google.android.gms.maps.model.LatLng(
-                                            location.startingPoint.latitude,
-                                            location.startingPoint.longitude
+                                            location.mainDestination.latitude,
+                                            location.mainDestination.longitude
                                         ),
                                         com.google.android.gms.maps.model.LatLng(
                                             centralLocation.latitude,
@@ -330,7 +330,7 @@ class AroundMeActivity : ComponentActivity() {
                                             pos = pos,
                                             distance = distance,
                                             url = location.thumbnailUrl,
-                                            destination = location.startingPoint
+                                            destination = location.mainDestination
                                         )
                                     }
                                 }
