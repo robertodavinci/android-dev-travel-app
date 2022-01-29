@@ -91,8 +91,8 @@
     <string name="know_place_write">Ako poznaješ ovo mjesto, napiši nešto</string>
     <string name="top_ratings">Najbolje ocjene</string>
     <string name="days">Dani</string>
-    <string name="discussion">Discussion</string>
-    <string name="new_message">New message</string>
-    <string name="not_enough_info">Some required fields is not filled up</string>
-    <string name="select">Select</string>
+    <string name="discussion">Diskusija</string>
+    <string name="new_message">Nova poruka</string>
+    <string name="not_enough_info">Neka obavezna polja nisu popunjena</string>
+    <string name="select">Odaberi</string>
 </resources>

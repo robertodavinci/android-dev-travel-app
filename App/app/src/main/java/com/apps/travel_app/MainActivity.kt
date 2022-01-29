@@ -58,6 +58,7 @@ class MainActivity : ComponentActivity() {
 
 
     private var destination: Destination? = null
+    private var oldDestination: Destination? = null
     lateinit var navController: NavHostController
     lateinit var db: FirebaseFirestore
     lateinit var auth: FirebaseAuth
@@ -88,6 +89,12 @@ class MainActivity : ComponentActivity() {
             launchSingleTop = true
             restoreState = true
         }
+    }
+
+    override fun onBackPressed() {
+        if(navController.currentDestination?.route.toString() == SubPages.GooglePlace.route)
+            oldDestination?.let { it1 -> setDestination(it1,true) }
+        else super.onBackPressed()
     }
 
     fun setGooglePlace(destination: Destination, openScreen: Boolean = false) {
@@ -138,8 +145,9 @@ class MainActivity : ComponentActivity() {
 
     }
 
-
-
+    fun setOldDestination(destinationTwo: Destination){
+        this.oldDestination = destinationTwo
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

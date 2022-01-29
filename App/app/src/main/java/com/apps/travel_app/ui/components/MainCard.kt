@@ -121,6 +121,7 @@ fun MainCard(
                                         if (isGooglePlace) {
                                             mainActivity.setGooglePlace(destination, true)
                                         } else {
+                                            mainActivity.setOldDestination(destination)
                                             mainActivity.setDestination(destination, true)
                                         }
                                     }
