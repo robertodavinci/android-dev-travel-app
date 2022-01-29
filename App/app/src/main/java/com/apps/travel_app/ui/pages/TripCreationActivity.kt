@@ -1,6 +1,7 @@
 package com.apps.travel_app.ui.pages
 
 import FaIcons
+import FaIcons.Tags
 import android.Manifest
 import android.app.Activity
 import android.content.Intent
@@ -8,6 +9,7 @@ import android.content.pm.PackageManager
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
+import android.view.KeyEvent
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.ActivityResultLauncher
@@ -25,6 +27,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.MaterialTheme.colors
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Alignment.Companion.CenterVertically
@@ -71,7 +74,6 @@ class TripCreationActivity : ComponentActivity() {
         if (viewModel.locationSelection) viewModel.locationSelection = false
         else finish()
     }
-
 
     @OptIn(ExperimentalMaterialApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -226,6 +228,7 @@ class TripCreationActivity : ComponentActivity() {
 
                                         }
                                     } else {
+                                        Spacer(modifier = Modifier.height(5.dp))
                                         Button(
                                             onClick = {
                                                 val gallery = Intent(
@@ -250,7 +253,7 @@ class TripCreationActivity : ComponentActivity() {
                                             }
                                         }
                                     }
-
+                                    Spacer(modifier = Modifier.height(5.dp))
                                     Heading(stringResource(R.string.description))
 
                                     TextField(
@@ -275,13 +278,15 @@ class TripCreationActivity : ComponentActivity() {
                                                 color = colors.surface,
                                                 modifier = Modifier
                                                     .alpha(0.5f)
-                                                    .fillMaxWidth()
+                                                    .fillMaxWidth(),
+                                                textAlign = TextAlign.Center
                                             )
                                         },
                                         keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
                                         textStyle = TextStyle(
                                             color = colors.surface,
-                                            fontWeight = FontWeight.Bold
+                                            fontWeight = FontWeight.Bold,
+                                            textAlign = TextAlign.Center
                                         ),
                                     )
 
@@ -298,6 +303,7 @@ class TripCreationActivity : ComponentActivity() {
                                                 tint = if(viewModel.sharedWith.size == 0) White else colors.surface
                                             )
                                         }
+                                        Spacer(modifier = Modifier.width(5.dp))
                                         Button (
                                             Modifier.padding(5.dp),
                                             background = if(viewModel.sharedWith.size > 0) primaryColor else colors.onBackground,
@@ -309,7 +315,7 @@ class TripCreationActivity : ComponentActivity() {
                                             )
                                         }
                                     }
-
+                                    Spacer(modifier = Modifier.height(5.dp))
                                     Heading(stringResource(R.string.tags))
 
                                     Tags(viewModel.tags)

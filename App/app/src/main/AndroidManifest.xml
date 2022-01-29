@@ -15,7 +15,7 @@
         android:roundIcon="@mipmap/icon"
         android:supportsRtl="true"
         android:theme="@style/Theme.Travel_App"
-        android:screenOrientation="locked"
+        android:screenOrientation="portrait"
         >
 
 
@@ -54,7 +54,8 @@
         <activity
             android:name=".ui.pages.InspirationActivity"
             android:exported="true"
-            android:theme="@style/Theme.Travel_App.NoActionBar">
+            android:theme="@style/Theme.Travel_App.NoActionBar"
+            android:screenOrientation="portrait">
         </activity>
 
         <activity
@@ -69,25 +70,29 @@
         <activity
             android:name=".ui.pages.TripCreationActivity"
             android:exported="true"
-            android:theme="@style/Theme.Travel_App.NoActionBar"/>
+            android:theme="@style/Theme.Travel_App.NoActionBar"
+            android:screenOrientation="portrait"/>
 
         <activity
             android:name=".ui.pages.AroundMeActivity"
             android:exported="true"
-            android:theme="@style/Theme.Travel_App.NoActionBar"/>
+            android:theme="@style/Theme.Travel_App.NoActionBar"
+            android:screenOrientation="portrait"/>
 
         <activity
             android:name=".ui.pages.TripActivity"
             android:exported="true"
             android:windowSoftInputMode="adjustResize"
-            android:theme="@style/Theme.Travel_App.NoActionBar"/>
+            android:theme="@style/Theme.Travel_App.NoActionBar"
+            android:screenOrientation="portrait"/>
 
 
         <activity
             android:name=".ui.pages.ActiveTripActivity"
             android:exported="true"
             android:windowSoftInputMode="adjustResize"
-            android:theme="@style/Theme.Travel_App.NoActionBar"/>
+            android:theme="@style/Theme.Travel_App.NoActionBar"
+            android:screenOrientation="portrait"/>
 
         <service
             android:name=".ui.notifications.NotificationsService"

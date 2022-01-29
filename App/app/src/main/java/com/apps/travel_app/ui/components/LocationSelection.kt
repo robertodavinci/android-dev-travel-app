@@ -6,24 +6,21 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Bitmap
 import android.provider.MediaStore
-import android.view.View
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement.SpaceBetween
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.MaterialTheme.colors
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
@@ -31,7 +28,6 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color.Companion.Transparent
 import androidx.compose.ui.graphics.Color.Companion.White
-import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -48,7 +44,7 @@ import com.apps.travel_app.R
 import com.apps.travel_app.models.Destination
 import com.apps.travel_app.ui.pages.viewmodels.LocationSelectionViewModel
 import com.apps.travel_app.ui.theme.*
-import com.apps.travel_app.ui.utils.*
+import com.apps.travel_app.ui.utils.rememberMapViewWithLifecycle
 import com.google.android.libraries.maps.CameraUpdateFactory
 import com.google.android.libraries.maps.model.MapStyleOptions
 import com.guru.fontawesomecomposelib.FaIcon
@@ -162,6 +158,7 @@ fun LocationSelection(
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search, capitalization = KeyboardCapitalization.Sentences),
                     keyboardActions = KeyboardActions(
                         onSearch = { viewModel.search(viewModel.searchTerm);keyboardController?.hide() }),
+
                     value = viewModel.searchTerm, onValueChange = { viewModel.searchTerm = it },
                     shape = RoundedCornerShape(cardRadius),
                     modifier = Modifier
@@ -201,7 +198,7 @@ fun LocationSelection(
                 if (!viewModel.userIsAddingAPlace) {
                     Button(onClick = {
                         viewModel.userIsAddingAPlace = true
-                    }, background = primaryColor) {
+                    }, background = secondaryColor) {
                         Text(
                             stringResource(R.string.not_what_i_want),
                             color = White,
@@ -285,7 +282,7 @@ fun LocationSelection(
                             onMainDestinationSelected(viewModel.currentDestination)
                             viewModel.mainDestinationSelected = true
                         },
-                        background = if (viewModel.mainDestinationSelected) success else primaryColor
+                        background = if (viewModel.mainDestinationSelected) success else colors.onSurface
                     ) {
                         Text(stringResource(R.string.set_main), fontSize = textNormal, color = White)
                     }
@@ -293,7 +290,7 @@ fun LocationSelection(
                     Button(onClick = {
                         onAddStep(viewModel.currentDestination)
                         viewModel.stepAdded = true
-                    }, background = if (viewModel.stepAdded) success else primaryColor) {
+                    }, background = if (viewModel.stepAdded) success else colors.onSurface) {
                         Text(stringResource(R.string.add_step), color = White, fontSize = textNormal)
                     }
                 }
@@ -431,6 +428,7 @@ fun LocationSelection(
                                 fontWeight = FontWeight.Bold
                             )
                         )
+                        Spacer(modifier = Modifier.width(5.dp))
                         if (viewModel.newDestinationThumbnail != null) {
                             Card(
                                 elevation = cardElevation,
@@ -486,7 +484,7 @@ fun LocationSelection(
                             Button(onClick = {
                                 viewModel.closeNewDestination()
                             }, background = danger) {
-                                Text(stringResource(R.string.save) ,color = White)
+                                Text(stringResource(R.string.close) ,color = White)
                             }
                         }
 
