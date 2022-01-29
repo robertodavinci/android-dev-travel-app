@@ -6,25 +6,21 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Bitmap
 import android.provider.MediaStore
-import android.util.Log
-import android.view.View
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement.SpaceBetween
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.MaterialTheme.colors
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
@@ -32,7 +28,6 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color.Companion.Transparent
 import androidx.compose.ui.graphics.Color.Companion.White
-import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -40,6 +35,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -48,7 +44,7 @@ import com.apps.travel_app.R
 import com.apps.travel_app.models.Destination
 import com.apps.travel_app.ui.pages.viewmodels.LocationSelectionViewModel
 import com.apps.travel_app.ui.theme.*
-import com.apps.travel_app.ui.utils.*
+import com.apps.travel_app.ui.utils.rememberMapViewWithLifecycle
 import com.google.android.libraries.maps.CameraUpdateFactory
 import com.google.android.libraries.maps.model.MapStyleOptions
 import com.guru.fontawesomecomposelib.FaIcon
@@ -159,10 +155,10 @@ fun LocationSelection(
                     FaIcon(FaIcons.ArrowLeft, tint = colors.surface)
                 }
                 TextField(
-                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search, capitalization = KeyboardCapitalization.Sentences),
                     keyboardActions = KeyboardActions(
-                        onDone = { viewModel.search(viewModel.searchTerm);keyboardController?.hide() }
-                    ),
+                        onSearch = { viewModel.search(viewModel.searchTerm);keyboardController?.hide() }),
+
                     value = viewModel.searchTerm, onValueChange = { viewModel.searchTerm = it },
                     shape = RoundedCornerShape(cardRadius),
                     modifier = Modifier
@@ -198,7 +194,7 @@ fun LocationSelection(
                     ),
                 )
             }
-            Row(Modifier.align(CenterHorizontally).padding(cardPadding / 2)) {
+            Row(Modifier.align(CenterHorizontally).padding(cardPadding / 2), horizontalArrangement = SpaceBetween) {
                 if (!viewModel.userIsAddingAPlace) {
                     Button(onClick = {
                         viewModel.userIsAddingAPlace = true
@@ -209,12 +205,22 @@ fun LocationSelection(
                             fontSize = textNormal
                         )
                     }
-                } else
+                } else {
                     Text(
                         stringResource(R.string.pin_place),
                         color = colors.surface,
                         fontSize = textNormal
                     )
+                }
+                Button(onClick = {
+                    viewModel.search(viewModel.searchTerm);keyboardController?.hide()
+                }, background = primaryColor) {
+                    Text(
+                        stringResource(R.string.search),
+                        color = White,
+                        fontSize = textNormal
+                    )
+                }
             }
         }
 

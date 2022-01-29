@@ -6,7 +6,7 @@ import androidx.room.PrimaryKey
 
 @Entity
 data class Trip(
-    @PrimaryKey val tid: Int,
+    @PrimaryKey val tid: String,
     @ColumnInfo(name = "name") var name: String,
     @ColumnInfo(name = "attributes") var attributes: String,
     @ColumnInfo(name = "shared_with") var sharedWith: String,
@@ -18,4 +18,5 @@ data class Trip(
     @ColumnInfo(name = "season") var season: String,
     @ColumnInfo(name = "creation_date") var creationDate: String,
     @ColumnInfo(name = "starting_location") var starting_location: String,
+    @ColumnInfo(name = "incomplete") var incomplete: Boolean,
 )

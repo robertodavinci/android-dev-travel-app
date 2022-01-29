@@ -2,6 +2,7 @@ package com.apps.travel_app.ui.components
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -10,6 +11,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
 import com.apps.travel_app.R
 import com.apps.travel_app.models.Message
@@ -25,7 +27,7 @@ import java.util.*
 
 
 @Composable
-fun MessageField(message: Message? = null, tripId: Int, onAdd: (Message) -> Unit) {
+fun MessageField(message: Message? = null, tripId: String, onAdd: (Message) -> Unit) {
     var newMessageText by remember { mutableStateOf("") }
     TextField(
         value = newMessageText, onValueChange = { newMessageText = it },
@@ -70,12 +72,14 @@ fun MessageField(message: Message? = null, tripId: Int, onAdd: (Message) -> Unit
             color = MaterialTheme.colors.surface,
             fontWeight = FontWeight.Bold
         ),
+        keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
+        singleLine = false
     )
 }
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun MessageCard(message: Message, level: Int = 0, tripId: Int) {
+fun MessageCard(message: Message, level: Int = 0, tripId: String) {
     fun epochToDate(netDate: Long): String {
         if (netDate > 0) {
             val simpleDateFormat = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())

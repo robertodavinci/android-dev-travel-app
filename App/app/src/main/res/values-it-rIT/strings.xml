@@ -93,4 +93,6 @@
     <string name="days">Giorni</string>
     <string name="discussion">Discussione</string>
     <string name="new_message">Nuovo messaggio</string>
+    <string name="not_enough_info">Almeno uno dei campi richiesti non è compilato</string>
+    <string name="select">Seleziona</string>
 </resources>

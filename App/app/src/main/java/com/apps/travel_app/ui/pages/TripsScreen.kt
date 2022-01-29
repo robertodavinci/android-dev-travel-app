@@ -208,7 +208,8 @@ fun TripsScreen(mainActivity: MainActivity) {
                                         trip = trip,
                                         rating = trip.rating,
                                         mainActivity = mainActivity,
-                                        imageMaxHeight = 100f
+                                        imageMaxHeight = 100f,
+                                        icon = if (trip.incomplete) FaIcons.StickyNoteRegular else null
                                     )
                                 }
                             }

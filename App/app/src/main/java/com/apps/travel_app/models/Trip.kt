@@ -7,7 +7,7 @@ import com.apps.travel_app.data.room.entity.TripStep
 
 
 class Trip() {
-    var id: Int = 0
+    var id: String = ""
     var mainDestination: Destination = Destination()
     var attributes: List<String> = arrayListOf()
     var creator: String = ""
@@ -22,8 +22,9 @@ class Trip() {
     var sharedWith: List<String> = arrayListOf()
     var creatorId: String = ""
     var discussion: ArrayList<Message> = arrayListOf()
+    var incomplete: Boolean = false
 
-    fun getTripStep(tripId: Int): List<TripStep> {
+    fun getTripStep(tripId: String): List<TripStep> {
         val steps = arrayListOf<TripStep>()
         destinationsPerDay.forEachIndexed { index, day ->
             day.forEach { step ->
@@ -47,14 +48,15 @@ class Trip() {
             name = name,
             starting_location = startingtripId,
             sharedWith = sharedWith.joinToString("|"),
-            creator_id = creatorId
+            creator_id = creatorId,
+            incomplete = incomplete
         )
     }
 
     fun fromTripDb(trip: com.apps.travel_app.data.room.entity.Trip) {
         id = trip.tid
-        attributes = trip.attributes.split("|")
-        sharedWith = trip.sharedWith.split("|")
+        attributes = trip.attributes.split("|").toList()
+        sharedWith = trip.sharedWith.split("|").toList()
         creator = trip.creator
         season = trip.season
         thumbnailUrl = trip.thumbnailUrl
@@ -63,6 +65,7 @@ class Trip() {
         creationDate = trip.creationDate ?: ""
         name = trip.name
         creatorId = trip.creator_id
+        incomplete = trip.incomplete
     }
 
     fun fromTripDb(trip: TripAndDays) {
@@ -89,5 +92,6 @@ class Trip() {
             steps[it.day].add(step)
         }
         destinationsPerDay = steps
+        incomplete = trip.trip.incomplete
     }
 }

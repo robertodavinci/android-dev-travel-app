@@ -58,7 +58,6 @@ class MainActivity : ComponentActivity() {
 
 
     private var destination: Destination? = null
-    private var oldDestination: Destination? = null
     lateinit var navController: NavHostController
     lateinit var db: FirebaseFirestore
     lateinit var auth: FirebaseAuth
@@ -89,12 +88,6 @@ class MainActivity : ComponentActivity() {
             launchSingleTop = true
             restoreState = true
         }
-    }
-
-    override fun onBackPressed() {
-        if(navController.currentDestination?.route.toString() == SubPages.GooglePlace.route)
-            oldDestination?.let { it1 -> setDestination(it1,true) }
-        else super.onBackPressed()
     }
 
     fun setGooglePlace(destination: Destination, openScreen: Boolean = false) {
@@ -133,8 +126,8 @@ class MainActivity : ComponentActivity() {
     }
 
     fun setTrip(trip: Trip, active: Boolean = false) {
-        if (active) {
-            val intent = Intent(this, ActiveTripActivity::class.java)
+        if (trip.incomplete) {
+            val intent = Intent(this, TripCreationActivity::class.java)
             intent.putExtra("tripId", trip.id)
             startActivity(intent)
         } else {
@@ -144,9 +137,8 @@ class MainActivity : ComponentActivity() {
         }
 
     }
-    fun setOldDestination(destinationTwo: Destination){
-        this.oldDestination = destinationTwo
-    }
+
+
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -223,13 +215,13 @@ class MainActivity : ComponentActivity() {
             composable(BottomBarItem.Profile.route) {
                 ProfileScreen(activity)
             }
+            composable(SubPages.GooglePlace.route) {
+                GooglePlaceScreen(navController, destination!!, activity)
+            }
             composable(SubPages.Location.route) {
                 if (destination != null) {
                     LocationScreen(navController, destination!!, activity)
                 }
-            }
-            composable(SubPages.GooglePlace.route) {
-                GooglePlaceScreen(navController, destination!!, activity)
             }
         }
     }

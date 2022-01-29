@@ -1,6 +1,9 @@
 package com.apps.travel_app.ui.components
 
 import FaIcons
+import android.app.Activity
+import android.app.TimePickerDialog
+import android.content.Context
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -40,20 +43,28 @@ import com.apps.travel_app.models.Trip
 import com.apps.travel_app.models.TripDestination
 import com.apps.travel_app.ui.theme.*
 import com.apps.travel_app.ui.utils.sendPostRequest
+import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.guru.fontawesomecomposelib.FaIcon
 import com.skydoves.landscapist.CircularReveal
 import com.skydoves.landscapist.glide.GlideImage
+import java.util.*
 
 @Composable
 fun TripStepCard(
     destination: TripDestination,
     index: Int,
+    context: Context,
     onComplete: (Boolean) -> Unit = {},
     changeable: Boolean = false,
+<<<<<<< HEAD
     tripId: Int = 0
 ){
+=======
+    tripId: String = "0"
+) {
+>>>>>>> 1362a59576f297cfa49e0f62e9679acd37fb7c37
 
     val openDialog = remember { mutableStateOf(false) }
     val done = remember { mutableStateOf(false) }
@@ -173,16 +184,16 @@ fun TripStepCard(
 
         if (openDialog.value) {
             if (changeable) {
-                EditDialog(openDialog, destination)
+                EditDialog(openDialog, destination, context)
             } else {
-                Dialog(openDialog, destination,tripId)
+                Dialog(openDialog, destination, tripId)
             }
         }
     }
 }
 
 @Composable
-fun Dialog(openDialog: MutableState<Boolean>, destination: TripDestination, tripId: Int) {
+fun Dialog(openDialog: MutableState<Boolean>, destination: TripDestination, tripId: String) {
 
     var note: String? by remember {
         mutableStateOf("")
@@ -307,7 +318,7 @@ fun Dialog(openDialog: MutableState<Boolean>, destination: TripDestination, trip
             }
 
 
-            if (tripId > 0   && note != null) {
+            if (tripId != "0" && tripId != "-1" && note != null) {
 
                 TextField(
                     value = note!!,
@@ -368,7 +379,7 @@ fun Dialog(openDialog: MutableState<Boolean>, destination: TripDestination, trip
 }
 
 @Composable
-fun EditDialog(openDialog: MutableState<Boolean>, destination: TripDestination) {
+fun EditDialog(openDialog: MutableState<Boolean>, destination: TripDestination, context: Context) {
     var description by remember {
         mutableStateOf(destination.description)
     }
@@ -462,20 +473,18 @@ fun EditDialog(openDialog: MutableState<Boolean>, destination: TripDestination) 
 
             Heading(stringResource(R.string.arrival_hour))
 
-            BasicTextField(
-                value = hour, onValueChange = { hour = it },
-                singleLine = true,
-                textStyle = TextStyle(
-                    color = colors.surface,
-                    fontWeight = FontWeight.Bold,
-                    textAlign = Center
-                ),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                modifier = Modifier
-                    .padding(cardPadding)
-                    .fillMaxWidth(),
-                cursorBrush = SolidColor(colors.surface)
-            )
+            Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                Button(onClick = { timePicker(
+                    context, hour
+                ) {
+                    hour = it
+                } }) {
+                    Text(
+                        if (hour.trim().isEmpty()) stringResource(R.string.select) else hour,
+                        color = colors.surface
+                    )
+                }
+            }
 
             Heading(stringResource(R.string.visit_duration))
 
@@ -509,4 +518,26 @@ fun EditDialog(openDialog: MutableState<Boolean>, destination: TripDestination) 
         }
 
     }
+
+
+}
+
+
+fun timePicker(context: Context, input: String, onSelection: (String) -> Unit) {
+    val calendar = Calendar.getInstance()
+    var hour = calendar[Calendar.HOUR_OF_DAY]
+    var minute = calendar[Calendar.MINUTE]
+
+    if (input.isNotEmpty()) {
+        val portions = input.split(":")
+        hour = portions[0].toInt()
+        minute = portions[1].toInt()
+    }
+
+    TimePickerDialog(
+        context,
+        { _, hour: Int, minute: Int ->
+            onSelection("$hour:$minute")
+        }, hour, minute, true
+    ).show()
 }

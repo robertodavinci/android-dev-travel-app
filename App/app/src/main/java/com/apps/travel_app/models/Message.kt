@@ -8,5 +8,5 @@ class Message {
     var userId: String = ""
     var messages: ArrayList<Message> = arrayListOf()
     var parent: String? = null
-    var entityId: Int = 0
+    var entityId: String = "0"
 }

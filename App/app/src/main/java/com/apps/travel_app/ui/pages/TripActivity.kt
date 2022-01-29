@@ -1,6 +1,7 @@
 package com.apps.travel_app.ui.pages
 
 import FaIcons
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -43,10 +44,7 @@ import androidx.preference.PreferenceManager
 import androidx.room.Room
 import com.apps.travel_app.R
 import com.apps.travel_app.data.room.AppDatabase
-import com.apps.travel_app.models.MediumType
-import com.apps.travel_app.models.Message
-import com.apps.travel_app.models.Trip
-import com.apps.travel_app.models.TripDestination
+import com.apps.travel_app.models.*
 import com.apps.travel_app.ui.components.*
 import com.apps.travel_app.ui.pages.viewmodels.TripActivityViewModel
 import com.apps.travel_app.ui.pages.viewmodels.TripViewModel
@@ -81,12 +79,12 @@ class TripActivity : ComponentActivity() {
         val sharedPref = PreferenceManager.getDefaultSharedPreferences(this)
         val systemTheme = sharedPref.getBoolean("darkTheme", true)
 
-        val tripId = intent.getIntExtra("tripId", 0)
+        val tripId = intent.getStringExtra("tripId")
 
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
         setContent {
 
-            val viewModel = remember { TripActivityViewModel(this, tripId) }
+            val viewModel = remember { TripActivityViewModel(this, tripId ?: "0") }
             Travel_AppTheme(systemTheme = systemTheme) {
 
                 if (viewModel.trip != null) {
@@ -96,7 +94,7 @@ class TripActivity : ComponentActivity() {
                             viewModel.phase = true
                         })
                     } else {
-                        TripScreen(viewModel.trip!!)
+                        TripScreen(viewModel.trip!!, this)
                     }
                 }
             }
@@ -169,8 +167,13 @@ class TripActivity : ComponentActivity() {
     )
     @Composable
     fun TripScreen(
-        trip: Trip
+        trip: Trip,
+        context: Context
     ) {
+
+        val ratings = remember {
+            mutableStateListOf<Rating>()
+        }
 
         val db = Room.databaseBuilder(
             this,
@@ -180,10 +183,13 @@ class TripActivity : ComponentActivity() {
         val viewModel = remember {
             TripViewModel(
                 trip, db, this
-            )
+            ) {
+                ratings.addAll(it)
+            }
         }
 
         val discussion = remember { mutableStateListOf(*trip.discussion.toTypedArray()) }
+
         var writeRating by remember { mutableStateOf(false) }
         var writeMessage by remember { mutableStateOf(false) }
 
@@ -525,7 +531,7 @@ class TripActivity : ComponentActivity() {
                                                         )
                                                 )
                                             }
-                                            TripStepCard(place, index, tripId = trip.id)
+                                            TripStepCard(place, index, tripId = trip.id, context = context)
                                             if (index < viewModel.steps.size - 1) {
                                                 Box(
                                                     modifier = Modifier
@@ -605,36 +611,21 @@ class TripActivity : ComponentActivity() {
 
                                 Heading(stringResource(R.string.ratings))
 
-                                Box(
-                                    modifier = Modifier.padding(bottom = 60.dp)
-                                ) {
-                                    if (viewModel.ratings == null) {
-                                        Box(
-                                            modifier = Modifier
-                                                .align(Center)
-                                                .alpha(0.5f)
-                                                .padding(50.dp)
-                                        ) {
-                                            Loader()
-                                        }
-                                    } else {
-                                        Column(
-                                            modifier = Modifier
-                                                .padding(cardPadding)
-                                        ) {
 
-                                            viewModel.ratings?.forEach { rating ->
-                                                RatingCard(
-                                                    rating
-                                                )
-                                            }
-
-
-                                        }
-                                    }
-                                }
-
-                                if (!viewModel.isReviewed) {
+                            }
+                        }
+                        items(ratings) {
+                            Box(
+                                modifier = Modifier.padding(cardPadding / 2)
+                            ) {
+                                RatingCard(
+                                    it
+                                )
+                            }
+                        }
+                        item {
+                            if (!viewModel.isReviewed) {
+                                Box(Modifier.fillMaxWidth(), contentAlignment = Center) {
                                     Button(
                                         onClick = { writeRating = true },
                                         background = primaryColor
@@ -645,7 +636,6 @@ class TripActivity : ComponentActivity() {
                                         )
                                     }
                                 }
-
                             }
                         }
                         item {
@@ -655,12 +645,18 @@ class TripActivity : ComponentActivity() {
                         items(
                             discussion
                         ) { message ->
-                            MessageCard(message, tripId = trip.id)
+                            Box(Modifier.padding(cardPadding)) {
+                                MessageCard(message, tripId = trip.id)
+                            }
                         }
                         item {
-                            Button(onClick = { writeMessage = true }, background = primaryColor, modifier = Modifier.align(
-                                Center)) {
-                                Text(stringResource(R.string.new_message), color = White)
+                            Box(Modifier.fillMaxWidth(), contentAlignment = Center) {
+                                Button(
+                                    onClick = { writeMessage = true },
+                                    background = primaryColor
+                                ) {
+                                    Text(stringResource(R.string.new_message), color = White)
+                                }
                             }
                             Spacer(Modifier.height(60.dp))
                         }
@@ -692,6 +688,8 @@ class TripActivity : ComponentActivity() {
                             rating.username = user.displayName ?: ""
                             viewModel.uploadRating(rating) { result ->
                                 if (result) {
+                                    ratings.add(rating)
+                                    writeRating = false
                                     viewModel.isReviewed = true
                                 }
                             }

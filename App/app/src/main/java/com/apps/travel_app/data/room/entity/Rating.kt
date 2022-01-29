@@ -11,5 +11,5 @@ data class Rating(
     @ColumnInfo(name = "user_id") val uid: Int?,
     @ColumnInfo(name = "rating") val rating: Float,
     @ColumnInfo(name = "message") val message: String?,
-    @ColumnInfo(name = "entity_id") val entity: Int?
+    @ColumnInfo(name = "entity_id") val entity: String?
 )

@@ -2,8 +2,11 @@ package com.apps.travel_app.ui.pages.viewmodels
 
 import android.app.Activity
 import android.content.Intent
+import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.Matrix
+import android.os.Handler
+import android.os.Looper
 import android.provider.MediaStore
 import android.widget.Toast
 import androidx.activity.result.ActivityResult
@@ -11,14 +14,19 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.res.stringResource
 import androidx.exifinterface.media.ExifInterface
 import androidx.lifecycle.ViewModel
 import androidx.room.Room
+import com.apps.travel_app.R
 import com.apps.travel_app.data.room.AppDatabase
 import com.apps.travel_app.models.Destination
 import com.apps.travel_app.models.MediumType
 import com.apps.travel_app.models.Trip
 import com.apps.travel_app.models.TripDestination
+import com.apps.travel_app.ui.theme.danger
+import com.apps.travel_app.ui.theme.yellow
 import com.apps.travel_app.ui.utils.errorMessage
 import com.apps.travel_app.ui.utils.getRealPathFromURI
 import com.apps.travel_app.ui.utils.isOnline
@@ -32,7 +40,7 @@ import java.io.ByteArrayOutputStream
 import java.text.SimpleDateFormat
 import java.util.*
 
-class TripCreationViewModel(activity: Activity, tripId: Int) : ViewModel() {
+class TripCreationViewModel(val mainActivity: Activity, tripId: String) : ViewModel() {
     var loading by mutableStateOf(false)
     var thumbnailUrl: String? by mutableStateOf(null)
     var confirmed by mutableStateOf(false)
@@ -48,16 +56,32 @@ class TripCreationViewModel(activity: Activity, tripId: Int) : ViewModel() {
     var mainDestination: Destination? by mutableStateOf(null)
     var days by mutableStateOf(1)
     var sharedWith by mutableStateOf(ArrayList<String>())
-    val mainActivity = activity
-    val id = tripId
+    var id = tripId
     var thumbnail: Bitmap? by mutableStateOf(null)
+    private var continuePresaving = true
 
+    fun stop() {
+        continuePresaving = false
+    }
 
-    fun fillUp() {
+    private fun presave() {
+        val mainHandler = Handler(Looper.getMainLooper())
+
+        mainHandler.post(object : Runnable {
+            override fun run() {
+                if (continuePresaving) {
+                    save(true)
+                    mainHandler.postDelayed(this, 10000)
+                }
+            }
+        })
+    }
+
+    private fun fillUp() {
         Thread {
-            if (isOnline(mainActivity)) {
+            if (isOnline(mainActivity) && !id.contains("_")) {
                 try {
-                    val request = id.toString() // NON-NLS
+                    val request = id // NON-NLS
                     val ratingsText = sendPostRequest(request, action = "trip") // NON-NLS
                     val gson = Gson()
                     val itemType = object : TypeToken<Trip>() {}.type
@@ -88,24 +112,33 @@ class TripCreationViewModel(activity: Activity, tripId: Int) : ViewModel() {
                     mainActivity.runOnUiThread {
                         description = trip.description
                         name = trip.name
-                        tags = trip.attributes as ArrayList<String>
+                        tags = ArrayList<String>(trip.attributes)
                         selectedDay = 0
                         destinations = trip.destinationsPerDay
                         mainDestination = trip.mainDestination
+                        if (trip.mainDestination.id.isEmpty())
+                            mainDestination = null
                         days = trip.destinationsPerDay.size
-                        sharedWith = trip.sharedWith as ArrayList<String>
+                        sharedWith = ArrayList<String>(trip.sharedWith)
+                        sharedWith.forEachIndexed { i, it -> if(it.isEmpty()) sharedWith.removeAt(i) }
+                        thumbnailUrl = trip.thumbnailUrl
                     }
                 }
             }
         }.start()
     }
 
-    fun upload(thumbnailUrl: String? = null) {
+    private fun upload(thumbnailUrl: String? = null, incomplete: Boolean = false) {
         confirmed = true
-        if (name.isEmpty() || description.isEmpty() || mainDestination == null) {
+        if (!incomplete && (name.isEmpty() || description.isEmpty() || mainDestination == null)) {
+            val sb = Snackbar.make(
+                mainActivity.window.decorView.rootView, mainActivity.resources.getString(R.string.not_enough_info),
+                Snackbar.LENGTH_LONG)
+            sb.view.setBackgroundColor(yellow.toArgb())
+            sb.show()
             return
         }
-        loading = true
+        loading = !incomplete && true
         Thread {
             try {
                 val gson = Gson()
@@ -113,37 +146,71 @@ class TripCreationViewModel(activity: Activity, tripId: Int) : ViewModel() {
                 trip.id = id
                 trip.creatorId = user.displayName
                 trip.thumbnailUrl = thumbnailUrl ?: ""
-                trip.mainDestination = mainDestination!!
+                this.thumbnailUrl = thumbnailUrl
+                if (mainDestination != null)
+                    trip.mainDestination = mainDestination!!
                 trip.name = name
                 trip.description = description
                 trip.attributes = tags
-                val format = SimpleDateFormat("dd/MM/yyy", Locale.ITALIAN)
+                val format = SimpleDateFormat("dd/MM/yyy", Locale.getDefault())
                 trip.creationDate = format.format(Date())
-                trip.creator = user.email
+                trip.creator = user.displayName ?: "?"
                 trip.destinationsPerDay = destinations
                 trip.sharedWith = sharedWith
-                val request = gson.toJson(trip) // NON-NLS
-                println(request)
-                val id = sendPostRequest(request, action = "saveTrip") // NON-NLS
-                mainActivity.runOnUiThread { loading = false }
+                if (!incomplete) {
 
-                if (id?.toInt()!! <= 0) {
-                    errorMessage(mainActivity.window.decorView.rootView).show()
-                } else {
-                    trip.id = id.toInt()
+
+                    val request = gson.toJson(trip) // NON-NLS
+                    println(request)
+                    val newId = sendPostRequest(request, action = "saveTrip") // NON-NLS
+                    mainActivity.runOnUiThread { loading = false }
+
                     val db = Room.databaseBuilder(
                         mainActivity,
                         AppDatabase::class.java, "database-name"
                     ).build()
                     db.locationDao().insertAll(trip.mainDestination.toLocation())
-                    val tripId = db.tripDao()
+                    val exTrip = db.tripDao()
+                        .getById(id)
+
+                    if (exTrip != null)
+                        db.tripDao().delete(exTrip.trip)
+
+
+                    if (newId?.toInt()!! <= 0) {
+                        errorMessage(mainActivity.window.decorView.rootView).show()
+                    } else {
+                        trip.incomplete = false
+                        trip.id = newId
+
+                        db.locationDao().insertAll(trip.mainDestination.toLocation())
+                        db.tripDao()
+                            .insertAll(trip.toTripDb(trip.mainDestination.id))[0]
+
+                        val tripDao = db.tripStepDao()
+                        trip.getTripStep(trip.id).forEach {
+                            tripDao.insertAll(it)
+                        }
+                        mainActivity.finish()
+                    }
+                } else {
+                    trip.incomplete = true
+                    if (id == "-1") {
+                        trip.id = "_" + System.currentTimeMillis()
+                        id = trip.id
+                    }
+                    val db = Room.databaseBuilder(
+                        mainActivity,
+                        AppDatabase::class.java, "database-name"
+                    ).build()
+                    db.locationDao().insertAll(trip.mainDestination.toLocation())
+                    db.tripDao()
                         .insertAll(trip.toTripDb(trip.mainDestination.id))[0]
 
                     val tripDao = db.tripStepDao()
-                    trip.getTripStep(tripId.toInt()).forEach {
+                    trip.getTripStep(trip.id).forEach {
                         tripDao.insertAll(it)
                     }
-                    mainActivity.finish()
                 }
             } catch (e: Exception) {
                 errorMessage(mainActivity.window.decorView.rootView).show()
@@ -151,7 +218,7 @@ class TripCreationViewModel(activity: Activity, tripId: Int) : ViewModel() {
         }.start()
     }
 
-    fun save() {
+    fun save(incomplete: Boolean = false) {
         if (thumbnail != null && thumbnailUrl == null) {
             val bitmap = thumbnail
             val baos = ByteArrayOutputStream()
@@ -164,15 +231,15 @@ class TripCreationViewModel(activity: Activity, tripId: Int) : ViewModel() {
 
             val uploadTask = mountainImagesRef.putBytes(data)
             uploadTask.addOnFailureListener {
-                upload()
+                upload(incomplete = incomplete)
             }.addOnSuccessListener {
                 storageRef.child(path).downloadUrl.addOnSuccessListener {
-                    upload(it.toString())
+                    upload(it.toString(),incomplete)
                 }
 
             }
         } else {
-            upload(thumbnailUrl)
+            upload(thumbnailUrl, incomplete)
         }
     }
 
@@ -220,11 +287,13 @@ class TripCreationViewModel(activity: Activity, tripId: Int) : ViewModel() {
         } else {
             thumbnail = bitmap
         }
+        thumbnailUrl = null
     }
 
     init {
-        if (tripId > -1) {
+        if (tripId != "-1") {
             fillUp()
         }
+        presave()
     }
 }

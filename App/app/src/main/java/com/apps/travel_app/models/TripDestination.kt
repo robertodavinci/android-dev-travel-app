@@ -36,7 +36,7 @@ class TripDestination : Destination() {
     }
 
 
-    fun toTripStep(tripId: Int, day: Int): TripStep {
+    fun toTripStep(tripId: String, day: Int): TripStep {
 
         return TripStep(
             tsid = id,
