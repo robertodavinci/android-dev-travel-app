@@ -58,13 +58,8 @@ fun TripStepCard(
     context: Context,
     onComplete: (Boolean) -> Unit = {},
     changeable: Boolean = false,
-<<<<<<< HEAD
-    tripId: Int = 0
-){
-=======
     tripId: String = "0"
-) {
->>>>>>> 1362a59576f297cfa49e0f62e9679acd37fb7c37
+    ){
 
     val openDialog = remember { mutableStateOf(false) }
     val done = remember { mutableStateOf(false) }

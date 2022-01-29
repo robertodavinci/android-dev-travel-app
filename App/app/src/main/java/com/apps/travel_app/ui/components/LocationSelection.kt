@@ -212,7 +212,7 @@ fun LocationSelection(
                         fontSize = textNormal
                     )
                 }
-                Button(onClick = {
+                /*Button(onClick = {
                     viewModel.search(viewModel.searchTerm);keyboardController?.hide()
                 }, background = primaryColor) {
                     Text(
@@ -220,7 +220,7 @@ fun LocationSelection(
                         color = White,
                         fontSize = textNormal
                     )
-                }
+                }*/
             }
         }
 
