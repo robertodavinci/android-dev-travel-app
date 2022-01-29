@@ -20,26 +20,32 @@
 \BOOKMARK [3][-]{subsubsection.2.2.4}{Following a trip}{subsection.2.2}% 20
 \BOOKMARK [3][-]{subsubsection.2.2.5}{Updating account settings}{subsection.2.2}% 21
 \BOOKMARK [3][-]{subsubsection.2.2.6}{Offline function}{subsection.2.2}% 22
-\BOOKMARK [1][-]{section.3}{Architectural Design}{}% 23
-\BOOKMARK [2][-]{subsection.3.1}{Overview}{section.3}% 24
-\BOOKMARK [2][-]{subsection.3.2}{Backend architecture}{section.3}% 25
-\BOOKMARK [3][-]{subsubsection.3.2.1}{User database}{subsection.3.2}% 26
-\BOOKMARK [3][-]{subsubsection.3.2.2}{Trips database}{subsection.3.2}% 27
-\BOOKMARK [2][-]{subsection.3.3}{Middleware architecture}{section.3}% 28
-\BOOKMARK [2][-]{subsection.3.4}{Runtime view}{section.3}% 29
-\BOOKMARK [3][-]{subsubsection.3.4.1}{Create a trip}{subsection.3.4}% 30
-\BOOKMARK [3][-]{subsubsection.3.4.2}{Edit a trip}{subsection.3.4}% 31
-\BOOKMARK [3][-]{subsubsection.3.4.3}{Add a destination}{subsection.3.4}% 32
-\BOOKMARK [3][-]{subsubsection.3.4.4}{Search for a trip/explore}{subsection.3.4}% 33
-\BOOKMARK [2][-]{subsection.3.5}{Design constraints}{section.3}% 34
-\BOOKMARK [3][-]{subsubsection.3.5.1}{Hardware limitations}{subsection.3.5}% 35
-\BOOKMARK [3][-]{subsubsection.3.5.2}{Privacy limitations}{subsection.3.5}% 36
-\BOOKMARK [1][-]{section.4}{User Interface Design}{}% 37
-\BOOKMARK [2][-]{subsection.4.1}{Identity and colours}{section.4}% 38
-\BOOKMARK [2][-]{subsection.4.2}{User interface design}{section.4}% 39
-\BOOKMARK [3][-]{subsubsection.4.2.1}{Main screen}{subsection.4.2}% 40
-\BOOKMARK [3][-]{subsubsection.4.2.2}{Map screen}{subsection.4.2}% 41
-\BOOKMARK [2][-]{subsection.4.3}{Saved trips screen}{section.4}% 42
-\BOOKMARK [3][-]{subsubsection.4.3.1}{Explore screen}{subsection.4.3}% 43
-\BOOKMARK [3][-]{subsubsection.4.3.2}{Settings screen}{subsection.4.3}% 44
-\BOOKMARK [1][-]{section.5}{Testing}{}% 45
+\BOOKMARK [2][-]{subsection.2.3}{Additional features}{section.2}% 23
+\BOOKMARK [3][-]{subsubsection.2.3.1}{Translation}{subsection.2.3}% 24
+\BOOKMARK [3][-]{subsubsection.2.3.2}{Multiple language support}{subsection.2.3}% 25
+\BOOKMARK [1][-]{section.3}{Architectural Design}{}% 26
+\BOOKMARK [2][-]{subsection.3.1}{Overview}{section.3}% 27
+\BOOKMARK [2][-]{subsection.3.2}{Frontend architecture}{section.3}% 28
+\BOOKMARK [2][-]{subsection.3.3}{Backend architecture}{section.3}% 29
+\BOOKMARK [3][-]{subsubsection.3.3.1}{User database}{subsection.3.3}% 30
+\BOOKMARK [3][-]{subsubsection.3.3.2}{Trips database}{subsection.3.3}% 31
+\BOOKMARK [2][-]{subsection.3.4}{Middleware architecture}{section.3}% 32
+\BOOKMARK [3][-]{subsubsection.3.4.1}{Communication with the backend}{subsection.3.4}% 33
+\BOOKMARK [3][-]{subsubsection.3.4.2}{Handling unexpected actions}{subsection.3.4}% 34
+\BOOKMARK [2][-]{subsection.3.5}{Runtime view}{section.3}% 35
+\BOOKMARK [3][-]{subsubsection.3.5.1}{Create a trip}{subsection.3.5}% 36
+\BOOKMARK [3][-]{subsubsection.3.5.2}{Edit a trip}{subsection.3.5}% 37
+\BOOKMARK [3][-]{subsubsection.3.5.3}{Add a destination}{subsection.3.5}% 38
+\BOOKMARK [3][-]{subsubsection.3.5.4}{Search for a trip/explore}{subsection.3.5}% 39
+\BOOKMARK [2][-]{subsection.3.6}{Design constraints}{section.3}% 40
+\BOOKMARK [3][-]{subsubsection.3.6.1}{Hardware limitations}{subsection.3.6}% 41
+\BOOKMARK [3][-]{subsubsection.3.6.2}{Privacy limitations}{subsection.3.6}% 42
+\BOOKMARK [1][-]{section.4}{User Interface Design}{}% 43
+\BOOKMARK [2][-]{subsection.4.1}{Identity and colours}{section.4}% 44
+\BOOKMARK [2][-]{subsection.4.2}{User interface design}{section.4}% 45
+\BOOKMARK [3][-]{subsubsection.4.2.1}{Main screen}{subsection.4.2}% 46
+\BOOKMARK [3][-]{subsubsection.4.2.2}{Map screen}{subsection.4.2}% 47
+\BOOKMARK [2][-]{subsection.4.3}{Saved trips screen}{section.4}% 48
+\BOOKMARK [3][-]{subsubsection.4.3.1}{Explore screen}{subsection.4.3}% 49
+\BOOKMARK [3][-]{subsubsection.4.3.2}{Settings screen}{subsection.4.3}% 50
+\BOOKMARK [1][-]{section.5}{Testing}{}% 51

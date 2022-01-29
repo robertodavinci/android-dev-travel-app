@@ -2,6 +2,44 @@
 \hspace{\parindent}Architectural design of the application is based on the three-layer model used in most applications. The three layers are the presentation layer, or frontend, the application layer, or middleware, and the data layer, or backend. Each of those layers does its own part of the job and communicates with other layers in order to present the correct information to the user.\\
 The architecture is also a typical client-server implementation where server holds the data and the client is accessing it through requests (besides the offline mode where the user stored some of the data from the server locally and is accessing it without using online requests).\\
 \newpage
+\subsection{Frontend architecture}
+\hspace{\parindent}Frontend part of the application is using viewmodels, which are more commonly known as \textbf{model-view-viewmodel} architecture.\\ \\
+The base of the Android app technology is the Android Compose, which uses different approach to the app development, as it draws specific components based on the state that the app is in. This makes for much more lightweight app, as the activity or intent of the Android app is much less frequently changed as only some of the components that are being drawn out on the screen are being interchanged, which saves a lot of time and resources. This approach also allows for code reusability as components can be used in either completely identical shapes, or just slightly altered depending on the use.\\ \\
+This is where the viewmodel architecture comes in. Instead of directly handling the data and communicating with the data layer of the application, which in this case is done through the middleware, the frontend has additional sub layer which handles all the data, communication, and calculations of which parts of the interface should be shown. There are many advantages to this, with the main ones being complete independent handling of the communication and the presentation.\\ \\
+Making big changes or adding additional functions in the middle of the app development can exponentially increase the production time and can quite often lead to rewriting the same parts of the code multiple times. Viewmodel architecture provides a certain kind of stability of the code, as adding additional function will usually mean writing either only the presentational part or the communication part, and then just connecting it with other already existing functions. It dramatically improves clarity and speed of development once everything is set up. Lastly, detecting bugs and unintended behaviour in the app is far easier, as we always know in which layer the problem is located. This makes it not only easier to find, but also easier to fix, as there is a good chance that we are only going to have to change a small part of the code, assuming that the other part is written correctly. In other types of architectures this often leads to rewriting entire parts of the frontend.\\ \\
+One of the main disadvantages of this model is it's complexity, as there is another additional layer of communication in which the data needs to be handled and adapted in order to be passed through. This of course increases the time of development and the possibility of bugs, but if everything is done correctly, it provides a great tradeoff.\\
+
+Almost every screen/activity has it's own view model, with the focus being on ones that have the most communication with the backend. The list of all the activities and their respective viewmodels is the following:
+\begin{itemize}
+\item Main Activity		
+\item Trip Activity	 - Trip View Model
+\item Trips Screen	 - Trips View Model
+\item Trip Creation Activity	- Trip Creation View Model
+\item Map Screen	 - Map View Model
+\item Location Screen	 - Location View Model
+\item Location Selection Screen	- Location Selection View Model
+\item Home Screen	 - Home View Model
+\item Google Place Screen	 - Google Place View Model
+\item Login Activity
+\item Inspiration Activity
+\item Explore Screen
+\item Around Me Activity
+\item Active Trip Activity
+\item Profile Screen
+\end{itemize}
+Other types of design elements included in front development, besides the common ones used in pretty much every single app, include the following:
+\begin{itemize}
+\item Bars
+\item Buttons
+\item Cards
+\item Switches
+\item Icons
+\item Images
+\item Map
+\end{itemize}
+The general design and look of the UI is shown in more detail in the Chapter 4 of the document.
+\newpage
+
 \subsection{Backend architecture}
 \subsubsection{User database}
 
@@ -39,7 +77,17 @@ Besides all of the destinations and the basic info, trip entity also features cr
 
 
 \subsection{Middleware architecture}
-\hspace{\parindent}In order to connect the data on the server to the screen of the phone and to allow the user to properly see the data, we have implemented a complicated layer of functions and classes in order to create easy-to-use and esthetically pleasing experience for the user.
+\hspace{\parindent}In order to connect the data on the server to the screen of the phone and to allow the user to properly see the data, we have implemented a complicated layer of functions and classes in order to create easy-to-use and esthetically pleasing experience for the user. In this section the most important functions of this layer, and everything that does not belong to the frontend and backend will be explained.\\ \\
+In general, it works as a separator or a controller of the three-layer infrastructure that is being used by the app.
+\subsubsection{Communication with the backend}
+\hspace{\parindent}App comunicates with the backend through the queries. After user's input, they are generated within the app, and the query is sent to the database. Database then collects all the needed data and sends it back to the application in the form of JSON files, which are easily readable and are rather simple to manipulate. 
+
+\subsubsection{Handling unexpected actions}
+\hspace{\parindent}There are several instances in which the unexpected behaviour of the app or the phone can cause users to lose a lot of their previous work. As creating a new trip from scratch can be a long process, especially for longer trips, there is always a problem of consistency. If the user visits some other apps in the meantime, the risk of 'Polaris' app changing lifecycle state can destroy all of the previous work. The same can also happen with the phone's battery being depleted or if the user accidentally closes the app.\\ \\
+
+The solution of this problem is found in the premature saving of the trip. Every time the user leaves the trip unfinished or exits the app without either saving or discarding the trip, the app will save the trip with the "unfinished" attribute. This means that the trip will exist just like normal trips, but will not be published in neither private or public mode. The reason for that is that the trip might not even have the most basic attributes like name, which is a crucial attribute for the trip to be published, but is quite often left as the final piece of the puzzle when being created by the user.\\ \\
+
+This way whenever the users return to the library of created/saved trips, they will found the previously unfinished trip and will be able to continue from where they left off. The middleware handles this part on its own, storing the trip in the database and taking care of all of the necessary actions, so the user doesn't have to worry about storing or fetching the trip. 
 
 \subsection{Runtime view}
 
