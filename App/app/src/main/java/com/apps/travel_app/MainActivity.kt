@@ -126,8 +126,8 @@ class MainActivity : ComponentActivity() {
     }
 
     fun setTrip(trip: Trip, active: Boolean = false) {
-        if (active) {
-            val intent = Intent(this, ActiveTripActivity::class.java)
+        if (trip.incomplete) {
+            val intent = Intent(this, TripCreationActivity::class.java)
             intent.putExtra("tripId", trip.id)
             startActivity(intent)
         } else {

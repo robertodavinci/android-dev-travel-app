@@ -26,6 +26,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -132,8 +133,11 @@ fun TripCard(
                                 .padding(start = cardPadding * infoScale)
                                 .fillMaxWidth(),
                             color = Color.White,
-                            fontSize = textHeading * infoScale,
-                            fontWeight = FontWeight.Bold
+                            fontSize = textNormal * infoScale,
+                            fontWeight = FontWeight.Bold,
+                            overflow = TextOverflow.Ellipsis,
+                            lineHeight = textNormal,
+                            maxLines = 1
                         )
                         if (views > 0) {
                             Row(

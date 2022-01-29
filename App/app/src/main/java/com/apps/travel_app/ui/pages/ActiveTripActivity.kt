@@ -62,7 +62,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class ActiveTripActivity : ComponentActivity() {
-
+/*
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -517,7 +517,7 @@ class ActiveTripActivity : ComponentActivity() {
             else
                 callback(false)
         }.start()
-    }
+    }*/
 
 
 }

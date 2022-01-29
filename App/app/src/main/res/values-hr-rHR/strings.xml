@@ -92,4 +92,6 @@
     <string name="days">Dani</string>
     <string name="discussion">Discussion</string>
     <string name="new_message">New message</string>
+    <string name="not_enough_info">Some required fields is not filled up</string>
+    <string name="select">Select</string>
 </resources>

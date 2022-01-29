@@ -39,6 +39,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -158,9 +159,9 @@ fun LocationSelection(
                     FaIcon(FaIcons.ArrowLeft, tint = colors.surface)
                 }
                 TextField(
-                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search, capitalization = KeyboardCapitalization.Sentences),
                     keyboardActions = KeyboardActions(
-                        onDone = { viewModel.search(viewModel.searchTerm);keyboardController?.hide() }),
+                        onSearch = { viewModel.search(viewModel.searchTerm);keyboardController?.hide() }),
                     value = viewModel.searchTerm, onValueChange = { viewModel.searchTerm = it },
                     shape = RoundedCornerShape(cardRadius),
                     modifier = Modifier
@@ -196,7 +197,7 @@ fun LocationSelection(
                     ),
                 )
             }
-            Row(Modifier.align(CenterHorizontally).padding(cardPadding / 2)) {
+            Row(Modifier.align(CenterHorizontally).padding(cardPadding / 2), horizontalArrangement = SpaceBetween) {
                 if (!viewModel.userIsAddingAPlace) {
                     Button(onClick = {
                         viewModel.userIsAddingAPlace = true
@@ -207,12 +208,22 @@ fun LocationSelection(
                             fontSize = textNormal
                         )
                     }
-                } else
+                } else {
                     Text(
                         stringResource(R.string.pin_place),
                         color = colors.surface,
                         fontSize = textNormal
                     )
+                }
+                Button(onClick = {
+                    viewModel.search(viewModel.searchTerm);keyboardController?.hide()
+                }, background = primaryColor) {
+                    Text(
+                        stringResource(R.string.search),
+                        color = White,
+                        fontSize = textNormal
+                    )
+                }
             }
         }
 
