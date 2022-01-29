@@ -19,7 +19,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 
-class TripViewModel(val trip: Trip, val db: AppDatabase, val activity: Activity) : ViewModel() {
+class TripViewModel(val trip: Trip, val db: AppDatabase, val activity: Activity, val onRating: (List<Rating>) -> Unit) : ViewModel() {
     var open by mutableStateOf(false)
     var loaded by mutableStateOf(false)
     var ratings by mutableStateOf<ArrayList<Rating>?>(null)
@@ -51,6 +51,7 @@ class TripViewModel(val trip: Trip, val db: AppDatabase, val activity: Activity)
                         result.add(rating)
                     }
                     ratings = result
+                    this.onRating(result)
                 } catch (e: Exception) {
                     errorMessage(activity.window.decorView.rootView).show()
                 }
@@ -89,11 +90,11 @@ class TripViewModel(val trip: Trip, val db: AppDatabase, val activity: Activity)
                 if (!isSaved) {
                     db.locationDao()
                         .insertAll(trip.mainDestination.toLocation())
-                    val tripId = db.tripDao()
+                    db.tripDao()
                         .insertAll(trip.toTripDb(trip.mainDestination.id))[0]
 
                     val tripDao = db.tripStepDao()
-                    trip.getTripStep(tripId.toInt()).forEach {
+                    trip.getTripStep(trip.id).forEach {
                         tripDao.insertAll(it)
                     }
 
@@ -114,7 +115,7 @@ class TripViewModel(val trip: Trip, val db: AppDatabase, val activity: Activity)
     }
 }
 
-class TripActivityViewModel(activity: Activity, tripId: Int) : ViewModel() {
+class TripActivityViewModel(activity: Activity, tripId: String) : ViewModel() {
     var trip: Trip? by mutableStateOf(null)
     var phase by mutableStateOf(false)
 

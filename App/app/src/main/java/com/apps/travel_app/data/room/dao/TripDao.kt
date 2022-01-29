@@ -11,10 +11,10 @@ interface TripDao {
 
     @Transaction
     @Query("SELECT * FROM trip WHERE tid = :id")
-    fun getById(id: Int): TripAndDays?
+    fun getById(id: String): TripAndDays?
 
     @Query("SELECT * FROM trip WHERE tid IN (:ids)")
-    fun loadAllByEntity(ids: IntArray): List<Trip>
+    fun loadAllByEntity(ids: Array<String>): List<Trip>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll(vararg trips: Trip): List<Long>
@@ -23,5 +23,5 @@ interface TripDao {
     fun delete(trip: Trip)
 
     @Query("DELETE FROM Trip WHERE tid IN (:ids)")
-    fun deleteById(vararg ids: Int)
+    fun deleteById(vararg ids: String)
 }

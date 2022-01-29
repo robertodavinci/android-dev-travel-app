@@ -25,6 +25,6 @@ data class TripStep(
     @ColumnInfo(name = "visited") var visited: Boolean,
     @ColumnInfo(name = "notes") var notes: String,
     @ColumnInfo(name = "images") var images: String,
-    @ColumnInfo(name = "trip") var trip: Int,
+    @ColumnInfo(name = "trip") var trip: String,
     @ColumnInfo(name = "day") var day: Int
 )

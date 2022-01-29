@@ -60,7 +60,7 @@ class TripCreationActivity : ComponentActivity() {
     
     lateinit var resultLauncher: ActivityResultLauncher<Intent>
     private val permissionStorage = arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
-
+    lateinit var viewModel: TripCreationViewModel
 
 
 
@@ -83,9 +83,9 @@ class TripCreationActivity : ComponentActivity() {
         val sharedPref = PreferenceManager.getDefaultSharedPreferences(this)
         val systemTheme = sharedPref.getBoolean("darkTheme", true)
 
-        val tripId = intent.getIntExtra("tripId", -1)
-            val viewModel =
-            TripCreationViewModel(this, tripId)
+        val tripId = intent.getStringExtra("tripId")
+        viewModel =
+            TripCreationViewModel(this, tripId ?: "-1")
 
 
         resultLauncher = registerForActivityResult(
@@ -194,7 +194,7 @@ class TripCreationActivity : ComponentActivity() {
                                 horizontalAlignment = CenterHorizontally
                             ) {
                                 item {
-                                    if (viewModel.thumbnail != null || viewModel.thumbnailUrl != null) {
+                                    if (viewModel.thumbnail != null || !viewModel.thumbnailUrl.isNullOrEmpty()) {
                                         Card(
                                             elevation = cardElevation,
                                             backgroundColor = colors.onBackground,
@@ -279,15 +279,17 @@ class TripCreationActivity : ComponentActivity() {
 
                                     Row {
                                         Button (
+                                            Modifier.padding(5.dp),
                                             background = if(viewModel.sharedWith.size == 0) primaryColor else colors.onBackground,
                                             onClick = {viewModel.sharedWith = arrayListOf()}
                                                 ) {
                                             FaIcon(
                                                 FaIcons.Globe,
-                                                tint = if(viewModel.sharedWith.size == 0) primaryColor else colors.surface
+                                                tint = if(viewModel.sharedWith.size == 0) White else colors.surface
                                             )
                                         }
                                         Button (
+                                            Modifier.padding(5.dp),
                                             background = if(viewModel.sharedWith.size > 0) primaryColor else colors.onBackground,
                                             onClick = {viewModel.sharedWith = arrayListOf(user.email)}
                                         ) {
@@ -327,7 +329,7 @@ class TripCreationActivity : ComponentActivity() {
                                             }
                                         }
                                     } else {
-                                        Row {
+                                        Button(onClick = { viewModel.locationSelection = true },modifier = Modifier.fillMaxWidth()) {
 
                                             GlideImage(
                                                 imageModel = viewModel.mainDestination?.thumbnailUrl,
@@ -421,7 +423,7 @@ class TripCreationActivity : ComponentActivity() {
 
                                     Heading(stringResource(R.string.steps), modifier = Modifier.padding(cardPadding))
 
-                                    if (viewModel.destinations[viewModel.selectedDay].size <= 0) {
+                                    if (viewModel.destinations.isEmpty() || viewModel.destinations[viewModel.selectedDay].size <= 0) {
                                         Button(
                                             onClick = { viewModel.locationSelection = true },
                                         ) {
@@ -452,7 +454,7 @@ class TripCreationActivity : ComponentActivity() {
                                                             )
                                                     )
                                                 }
-                                                TripStepCard(place, index, changeable = true)
+                                                TripStepCard(place, index, changeable = true, context = this@TripCreationActivity)
                                                 if (index < viewModel.destinations[viewModel.selectedDay].size - 1) {
                                                     Box(
                                                         modifier = Modifier
@@ -585,6 +587,8 @@ class TripCreationActivity : ComponentActivity() {
                 .scale(0.8f)
         ) {
             tags.forEach {
+                if(it.isEmpty())
+                    return@forEach
                 val text = it
                 Button(
                     onClick = {
@@ -647,6 +651,11 @@ class TripCreationActivity : ComponentActivity() {
                 keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words)
             )
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        viewModel.stop()
     }
 
 
