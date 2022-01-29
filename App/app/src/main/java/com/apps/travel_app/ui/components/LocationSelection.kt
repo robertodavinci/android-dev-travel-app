@@ -8,6 +8,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.provider.MediaStore
+import android.util.Log
 import android.view.View
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -160,7 +161,8 @@ fun LocationSelection(
                 TextField(
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
                     keyboardActions = KeyboardActions(
-                        onDone = { viewModel.search(viewModel.searchTerm);keyboardController?.hide() }),
+                        onDone = { viewModel.search(viewModel.searchTerm);keyboardController?.hide() }
+                    ),
                     value = viewModel.searchTerm, onValueChange = { viewModel.searchTerm = it },
                     shape = RoundedCornerShape(cardRadius),
                     modifier = Modifier
@@ -200,7 +202,7 @@ fun LocationSelection(
                 if (!viewModel.userIsAddingAPlace) {
                     Button(onClick = {
                         viewModel.userIsAddingAPlace = true
-                    }, background = primaryColor) {
+                    }, background = secondaryColor) {
                         Text(
                             stringResource(R.string.not_what_i_want),
                             color = White,
@@ -274,7 +276,7 @@ fun LocationSelection(
                             onMainDestinationSelected(viewModel.currentDestination)
                             viewModel.mainDestinationSelected = true
                         },
-                        background = if (viewModel.mainDestinationSelected) success else primaryColor
+                        background = if (viewModel.mainDestinationSelected) success else colors.onSurface
                     ) {
                         Text(stringResource(R.string.set_main), fontSize = textNormal, color = White)
                     }
@@ -282,7 +284,7 @@ fun LocationSelection(
                     Button(onClick = {
                         onAddStep(viewModel.currentDestination)
                         viewModel.stepAdded = true
-                    }, background = if (viewModel.stepAdded) success else primaryColor) {
+                    }, background = if (viewModel.stepAdded) success else colors.onSurface) {
                         Text(stringResource(R.string.add_step), color = White, fontSize = textNormal)
                     }
                 }
@@ -420,6 +422,7 @@ fun LocationSelection(
                                 fontWeight = FontWeight.Bold
                             )
                         )
+                        Spacer(modifier = Modifier.width(5.dp))
                         if (viewModel.newDestinationThumbnail != null) {
                             Card(
                                 elevation = cardElevation,
@@ -475,7 +478,7 @@ fun LocationSelection(
                             Button(onClick = {
                                 viewModel.closeNewDestination()
                             }, background = danger) {
-                                Text(stringResource(R.string.save) ,color = White)
+                                Text(stringResource(R.string.close) ,color = White)
                             }
                         }
 
