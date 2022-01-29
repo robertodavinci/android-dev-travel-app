@@ -79,6 +79,7 @@
     <string name="main_destination">Destinazione principale</string>
     <string name="first_step">Primo step</string>
     <string name="tags_comma">Tag separati da virgole</string>
+    <string name="remove">Elimina</string>
     <string name="create_yours">Crea il tuo!</string>
     <string name="saved">Salvati</string>
     <string name="nothing_saved">Qui non c\'è nulla di salvato</string>

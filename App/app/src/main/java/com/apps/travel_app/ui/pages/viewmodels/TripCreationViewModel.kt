@@ -111,7 +111,7 @@ class TripCreationViewModel(activity: Activity, tripId: Int) : ViewModel() {
                 val gson = Gson()
                 val trip = Trip()
                 trip.id = id
-                trip.creatorId = user.id
+                trip.creatorId = user.displayName
                 trip.thumbnailUrl = thumbnailUrl ?: ""
                 trip.mainDestination = mainDestination!!
                 trip.name = name

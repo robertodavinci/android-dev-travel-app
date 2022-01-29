@@ -18,6 +18,7 @@ import androidx.compose.material.*
 import androidx.compose.material.MaterialTheme.colors
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.scale
@@ -52,7 +53,7 @@ fun TripStepCard(
     onComplete: (Boolean) -> Unit = {},
     changeable: Boolean = false,
     tripId: Int = 0
-) {
+){
 
     val openDialog = remember { mutableStateOf(false) }
     val done = remember { mutableStateOf(false) }
@@ -177,7 +178,6 @@ fun TripStepCard(
                 Dialog(openDialog, destination,tripId)
             }
         }
-
     }
 }
 
@@ -493,6 +493,17 @@ fun EditDialog(openDialog: MutableState<Boolean>, destination: TripDestination) 
                     .fillMaxWidth(),
                 cursorBrush = SolidColor(colors.surface)
             )
+            Spacer(modifier = Modifier.height(5.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(cardPadding),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = CenterVertically
+            ) {
+                Button(onClick = { //retVal = true
+                },background = danger) {
+                    Text(stringResource(R.string.remove) ,color = Color.White)
+                }
+            }
 
 
         }

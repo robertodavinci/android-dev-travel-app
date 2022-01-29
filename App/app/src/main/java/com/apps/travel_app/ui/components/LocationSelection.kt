@@ -422,7 +422,7 @@ fun LocationSelection(
                                 fontWeight = FontWeight.Bold
                             )
                         )
-                        Spacer(modifier = Modifier.width(5.dp))
+                        Spacer(modifier = Modifier.height(5.dp))
                         if (viewModel.newDestinationThumbnail != null) {
                             Card(
                                 elevation = cardElevation,

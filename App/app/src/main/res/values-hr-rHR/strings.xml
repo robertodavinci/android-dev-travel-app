@@ -72,7 +72,7 @@
     <string name="created_by">Napravio/la</string>
     <string name="day">dan</string>
     <string name="steps">Koraci</string>
-    <string name="minutes">minute</string>
+    <string name="minutes">min</string>
     <string name="trip_name">Ime putovanja</string>
     <string name="visibility">Vidljivost</string>
     <string name="tags">Oznake</string>
@@ -86,6 +86,7 @@
     <string name="notes">Bilješke</string>
     <string name="add_note">Dodaj bilješku</string>
     <string name="arrival_hour">Vrijeme dolaska</string>
+    <string name="remove">Ukloni</string>
     <string name="visit_duration">Duljina posjete</string>
     <string name="know_place_write">Ako poznaješ ovo mjesto, napiši nešto</string>
     <string name="top_ratings">Najbolje ocjene</string>

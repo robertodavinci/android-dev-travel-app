@@ -432,7 +432,6 @@ class TripCreationActivity : ComponentActivity() {
                                     }
 
                                     Heading(stringResource(R.string.steps), modifier = Modifier.padding(cardPadding))
-
                                     if (viewModel.destinations[viewModel.selectedDay].size <= 0) {
                                         Button(
                                             onClick = { viewModel.locationSelection = true },

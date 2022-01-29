@@ -167,7 +167,7 @@ class MainActivity : ComponentActivity() {
         }
 
         auth = Firebase.auth
-        user.displayName = auth.currentUser?.displayName
+        user.displayName = auth.currentUser?.displayName.toString()
         user.email = auth.currentUser?.email.toString()
         user.id = auth.currentUser?.uid.toString()
         user.realName = getSharedPreferences("CURRENT_USER", Context.MODE_PRIVATE).getString("realName", "")
