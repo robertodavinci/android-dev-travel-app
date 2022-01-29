@@ -2,10 +2,12 @@ package com.apps.travel_app.ui.pages
 
 import FaIcons
 import android.Manifest
+import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.provider.MediaStore
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.ActivityResultLauncher
@@ -43,6 +45,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
+import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModelProvider
 import androidx.preference.PreferenceManager
 import com.apps.travel_app.R
 import com.apps.travel_app.models.MediumType
@@ -56,12 +60,17 @@ import com.skydoves.landscapist.glide.GlideImage
 import java.util.*
 
 
+
 class TripCreationActivity : ComponentActivity() {
-    
+
     lateinit var resultLauncher: ActivityResultLauncher<Intent>
     private val permissionStorage = arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
     lateinit var viewModel: TripCreationViewModel
 
+    override fun onBackPressed(){
+        if (viewModel.locationSelection) viewModel.locationSelection = false
+        else finish()
+    }
 
 
     @OptIn(ExperimentalMaterialApi::class)
@@ -86,6 +95,7 @@ class TripCreationActivity : ComponentActivity() {
         val tripId = intent.getStringExtra("tripId")
         viewModel =
             TripCreationViewModel(this, tripId ?: "-1")
+
 
 
         resultLauncher = registerForActivityResult(
@@ -236,7 +246,7 @@ class TripCreationActivity : ComponentActivity() {
                                                     stringResource(R.string.add_thumbnail),
                                                     color = colors.surface,
                                                     fontSize = textNormal
-                                                    )
+                                                )
                                             }
                                         }
                                     }
@@ -282,7 +292,7 @@ class TripCreationActivity : ComponentActivity() {
                                             Modifier.padding(5.dp),
                                             background = if(viewModel.sharedWith.size == 0) primaryColor else colors.onBackground,
                                             onClick = {viewModel.sharedWith = arrayListOf()}
-                                                ) {
+                                        ) {
                                             FaIcon(
                                                 FaIcons.Globe,
                                                 tint = if(viewModel.sharedWith.size == 0) White else colors.surface
@@ -562,8 +572,8 @@ class TripCreationActivity : ComponentActivity() {
         }
 
     }
-    
-    
+
+
 
     @Composable
     fun Tags(_tags: ArrayList<String>) {
@@ -660,10 +670,3 @@ class TripCreationActivity : ComponentActivity() {
 
 
 }
-
-
-
-
-
-
-
