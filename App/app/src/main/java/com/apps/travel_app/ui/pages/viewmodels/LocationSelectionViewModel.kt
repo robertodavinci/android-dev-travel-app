@@ -1,12 +1,11 @@
 package com.apps.travel_app.ui.pages.viewmodels
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Matrix
 import android.provider.MediaStore
-import android.view.View
-import android.widget.Toast
 import androidx.activity.result.ActivityResult
 import androidx.compose.runtime.*
 import androidx.exifinterface.media.ExifInterface
@@ -14,29 +13,23 @@ import androidx.lifecycle.ViewModel
 import androidx.room.Room
 import com.apps.travel_app.data.room.AppDatabase
 import com.apps.travel_app.models.Destination
-import com.apps.travel_app.models.Trip
+import com.apps.travel_app.ui.theme.mapStyle
 import com.apps.travel_app.ui.utils.*
-import com.apps.travel_app.user
+import com.google.android.libraries.maps.CameraUpdate
+import com.google.android.libraries.maps.CameraUpdateFactory
 import com.google.android.libraries.maps.GoogleMap
 import com.google.android.libraries.maps.MapView
-import com.google.android.libraries.maps.model.LatLng
-import com.google.android.libraries.maps.model.Marker
-import com.google.android.libraries.maps.model.MarkerOptions
-import com.google.android.material.snackbar.Snackbar
+import com.google.android.libraries.maps.model.*
 import com.google.firebase.storage.FirebaseStorage
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.io.ByteArrayOutputStream
-import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.collections.ArrayList
-import kotlin.collections.HashMap
 
 class LocationSelectionViewModel(activity: Activity, val onAddStep: (Destination) -> Unit,val onMainDestinationSelected: (Destination) -> Unit): ViewModel() {
     private val destinations = HashMap<Int, Destination>()
 
     var center = LatLng(44.0, 10.0)
-    var currentDestination: Destination? by  mutableStateOf(null)
     var map: GoogleMap? by  mutableStateOf(null)
     var mapView: MapView? by  mutableStateOf(null)
     var mapLoaded by  mutableStateOf(false)
@@ -52,13 +45,44 @@ class LocationSelectionViewModel(activity: Activity, val onAddStep: (Destination
     var newDestinationName by mutableStateOf("")
     var newDestinationDesc by mutableStateOf("")
     var newDestinationType by mutableStateOf("")
-
+    var openCards by  mutableStateOf(true)
     var searchTerm by  mutableStateOf("") 
 
-    private var cities by
+    var cities by
         mutableStateOf(ArrayList<Destination>())
-    private var places by
-        mutableStateOf(ArrayList<Destination>())
+
+    fun mapInit(context: Context) {
+        map!!.uiSettings.isZoomControlsEnabled = false
+
+        map?.setMapStyle(
+            MapStyleOptions.loadRawResourceStyle(
+                context,
+                mapStyle
+            )
+        )
+
+        map!!.uiSettings.isMapToolbarEnabled = false
+
+        map?.moveCamera(CameraUpdateFactory.newLatLngZoom(center, 6f))
+
+        map?.setOnMarkerClickListener { marker -> markerClick(marker) }
+
+        map?.setOnMapClickListener { i ->
+            if (!mapClick(i))
+                userIsAddingAPlace = false
+        }
+    }
+
+    fun moveTo(index: Int) {
+        if (index >= 0 && index < cities.size && map != null) {
+            val cameraPosition = CameraPosition.Builder()
+                .target(LatLng(cities[index].latitude,cities[index].longitude))
+                .zoom(6f)
+                .build()
+            val cu: CameraUpdate = CameraUpdateFactory.newCameraPosition(cameraPosition)
+            map!!.animateCamera(cu)
+        }
+    }
 
     fun mapClick(pos: LatLng): Boolean {
         if (map == null || !userIsAddingAPlace)
@@ -119,7 +143,7 @@ class LocationSelectionViewModel(activity: Activity, val onAddStep: (Destination
                 val itemType = object : TypeToken<Response>() {}.type
                 val response: Response = gson.fromJson(resultText, itemType)
                 cities = response.cities
-                places = response.places
+                cities.addAll(response.places)
 
                 var index = 0
 
@@ -134,14 +158,7 @@ class LocationSelectionViewModel(activity: Activity, val onAddStep: (Destination
                                 it
                             )
                         }
-                        places.forEach {
-                            addMarker(
-                                LatLng(it.latitude, it.longitude),
-                                index++,
-                                it.name,
-                                it
-                            )
-                        }
+                        openCards = true
                     }
                 }
                 } catch (e: Exception) {
@@ -157,7 +174,7 @@ class LocationSelectionViewModel(activity: Activity, val onAddStep: (Destination
         stepAdded = false
         val destination = destinations[marker.hashCode()]
         if (destination != null) {
-            currentDestination = destination
+            //currentDestination = destination
             destinationSelected = true
             return true
         }

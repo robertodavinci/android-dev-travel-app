@@ -6,23 +6,29 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.res.Resources
 import android.provider.MediaStore
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement.SpaceBetween
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.MaterialTheme.colors
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
+import androidx.compose.ui.Alignment.Companion.End
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Brush
@@ -37,6 +43,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.app.ActivityCompat
@@ -45,8 +52,6 @@ import com.apps.travel_app.models.Destination
 import com.apps.travel_app.ui.pages.viewmodels.LocationSelectionViewModel
 import com.apps.travel_app.ui.theme.*
 import com.apps.travel_app.ui.utils.rememberMapViewWithLifecycle
-import com.google.android.libraries.maps.CameraUpdateFactory
-import com.google.android.libraries.maps.model.MapStyleOptions
 import com.guru.fontawesomecomposelib.FaIcon
 import com.skydoves.landscapist.glide.GlideImage
 import kotlinx.coroutines.CoroutineScope
@@ -67,6 +72,7 @@ fun LocationSelection(
     onMainDestinationSelected: (Destination?) -> Unit
 ) {
 
+    val width = convertPixelsToDp(Resources.getSystem().displayMetrics.widthPixels)
 
     val permissionStorage = arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
 
@@ -78,27 +84,7 @@ fun LocationSelection(
         })
     }
 
-    fun mapInit(context: Context) {
-        viewModel.map!!.uiSettings.isZoomControlsEnabled = false
 
-        viewModel.map?.setMapStyle(
-            MapStyleOptions.loadRawResourceStyle(
-                context,
-                mapStyle
-            )
-        )
-
-        viewModel.map!!.uiSettings.isMapToolbarEnabled = false
-
-        viewModel.map?.moveCamera(CameraUpdateFactory.newLatLngZoom(viewModel.center, 6f))
-
-        viewModel.map?.setOnMarkerClickListener { marker -> viewModel.markerClick(marker) }
-
-        viewModel.map?.setOnMapClickListener { i ->
-            if (!viewModel.mapClick(i))
-                viewModel.userIsAddingAPlace = false
-        }
-    }
 
 
     viewModel.mapView = rememberMapViewWithLifecycle()
@@ -118,7 +104,7 @@ fun LocationSelection(
                         mapView.getMapAsync { mMap ->
                             if (!viewModel.mapLoaded) {
                                 viewModel.map = mMap
-                                mapInit(context)
+                                viewModel.mapInit(context)
                                 viewModel.mapLoaded = true
                             }
                         }
@@ -224,79 +210,117 @@ fun LocationSelection(
             }
         }
 
-        if (viewModel.currentDestination != null) {
-            Column(
-                modifier = Modifier.align(Alignment.BottomCenter)
-            ) {
-                Card(
-                    elevation = cardElevation,
-                    backgroundColor = colors.onBackground,
-                    shape = RoundedCornerShape(cardRadius),
-                    modifier = Modifier
-                        .heightIn(0.dp, 100.dp)
-                        .wrapContentSize()
-                        .padding(cardPadding),
+
+        val height: Float by animateFloatAsState(
+            if (!viewModel.openCards) 0f else 500f, animationSpec = tween(
+                durationMillis = 300,
+                easing = LinearOutSlowInEasing
+            )
+        )
+
+        Column(Modifier.align(Alignment.BottomCenter)) {
+            if (viewModel.cities.isNotEmpty()) {
+                Button (
                     onClick = {
-
-                    }
+                        viewModel.openCards = !viewModel.openCards
+                    },
+                    modifier = Modifier.align(End).padding(end = cardPadding)
                 ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        GlideImage(
-                            imageModel = viewModel.currentDestination?.thumbnailUrl,
-                            contentDescription = "",
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier
-                                .fillMaxHeight()
-                                .widthIn(0.dp, 100.dp)
-                                .align(Alignment.CenterVertically)
-                        )
+                    FaIcon(
+                        if(viewModel.openCards) FaIcons.Times else FaIcons.ArrowUp, tint = colors.surface)
+                }
+            }
+            ComposePagerSnapHelper(
+                width = width.dp,
+                snap = {
+                    viewModel.moveTo(it)
+                }
+            ) { listState ->
 
-                        Column(
-                            modifier = Modifier.padding(cardPadding)
+                LazyRow(
+                    state = listState,
+                    modifier = Modifier.heightIn(0.dp, height.dp)
+                ) {
+                    items(viewModel.cities) { item ->
+                        Card(
+                            elevation = cardElevation,
+                            backgroundColor = colors.background,
+                            shape = RoundedCornerShape(cardRadius),
+                            modifier = Modifier
+                                .width(width.dp)
+                                .padding(cardPadding)
                         ) {
-                            Text(
-                                text = viewModel.currentDestination?.name ?: "",
-                                color = colors.surface,
-                                fontWeight = FontWeight.Bold,
-                                textAlign = TextAlign.Start,
-                                fontSize = textNormal,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .align(Alignment.Start)
-                            )
+
+                            Column(
+                                modifier = Modifier.fillMaxWidth().padding(cardPadding)
+                            ) {
+                                if (!item.thumbnailUrl.isEmpty()) {
+                                    GlideImage(
+                                        imageModel = item.thumbnailUrl,
+                                        contentScale = ContentScale.Crop,
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .height(100.dp)
+                                            .padding(bottom = 5.dp)
+                                            .graphicsLayer {
+                                                shape = RoundedCornerShape(cardRadius)
+                                                clip = true
+                                            }
+                                    )
+                                }
+                                Heading(item.name)
+                                Text(
+                                    text = item.description,
+                                    color = colors.surface,
+                                    textAlign = TextAlign.Start,
+                                    fontSize = textNormal,
+                                    lineHeight = textNormal / 2,
+                                    modifier = Modifier
+                                        .fillMaxWidth().padding(bottom = 5.dp),
+                                    maxLines = 3,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth(),
+                                    horizontalArrangement = SpaceBetween
+                                ) {
+                                    Button(
+                                        onClick = {
+                                            onMainDestinationSelected(item)
+                                            viewModel.mainDestinationSelected = true
+                                        },
+                                        background = if (viewModel.mainDestinationSelected) success else colors.onSurface
+                                    ) {
+                                        Text(
+                                            stringResource(R.string.set_main),
+                                            fontSize = textNormal,
+                                            color = White
+                                        )
+                                    }
+                                    Button(
+                                        onClick = {
+                                            onAddStep(item)
+                                            viewModel.stepAdded = true
+                                        },
+                                        background = if (viewModel.stepAdded) success else colors.onSurface
+                                    ) {
+                                        Text(
+                                            stringResource(R.string.add_step),
+                                            color = White,
+                                            fontSize = textNormal
+                                        )
+                                    }
+                                }
+                            }
                         }
                     }
-                }
 
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(cardPadding),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Button(
-                        onClick = {
-                            onMainDestinationSelected(viewModel.currentDestination)
-                            viewModel.mainDestinationSelected = true
-                        },
-                        background = if (viewModel.mainDestinationSelected) success else colors.onSurface
-                    ) {
-                        Text(stringResource(R.string.set_main), fontSize = textNormal, color = White)
-                    }
-                    Spacer(modifier = Modifier.padding(5.dp))
-                    Button(onClick = {
-                        onAddStep(viewModel.currentDestination)
-                        viewModel.stepAdded = true
-                    }, background = if (viewModel.stepAdded) success else colors.onSurface) {
-                        Text(stringResource(R.string.add_step), color = White, fontSize = textNormal)
-                    }
+
                 }
             }
         }
-
     }
 
     if (viewModel.userIsAddingAPlace && viewModel.addedMarker != null) {
@@ -496,6 +520,7 @@ fun LocationSelection(
     }
 
 }
+
 
 
 
