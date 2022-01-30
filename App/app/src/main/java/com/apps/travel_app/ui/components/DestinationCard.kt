@@ -79,30 +79,12 @@ fun DestinationCard(
             )
 
             Column(
-                modifier = Modifier.padding(cardPadding)
+                modifier = Modifier.padding(cardPadding).weight(1f)
             ) {
-                Text(
-                    text = destination?.name ?: "",
-                    color = MaterialTheme.colors.surface,
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Start,
-                    fontSize = textNormal,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .align(Alignment.Start)
+                Heading(
+                    destination?.name ?: ""
                 )
-                Text(
-                    text = destination?.description ?: "",
-                    color = MaterialTheme.colors.surface,
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Start,
-                    fontSize = textSmall,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                )
-                /*if (destination?.rating ?: 0f > 0) {
+                if (destination?.rating ?: 0f > 0) {
 
                     RatingBar(
                         rating = destination?.rating ?: 0f,
@@ -111,11 +93,12 @@ fun DestinationCard(
                         emptyColor = Color(0x88FFFFFF)
                     )
 
-                }*/
+                }
             }
 
             Button(
                 background = primaryColor,
+                modifier = Modifier.padding(5.dp),
                 onClick = {
                     if (destination != null) {
                         val intent = Intent(activity, MainActivity::class.java)

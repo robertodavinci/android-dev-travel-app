@@ -143,11 +143,7 @@ fun LocationScreen(
                         .padding(cardPadding / 2)
                         .fillMaxWidth()
                 ) {
-                    activities.forEach { activity ->
-                        Button(onClick = {}, modifier = Modifier.padding(5.dp)) {
-                            Text(activity)
-                        }
-                    }
+
                     Button(onClick = { viewModel.openMap.value = true }, modifier = Modifier.padding(5.dp)) {
                         FaIcon(
                             FaIcons.LocationArrow,

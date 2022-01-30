@@ -1,15 +1,11 @@
 package com.apps.travel_app.ui.pages
 
 import FaIcons
-import FaIcons.Tags
 import android.Manifest
-import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.provider.MediaStore
-import android.util.Log
-import android.view.KeyEvent
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.ActivityResultLauncher
@@ -27,7 +23,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.MaterialTheme.colors
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Alignment.Companion.CenterVertically
@@ -48,8 +43,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
-import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.ViewModelProvider
 import androidx.preference.PreferenceManager
 import com.apps.travel_app.R
 import com.apps.travel_app.models.MediumType
@@ -60,8 +53,6 @@ import com.apps.travel_app.ui.theme.*
 import com.apps.travel_app.user
 import com.guru.fontawesomecomposelib.FaIcon
 import com.skydoves.landscapist.glide.GlideImage
-import java.util.*
-
 
 
 class TripCreationActivity : ComponentActivity() {
@@ -533,6 +524,7 @@ class TripCreationActivity : ComponentActivity() {
                                                 }
                                             }
                                         }
+                                        Spacer(Modifier.height(cardPadding))
                                         Button(
                                             onClick = {
                                                 viewModel.stepCursor = viewModel.destinations[viewModel.selectedDay].size

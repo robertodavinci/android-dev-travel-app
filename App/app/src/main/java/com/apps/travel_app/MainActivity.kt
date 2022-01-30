@@ -62,6 +62,7 @@ class MainActivity : ComponentActivity() {
     lateinit var navController: NavHostController
     lateinit var db: FirebaseFirestore
     lateinit var auth: FirebaseAuth
+    private var destinationText: String? = String()
 
 
     @OptIn(ExperimentalFoundationApi::class,
@@ -152,20 +153,6 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val destinationText = intent.getStringExtra("destination")
-        if (!destinationText.isNullOrEmpty() && intent.action == "destination") {
-            try {
-                val gson = Gson()
-                val itemType = object : TypeToken<Destination>() {}.type
-                val dest: Destination = gson.fromJson(destinationText, itemType)
-                setDestination(dest, true)
-            } catch (e: Exception) {
-
-                errorMessage(window.decorView.rootView).show()
-
-            }
-        }
-
         auth = Firebase.auth
         user.displayName = auth.currentUser?.displayName.toString()
         user.email = auth.currentUser?.email.toString()
@@ -190,6 +177,8 @@ class MainActivity : ComponentActivity() {
                 MainScreen(this,this)
             }
         }
+
+        destinationText = intent.getStringExtra("destinationId")
     }
 
 
@@ -201,6 +190,23 @@ class MainActivity : ComponentActivity() {
         ) {
             Navigation(navController,context, activity)
         }
+        Thread {
+            Thread.sleep(1000)
+            if (!destinationText.isNullOrEmpty() && intent.action == "destination") {
+                try {
+                    val gson = Gson()
+                    val itemType = object : TypeToken<Destination>() {}.type
+                    val dest: Destination = gson.fromJson(destinationText, itemType)
+                    this@MainActivity.runOnUiThread {
+                        setDestination(dest, true)
+                    }
+                } catch (e: Exception) {
+
+                    errorMessage(window.decorView.rootView).show()
+
+                }
+            }
+        }.start()
     }
 
 

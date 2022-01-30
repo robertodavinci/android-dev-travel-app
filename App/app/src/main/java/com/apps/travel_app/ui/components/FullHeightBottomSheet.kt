@@ -38,9 +38,9 @@ enum class States {
     COLLAPSED
 }
 
-var changed: MutableState<States?> = mutableStateOf(null)
+private var changed: MutableState<States?> = mutableStateOf(null)
 
-fun ChangeState(state: States) {
+fun changeState(state: States) {
     changed.value = state
 }
 

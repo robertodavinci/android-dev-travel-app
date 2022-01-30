@@ -133,7 +133,7 @@ fun BottomNavigationBar(navController: NavController, mainActivity: MainActivity
                             .weight(1f)
                             .onFocusChanged {
                                 if (it.isFocused) {
-                                    ChangeState(States.EXPANDED)
+                                    changeState(States.EXPANDED)
                                 }
                             },
                         singleLine = true,
@@ -189,7 +189,7 @@ fun BottomNavigationBar(navController: NavController, mainActivity: MainActivity
                                                 imageMinHeight = 120f,
                                                 isGooglePlace = true,
                                                 onClick = {
-                                                    ChangeState(States.COLLAPSED)
+                                                    changeState(States.COLLAPSED)
                                                 }
                                             )
                                         }
@@ -211,7 +211,7 @@ fun BottomNavigationBar(navController: NavController, mainActivity: MainActivity
                                                     imageMinHeight = 120f,
                                                     isGooglePlace = true,
                                                     onClick = {
-                                                        ChangeState(States.COLLAPSED)
+                                                        changeState(States.COLLAPSED)
                                                     }
                                                 )
                                             }
@@ -243,7 +243,7 @@ fun BottomNavigationBar(navController: NavController, mainActivity: MainActivity
                                                 infoScale = 0.6f,
                                                 onClick = {
 
-                                                    ChangeState(States.COLLAPSED)
+                                                    changeState(States.COLLAPSED)
                                                 }
                                             )
                                         }
@@ -262,7 +262,7 @@ fun BottomNavigationBar(navController: NavController, mainActivity: MainActivity
                                                     imageMaxHeight = 150f,
                                                     onClick = {
 
-                                                        ChangeState(States.COLLAPSED)
+                                                        changeState(States.COLLAPSED)
                                                     }
                                                 )
                                             }
@@ -296,7 +296,7 @@ fun BottomNavigationBar(navController: NavController, mainActivity: MainActivity
                                                 infoScale = 0.6f,
                                                 onClick = {
 
-                                                    ChangeState(States.COLLAPSED)
+                                                    changeState(States.COLLAPSED)
                                                 }
                                             )
                                         }
@@ -317,7 +317,7 @@ fun BottomNavigationBar(navController: NavController, mainActivity: MainActivity
                                                     imageMaxHeight = 150f,
                                                     onClick = {
 
-                                                        ChangeState(States.COLLAPSED)
+                                                        changeState(States.COLLAPSED)
                                                     }
                                                 )
                                             }

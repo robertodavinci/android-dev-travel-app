@@ -117,12 +117,13 @@ fun TripsScreen(mainActivity: MainActivity) {
                                     confirmStateChange = {
                                         if (it == DismissValue.DismissedToStart || it == DismissValue.DismissedToEnd) {
                                             Thread {
+                                                Thread.sleep(500)
                                                 db.locationDao().delete(destination.toLocation())
+                                                val _saved =
+                                                    viewModel.saved.clone() as ArrayList<Destination>
+                                                _saved.removeAt(index)
+                                                viewModel.saved = _saved
                                             }.start()
-                                            val _saved =
-                                                viewModel.saved.clone() as ArrayList<Destination>
-                                            _saved.removeAt(index)
-                                            viewModel.saved = _saved
                                         }
                                         true
                                     }
