@@ -4,7 +4,6 @@ import FaIcons
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -34,7 +33,6 @@ import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight.Companion.Bold
 import androidx.compose.ui.text.font.FontWeight.Companion.ExtraBold
 import androidx.compose.ui.text.style.TextAlign
@@ -43,7 +41,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.preference.PreferenceManager
 import androidx.room.Room
 import com.apps.travel_app.R
-import com.apps.travel_app.data.room.AppDatabase
+import com.apps.travel_app.data.room.db.AppDatabase
 import com.apps.travel_app.models.*
 import com.apps.travel_app.ui.components.*
 import com.apps.travel_app.ui.pages.viewmodels.TripActivityViewModel
@@ -52,18 +50,15 @@ import com.apps.travel_app.ui.theme.*
 import com.apps.travel_app.ui.utils.markerPopUp
 import com.apps.travel_app.ui.utils.numberedMarker
 import com.apps.travel_app.ui.utils.rememberMapViewWithLifecycle
-import com.apps.travel_app.ui.utils.sendPostRequest
 import com.apps.travel_app.user
 import com.google.android.libraries.maps.CameraUpdateFactory
 import com.google.android.libraries.maps.MapView
 import com.google.android.libraries.maps.model.*
-import com.google.gson.Gson
 import com.guru.fontawesomecomposelib.FaIcon
 import com.skydoves.landscapist.glide.GlideImage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
 import java.util.*
 
 class TripActivity : ComponentActivity() {
@@ -177,7 +172,7 @@ class TripActivity : ComponentActivity() {
 
         val db = Room.databaseBuilder(
             this,
-            AppDatabase::class.java, "database-name"
+            AppDatabase::class.java, AppDatabase.NAME
         ).build()
 
         val viewModel = remember {
@@ -222,22 +217,24 @@ class TripActivity : ComponentActivity() {
                 .width(8f)
                 .pattern(pattern)
 
-            for ((index, step) in trip.destinationsPerDay[viewModel.selectedDay].withIndex()) {
-                val point = LatLng(
-                    step.latitude,
-                    step.longitude
-                )
-                polyline.add(point)
-                val markerOptions = MarkerOptions()
-                    .position(point)
-                    .icon(numberedMarker(index + 1))
-                    .title(step.name)
-                    .zIndex(5f)
+            if (trip.destinationsPerDay.size > 0 && viewModel.selectedDay < trip.destinationsPerDay.size) {
+                for ((index, step) in trip.destinationsPerDay[viewModel.selectedDay].withIndex()) {
+                    val point = LatLng(
+                        step.latitude,
+                        step.longitude
+                    )
+                    polyline.add(point)
+                    val markerOptions = MarkerOptions()
+                        .position(point)
+                        .icon(numberedMarker(index + 1))
+                        .title(step.name)
+                        .zIndex(5f)
 
 
-                val marker = viewModel.map!!.addMarker(markerOptions)
+                    val marker = viewModel.map!!.addMarker(markerOptions)
 
-                markerPopUp(marker)
+                    markerPopUp(marker)
+                }
             }
             viewModel.map!!.addPolyline(polyline)
         }

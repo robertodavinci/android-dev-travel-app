@@ -1,13 +1,11 @@
 package com.apps.travel_app.ui.pages.viewmodels
 
 import android.app.Activity
-import android.content.Context
 import android.util.Log
 import androidx.compose.runtime.*
 import androidx.lifecycle.ViewModel
 import androidx.room.Room
-import com.apps.travel_app.data.room.AppDatabase
-import com.apps.travel_app.models.Message
+import com.apps.travel_app.data.room.db.AppDatabase
 import com.apps.travel_app.models.Rating
 import com.apps.travel_app.models.Trip
 import com.apps.travel_app.ui.utils.errorMessage
@@ -15,7 +13,6 @@ import com.apps.travel_app.ui.utils.isOnline
 import com.apps.travel_app.ui.utils.sendPostRequest
 import com.apps.travel_app.user
 import com.google.android.libraries.maps.GoogleMap
-import com.google.android.material.snackbar.Snackbar
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 
@@ -138,7 +135,7 @@ class TripActivityViewModel(activity: Activity, tripId: String) : ViewModel() {
             } else {
                 val db = Room.databaseBuilder(
                     activity,
-                    AppDatabase::class.java, "database-name"
+                    AppDatabase::class.java, AppDatabase.NAME
                 ).build()
                 val tripDb = db.tripDao().getById(tripId)
                 val newTrip = Trip()

@@ -3,15 +3,13 @@ package com.apps.travel_app.ui.pages.viewmodels
 import android.app.Activity
 import androidx.compose.runtime.*
 import androidx.lifecycle.ViewModel
-import androidx.room.Room
-import com.apps.travel_app.data.room.AppDatabase
+import com.apps.travel_app.data.room.db.AppDatabase
 import com.apps.travel_app.models.Destination
 import com.apps.travel_app.models.Rating
 import com.apps.travel_app.models.Trip
 import com.apps.travel_app.ui.utils.errorMessage
 import com.apps.travel_app.ui.utils.sendPostRequest
 import com.google.android.libraries.maps.GoogleMap
-import com.google.android.material.snackbar.Snackbar
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 

@@ -95,4 +95,6 @@
     <string name="new_message">Nova poruka</string>
     <string name="not_enough_info">Neka obavezna polja nisu popunjena</string>
     <string name="select">Odaberi</string>
+    <string name="wanna_leave">Do you want to exit without saving?</string>
+    <string name="untitled">Untitled</string>
 </resources>

@@ -2,30 +2,25 @@ package com.apps.travel_app.ui.pages.viewmodels
 
 import android.app.Activity
 import android.content.Intent
-import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.Matrix
 import android.os.Handler
 import android.os.Looper
 import android.provider.MediaStore
-import android.widget.Toast
 import androidx.activity.result.ActivityResult
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.res.stringResource
 import androidx.exifinterface.media.ExifInterface
 import androidx.lifecycle.ViewModel
 import androidx.room.Room
 import com.apps.travel_app.R
-import com.apps.travel_app.data.room.AppDatabase
+import com.apps.travel_app.data.room.db.AppDatabase
 import com.apps.travel_app.models.Destination
 import com.apps.travel_app.models.MediumType
 import com.apps.travel_app.models.Trip
 import com.apps.travel_app.models.TripDestination
-import com.apps.travel_app.ui.theme.danger
 import com.apps.travel_app.ui.theme.yellow
 import com.apps.travel_app.ui.utils.errorMessage
 import com.apps.travel_app.ui.utils.getRealPathFromURI
@@ -33,6 +28,7 @@ import com.apps.travel_app.ui.utils.isOnline
 import com.apps.travel_app.ui.utils.sendPostRequest
 import com.apps.travel_app.user
 import com.google.android.material.snackbar.Snackbar
+import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.storage.FirebaseStorage
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
@@ -103,7 +99,7 @@ class TripCreationViewModel(val mainActivity: Activity, tripId: String) : ViewMo
             } else {
                 val db = Room.databaseBuilder(
                     mainActivity,
-                    AppDatabase::class.java, "database-name"
+                    AppDatabase::class.java, AppDatabase.NAME
                 ).build()
                 val tripDb = db.tripDao().getById(id)
                 val trip = Trip()
@@ -126,6 +122,27 @@ class TripCreationViewModel(val mainActivity: Activity, tripId: String) : ViewMo
                 }
             }
         }.start()
+    }
+    
+    fun exit() {
+        if (id == Trip.NOTSAVEDATALL) {
+            Thread {
+                val db = Room.databaseBuilder(
+                    mainActivity,
+                    AppDatabase::class.java, AppDatabase.NAME
+                ).build()
+                val exTrip = db.tripDao()
+                    .getById(id)
+
+                if (exTrip != null)
+                    db.tripDao().delete(exTrip.trip)
+                mainActivity.runOnUiThread {
+                    mainActivity.finish()
+                }
+            }.start()
+        } else {
+            mainActivity.finish()
+        }
     }
 
     private fun upload(thumbnailUrl: String? = null, incomplete: Boolean = false) {
@@ -167,7 +184,7 @@ class TripCreationViewModel(val mainActivity: Activity, tripId: String) : ViewMo
 
                     val db = Room.databaseBuilder(
                         mainActivity,
-                        AppDatabase::class.java, "database-name"
+                        AppDatabase::class.java, AppDatabase.NAME
                     ).build()
                     db.locationDao().insertAll(trip.mainDestination.toLocation())
                     val exTrip = db.tripDao()
@@ -195,13 +212,13 @@ class TripCreationViewModel(val mainActivity: Activity, tripId: String) : ViewMo
                     }
                 } else {
                     trip.incomplete = true
-                    if (id == "-1") {
+                    if (id == Trip.NOTSAVEDATALL) {
                         trip.id = "_" + System.currentTimeMillis()
                         id = trip.id
                     }
                     val db = Room.databaseBuilder(
                         mainActivity,
-                        AppDatabase::class.java, "database-name"
+                        AppDatabase::class.java, AppDatabase.NAME
                     ).build()
                     db.locationDao().insertAll(trip.mainDestination.toLocation())
                     db.tripDao()
@@ -212,6 +229,7 @@ class TripCreationViewModel(val mainActivity: Activity, tripId: String) : ViewMo
                         tripDao.insertAll(it)
                     }
                 }
+                FirebaseMessaging.getInstance().subscribeToTopic("trip" + trip.id)
             } catch (e: Exception) {
                 errorMessage(mainActivity.window.decorView.rootView).show()
             }
@@ -291,7 +309,7 @@ class TripCreationViewModel(val mainActivity: Activity, tripId: String) : ViewMo
     }
 
     init {
-        if (tripId != "-1") {
+        if (tripId != Trip.NOTSAVEDATALL) {
             fillUp()
         }
         presave()

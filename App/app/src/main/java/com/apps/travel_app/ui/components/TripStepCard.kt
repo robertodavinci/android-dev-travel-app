@@ -313,7 +313,7 @@ fun Dialog(openDialog: MutableState<Boolean>, destination: TripDestination, trip
             }
 
 
-            if (tripId != "0" && tripId != "-1" && note != null) {
+            if (tripId != "0" && tripId != Trip.NOTSAVEDATALL && note != null) {
 
                 TextField(
                     value = note!!,

@@ -23,8 +23,8 @@
     <string name="destinations">Destinations</string>
     <string name="places">Places</string>
     <string name="something_stupid_1">Take a deep breath…</string>
-    <string name="something_stupid_2">Just a moment for you to get inspired by the wonder of our world</string>
-    <string name="something_stupid_3">…and make it yours</string>
+    <string name="something_stupid_2">and get inspired</string>
+    <string name="something_stupid_3">…by us</string>
     <string name="map">Map</string>
     <string name="map_drawing">Map drawing</string>
     <string name="wall">The Wall</string>
@@ -105,4 +105,6 @@
     <string name="new_message">New message</string>
     <string name="not_enough_info">Some required fields is not filled up</string>
     <string name="select">Select</string>
+    <string name="wanna_leave">Do you want to exit without saving?</string>
+    <string name="untitled">Untitled</string>
 </resources>

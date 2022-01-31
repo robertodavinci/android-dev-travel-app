@@ -2,6 +2,8 @@ package com.apps.travel_app.ui.pages
 
 import FaIcons
 import android.Manifest
+import android.app.AlertDialog
+import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
@@ -46,6 +48,7 @@ import androidx.core.app.ActivityCompat
 import androidx.preference.PreferenceManager
 import com.apps.travel_app.R
 import com.apps.travel_app.models.MediumType
+import com.apps.travel_app.models.Trip
 import com.apps.travel_app.models.TripDestination
 import com.apps.travel_app.ui.components.*
 import com.apps.travel_app.ui.pages.viewmodels.TripCreationViewModel
@@ -63,7 +66,23 @@ class TripCreationActivity : ComponentActivity() {
 
     override fun onBackPressed(){
         if (viewModel.locationSelection) viewModel.locationSelection = false
-        else finish()
+        else {
+            val dialogClickListener =
+                DialogInterface.OnClickListener { dialog, which ->
+                    when (which) {
+                        DialogInterface.BUTTON_POSITIVE -> {
+                            viewModel.exit()
+                        }
+                        DialogInterface.BUTTON_NEGATIVE -> {
+                        }
+                    }
+                }
+
+            val builder = AlertDialog.Builder(this)
+            builder.setMessage(resources.getString(R.string.wanna_leave)).setPositiveButton("\uD83D\uDC4D", dialogClickListener)
+                .setNegativeButton("\uD83D\uDC4E", dialogClickListener).show()
+
+        }
     }
 
     @OptIn(ExperimentalMaterialApi::class)
@@ -87,7 +106,7 @@ class TripCreationActivity : ComponentActivity() {
 
         val tripId = intent.getStringExtra("tripId")
         viewModel =
-            TripCreationViewModel(this, tripId ?: "-1")
+            TripCreationViewModel(this, tripId ?: Trip.NOTSAVEDATALL)
 
 
 

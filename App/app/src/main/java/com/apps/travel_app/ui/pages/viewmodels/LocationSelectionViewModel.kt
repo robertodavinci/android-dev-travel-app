@@ -11,7 +11,7 @@ import androidx.compose.runtime.*
 import androidx.exifinterface.media.ExifInterface
 import androidx.lifecycle.ViewModel
 import androidx.room.Room
-import com.apps.travel_app.data.room.AppDatabase
+import com.apps.travel_app.data.room.db.AppDatabase
 import com.apps.travel_app.models.Destination
 import com.apps.travel_app.ui.theme.mapStyle
 import com.apps.travel_app.ui.utils.*
@@ -269,7 +269,7 @@ class LocationSelectionViewModel(activity: Activity, val onAddStep: (Destination
                     newDestination.id = id
                     val db = Room.databaseBuilder(
                         mainActivity,
-                        AppDatabase::class.java, "database-name"
+                        AppDatabase::class.java, AppDatabase.NAME
                     ).build()
                     db.locationDao().insertAll(newDestination.toLocation())
                     onAddStep(newDestination)

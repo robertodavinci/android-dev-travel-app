@@ -83,7 +83,7 @@ fun MessageCard(message: Message, level: Int = 0, tripId: String) {
     fun epochToDate(netDate: Long): String {
         if (netDate > 0) {
             val simpleDateFormat = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
-            val date = Date(netDate * 1000)
+            val date = Date(netDate)
             return simpleDateFormat.format(date)
         }
         return ""

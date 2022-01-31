@@ -1,7 +1,6 @@
 package com.apps.travel_app.ui.utils
 
 import android.content.Context
-import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.ConnectivityManager
@@ -60,12 +59,17 @@ fun isOnline(context: Context): Boolean {
 fun sendPostRequest(body: String, url: String = API, action: String = ""): String? { // NON-NLS
    val mURL = URL("${url}?action=${action}&user=${user.id}&user_m=${user.email}&lang=${Locale.getDefault().language}")
 
+    val basicAuth = "Bearer 080042cad6356ad5dc0a720c18b53b8e53d4c274"
+
+
 
 
     var responseBody: String?
 
     with(mURL.openConnection() as HttpURLConnection) {
         requestMethod = "POST"
+
+        setRequestProperty("Authorization", basicAuth)
 
 
 

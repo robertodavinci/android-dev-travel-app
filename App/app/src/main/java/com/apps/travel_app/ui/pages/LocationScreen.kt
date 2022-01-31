@@ -1,7 +1,6 @@
 package com.apps.travel_app.ui.pages
 
 import FaIcons
-import androidx.activity.viewModels
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -26,34 +25,26 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.room.Room
 import com.apps.travel_app.MainActivity
 import com.apps.travel_app.R
-import com.apps.travel_app.data.room.AppDatabase
+import com.apps.travel_app.data.room.db.AppDatabase
 import com.apps.travel_app.models.Destination
-import com.apps.travel_app.models.Rating
-import com.apps.travel_app.models.Trip
 import com.apps.travel_app.ui.components.*
-import com.apps.travel_app.ui.components.login.LoginViewModel
 import com.apps.travel_app.ui.pages.viewmodels.LocationViewModel
 import com.apps.travel_app.ui.theme.*
 import com.apps.travel_app.ui.utils.isOnline
 import com.apps.travel_app.ui.utils.rememberMapViewWithLifecycle
-import com.apps.travel_app.ui.utils.sendPostRequest
 import com.google.android.libraries.maps.CameraUpdateFactory
-import com.google.android.libraries.maps.GoogleMap
 import com.google.android.libraries.maps.MapView
 import com.google.android.libraries.maps.model.LatLng
 import com.google.android.libraries.maps.model.MapStyleOptions
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
+import com.google.firebase.messaging.FirebaseMessaging
 import com.guru.fontawesomecomposelib.FaIcon
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.lang.Math.random
 
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -66,7 +57,7 @@ fun LocationScreen(
 
     val db = Room.databaseBuilder(
         mainActivity,
-        AppDatabase::class.java, "database-name"
+        AppDatabase::class.java, AppDatabase.NAME
     ).build()
 
     val viewModel = remember { LocationViewModel(destination, db, mainActivity) }
@@ -164,6 +155,11 @@ fun LocationScreen(
                                     db.locationDao().delete(location)
                                 }
                                 viewModel.isSaved.value = !viewModel.isSaved.value
+                                if (viewModel.isSaved.value) {
+                                    FirebaseMessaging.getInstance().subscribeToTopic("city" + destination.id)
+                                } else {
+                                    FirebaseMessaging.getInstance().unsubscribeFromTopic("city" + destination.id)
+                                }
                             } catch (e: Exception) {
 
                             }

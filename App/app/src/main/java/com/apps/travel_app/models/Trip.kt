@@ -7,6 +7,9 @@ import com.apps.travel_app.data.room.entity.TripStep
 
 
 class Trip() {
+    companion object {
+        const val NOTSAVEDATALL = "-1"
+    }
     var id: String = ""
     var mainDestination: Destination = Destination()
     var attributes: List<String> = arrayListOf()

@@ -56,7 +56,7 @@ fun RatingCard(rating: Rating) {
         shape = RoundedCornerShape(cardRadius / 2)
     ) {
         Row(
-            modifier = Modifier.background(MaterialTheme.colors.background),
+            modifier = Modifier.background(MaterialTheme.colors.onBackground),
             verticalAlignment = Alignment.CenterVertically
         ) {
             GlideImage(

@@ -2,24 +2,21 @@ package com.apps.travel_app.ui.pages.viewmodels
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import com.apps.travel_app.data.room.AppDatabase
+import com.apps.travel_app.data.room.db.AppDatabase
 import com.apps.travel_app.data.room.entity.Location
 import com.apps.travel_app.models.Destination
 import com.apps.travel_app.models.Trip
 
-class TripsViewModel(db: AppDatabase): ViewModel() {
-    var saved by
-        mutableStateOf(
+class TripsViewModel(db: AppDatabase, onLoaded: (ArrayList<Destination>, ArrayList<Trip>) -> Unit): ViewModel() {
+    var saved =
             ArrayList<Destination>()
-        )
 
-    var savedTrips by
-        mutableStateOf(
+
+    var savedTrips =
             ArrayList<Trip>()
-        )
+
 
     init {
         Thread {
@@ -40,6 +37,7 @@ class TripsViewModel(db: AppDatabase): ViewModel() {
             }
             saved = savedLocations
             savedTrips = finalSavedTrips
+            onLoaded(saved,savedTrips)
         }.start()
     }
 

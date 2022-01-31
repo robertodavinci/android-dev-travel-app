@@ -27,10 +27,7 @@ import com.apps.travel_app.R
 import com.apps.travel_app.models.Destination
 import com.apps.travel_app.models.Trip
 import com.apps.travel_app.ui.components.Heading
-import com.apps.travel_app.ui.theme.cardElevation
-import com.apps.travel_app.ui.theme.cardPadding
-import com.apps.travel_app.ui.theme.cardRadius
-import com.apps.travel_app.ui.theme.textSmall
+import com.apps.travel_app.ui.theme.*
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.guru.fontawesomecomposelib.FaIconType
 import com.skydoves.landscapist.glide.GlideImage
@@ -60,7 +57,7 @@ fun ExploreScreen(navController: NavController, mainActivity: MainActivity) {
                 .padding(cardPadding)
                 .fillMaxWidth(),
             textAlign = TextAlign.Center,
-            fontSize = textSmall
+            fontSize = textNormal
         )
         Heading(
             stringResource(R.string.something_stupid_3),

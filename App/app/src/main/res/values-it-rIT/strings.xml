@@ -15,8 +15,8 @@
     <string name="destinations">Destinazioni</string>
     <string name="places">Luoghi</string>
     <string name="something_stupid_1">Prendi un respiro profondo</string>
-    <string name="something_stupid_2">Un momento per farti ispirare dalla bellezza del nostro mondo</string>
-    <string name="something_stupid_3">... e renderla tua</string>
+    <string name="something_stupid_2">e lasciati ispirare</string>
+    <string name="something_stupid_3">... da noi</string>
     <string name="map">Mappa</string>
     <string name="map_drawing">Traccia sulla mappa</string>
     <string name="wall">The Wall</string>
@@ -95,4 +95,6 @@
     <string name="new_message">Nuovo messaggio</string>
     <string name="not_enough_info">Almeno uno dei campi richiesti non è compilato</string>
     <string name="select">Seleziona</string>
+    <string name="wanna_leave">Vuoi uscire senza salvare?</string>
+    <string name="untitled">Senza nome</string>
 </resources>

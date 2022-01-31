@@ -14,6 +14,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.White
@@ -52,7 +53,7 @@ fun DestinationCard(
 
     Card(
         elevation = cardElevation,
-        backgroundColor = MaterialTheme.colors.onBackground,
+        backgroundColor = MaterialTheme.colors.background,
         shape = RoundedCornerShape(cardRadius),
         modifier = modifier
             .heightIn(0.dp, maxHeight.dp)
@@ -89,7 +90,8 @@ fun DestinationCard(
                     RatingBar(
                         rating = destination?.rating ?: 0f,
                         modifier = Modifier
-                            .height(15.dp),
+                            .height(15.dp)
+                            .align(CenterHorizontally),
                         emptyColor = Color(0x88FFFFFF)
                     )
 
@@ -101,11 +103,15 @@ fun DestinationCard(
                 modifier = Modifier.padding(5.dp),
                 onClick = {
                     if (destination != null) {
-                        val intent = Intent(activity, MainActivity::class.java)
-                        intent.action = "destination"
-                        val gson = Gson()
-                        intent.putExtra("destinationId", gson.toJson(destination))
-                        ContextCompat.startActivity(activity, intent, null)
+                        if (activity is MainActivity) {
+                            activity.setDestination(destination,true)
+                        } else {
+                            val intent = Intent(activity, MainActivity::class.java)
+                            intent.action = "destination"
+                            val gson = Gson()
+                            intent.putExtra("destinationId", gson.toJson(destination))
+                            ContextCompat.startActivity(activity, intent, null)
+                        }
                     }
                 }
             ) {
