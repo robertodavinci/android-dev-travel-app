@@ -114,6 +114,7 @@ fun GooglePlaceScreen(
             modifier = Modifier
                 .background(colors.background)
                 .fillMaxSize()
+                .padding(top = cardPadding * 2)
                 .verticalScroll(scrollState)
         ) {
             Column {
@@ -180,16 +181,6 @@ fun GooglePlaceScreen(
                             FaIcons.LocationArrow,
                             tint = colors.surface
                         )
-                    }
-                    Button(onClick = { }, modifier = Modifier.padding(5.dp)) {
-                        Row {
-                            for (i in 1..(viewModel.googlePlace?.priceLevel?.toInt() ?: 1)) {
-                                FaIcon(
-                                    FaIcons.EuroSign,
-                                    tint = colors.surface
-                                )
-                            }
-                        }
                     }
                 }
 
@@ -481,7 +472,7 @@ private fun PhotosRow(attractions: List<String>) {
 }
 
 @Composable
-private fun AttractionsRow(attractions: ArrayList<GooglePlace>, activity: MainActivity) {
+fun AttractionsRow(attractions: ArrayList<GooglePlace>, activity: MainActivity) {
     LazyRow(
         modifier = Modifier.padding(cardPadding)
     ) {

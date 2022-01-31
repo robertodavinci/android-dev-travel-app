@@ -5,6 +5,7 @@ import androidx.compose.runtime.*
 import androidx.lifecycle.ViewModel
 import com.apps.travel_app.data.room.db.AppDatabase
 import com.apps.travel_app.models.Destination
+import com.apps.travel_app.models.GooglePlace
 import com.apps.travel_app.models.Rating
 import com.apps.travel_app.models.Trip
 import com.apps.travel_app.ui.utils.errorMessage
@@ -25,6 +26,9 @@ class LocationViewModel(destination: Destination, db: AppDatabase, val activity:
     val mapLoaded = mutableStateOf(false)
     val openMap = mutableStateOf(false)
     val isSaved = mutableStateOf(false)
+    var todo by mutableStateOf(arrayListOf<GooglePlace>())
+    var eat by mutableStateOf(arrayListOf<GooglePlace>())
+    var stay by mutableStateOf(arrayListOf<GooglePlace>())
 
 
     init {
@@ -67,24 +71,25 @@ class LocationViewModel(destination: Destination, db: AppDatabase, val activity:
     private fun getFacilities(destination: Destination) {
         loaded.value = true
 
-        if (facilities.value.size <= 0) {
-            Thread {
+        Thread {
 
-                try {
-                    val request =
-                        "{\"lat\":${destination.latitude},\"lng\":${destination.longitude}}" // NON-NLS
-                    val results = sendPostRequest(request, action = "nearby") // NON-NLS
-                    val gson = Gson()
-                    val itemType = object : TypeToken<List<Destination>>() {}.type
-                    val result: ArrayList<Destination> = gson.fromJson(results, itemType)
-                    facilities.value = result
-                } catch (e: Exception) {
+            try {
+                val request =
+                    "{\"lat\":${destination.latitude},\"lng\":${destination.longitude}}" // NON-NLS
+                val results = sendPostRequest(request, action = "nearby") // NON-NLS
+                val gson = Gson()
+                val itemType = object : TypeToken<LocationResponse>() {}.type
+                val result:  LocationResponse = gson.fromJson(results, itemType)
+                todo = result.todo
+                eat = result.eat
+                stay = result.stay
+            } catch (e: Exception) {
 
-                    errorMessage(activity.window.decorView.rootView).show()
+                errorMessage(activity.window.decorView.rootView).show()
 
-                }
-            }.start()
-        }
+            }
+        }.start()
+
     }
 
     private fun getTrips(destination: Destination) {
@@ -105,5 +110,11 @@ class LocationViewModel(destination: Destination, db: AppDatabase, val activity:
                 }
             }.start()
         }
+    }
+
+    private class LocationResponse {
+        var todo: ArrayList<GooglePlace> = arrayListOf()
+        var eat: ArrayList<GooglePlace> = arrayListOf()
+        var stay: ArrayList<GooglePlace> = arrayListOf()
     }
 }

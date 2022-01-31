@@ -7,14 +7,16 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.Card
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.MaterialTheme.colors
 import androidx.compose.material.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Modifier
@@ -23,6 +25,8 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation.NavController
@@ -171,75 +175,70 @@ fun LocationScreen(
                         )
                     }
                 }
-                if (viewModel.trips.value.size > 0) {
-                    Heading(
-                        stringResource(R.string.trips)
-                    )
-                }
 
-                LazyRow(
-                    modifier = Modifier.padding(cardPadding)
+                Card(
+                    modifier = Modifier
+                        .padding(cardPadding)
+                        .fillMaxWidth(),
+                    backgroundColor = colors.onBackground,
+                    elevation = cardElevation,
+                    shape = RoundedCornerShape(cardRadius)
                 ) {
-                    items(viewModel.trips.value.size) { i ->
-                        val trip = viewModel.trips.value[i]
-                        Box(
-                            modifier = Modifier
-                                .weight(1f)
+                    Row(
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(cardPadding)
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier.padding(cardPadding)
                         ) {
-                            TripCard(
-                                trip = trip,
-                                rating = 4.5f,
-                                padding = 5.dp,
-                                shadow = 10.dp,
-                                badges = trip.attributes.subList(
-                                    0,
-                                    if (trip.attributes.size > 3) 3 else trip.attributes.size
-                                ),
-                                mainActivity = mainActivity,
-                                infoScale = 0.8f,
-                                imageMaxHeight = 200f
+                            FaIcon(
+                                FaIcons.Viruses,
+                                tint = primaryLightColor,
+                                size = 60.dp
+                            )
+                            Text(
+                                stringResource(R.string.covid19),
+                                fontSize = textNormal,
+                                textAlign = TextAlign.Center,
+                                maxLines = 2,
+                                fontWeight = FontWeight.Bold,
+                                color = colors.surface
                             )
                         }
+                        Text(
+                            stringResource(R.string.covid19_plus)
+                            ,
+                            fontSize = textSmall,
+                            color = colors.surface,
+                            modifier = Modifier.weight(1f)
+                        )
+
                     }
                 }
+
 
                 if (!viewModel.isSaved.value && !isOnline(mainActivity)) {
                     Box(Modifier.fillMaxSize(), contentAlignment = Center) {
                         NetworkError()
                     }
-                } else {
-                    if (viewModel.facilities.value.size > 0) {
-                        Heading(
-                            stringResource(R.string.attractions)
-                        )
-                    }
+                } else if(isOnline(mainActivity)) {
+                    Heading(stringResource(R.string.todo))
+                    Subheading(stringResource(R.string.do_description))
 
-                    LazyRow(
-                        modifier = Modifier.padding(cardPadding)
-                    ) {
-                        items(viewModel.facilities.value.size) { i ->
+                    AttractionsRow(viewModel.todo, mainActivity)
 
-                            val facility = viewModel.facilities.value[i]
-                            val badges = arrayListOf("€".repeat(facility.priceLevel.toInt() + 1))
-                            Box(
-                                modifier = Modifier
-                                    .weight(1f)
-                            ) {
-                                MainCard(
-                                    destination = facility,
-                                    rating = facility.rating,
-                                    padding = 5.dp,
-                                    shadow = 10.dp,
-                                    imageMaxHeight = 200f,
-                                    mainActivity = mainActivity,
-                                    infoScale = 0.8f,
-                                    icon = FaIcons.Google,
-                                    //badges = badges,
-                                    isGooglePlace = true
-                                )
-                            }
-                        }
-                    }
+                    Heading(stringResource(R.string.eat))
+                    Subheading(stringResource(R.string.eat_description))
+
+                    AttractionsRow(viewModel.eat, mainActivity)
+
+                    Heading(stringResource(R.string.stay))
+                    Subheading(stringResource(R.string.stay_description))
+
+                    AttractionsRow(viewModel.stay, mainActivity)
+
                     if (viewModel.ratings.value.size > 0) {
                         Heading(
                             stringResource(R.string.ratings)
