@@ -4,6 +4,7 @@ package com.apps.travel_app
 import FaIcons
 import android.content.Context
 import android.content.Intent
+import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
 import androidx.preference.PreferenceManager
@@ -33,6 +34,7 @@ import com.apps.travel_app.ui.components.login.LoginActivity
 import com.apps.travel_app.ui.components.login.models.User
 import com.apps.travel_app.ui.pages.*
 import com.apps.travel_app.ui.theme.MainActivity_Travel_AppTheme
+import com.apps.travel_app.ui.theme.followSystem
 import com.apps.travel_app.ui.theme.requireFullscreenMode
 import com.apps.travel_app.ui.utils.Response
 import com.apps.travel_app.ui.utils.errorMessage
@@ -75,7 +77,7 @@ class MainActivity : ComponentActivity() {
         val auth = Firebase.auth
         LoginManager.getInstance().logOut()
         auth.signOut()
-        getSharedPreferences("CURRENT_USER", Context.MODE_PRIVATE).edit().clear().commit()
+        PreferenceManager.getDefaultSharedPreferences(this).edit().clear().commit()
         val intent = Intent(this, LoginActivity::class.java)
         startActivity(intent)
     }
@@ -152,13 +154,13 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        val sharedPref = PreferenceManager.getDefaultSharedPreferences(this)
         auth = Firebase.auth
         user.displayName = auth.currentUser?.displayName.toString()
         user.email = auth.currentUser?.email.toString()
         user.id = auth.currentUser?.uid.toString()
-        user.realName = getSharedPreferences("CURRENT_USER", Context.MODE_PRIVATE).getString("realName", "")
-        user.realSurname = getSharedPreferences("CURRENT_USER", Context.MODE_PRIVATE).getString("realSurname", "")
+        user.realName = sharedPref.getString("realName", "")
+        user.realSurname = sharedPref.getString("realSurname", "")
 
         requireFullscreenMode(window, this)
 
@@ -168,9 +170,11 @@ class MainActivity : ComponentActivity() {
         FirebaseMessaging.getInstance().subscribeToTopic("all").addOnCompleteListener {
             Log.d("FCM","Subscribed")
         }
-
-        val sharedPref = PreferenceManager.getDefaultSharedPreferences(this)
-        val systemTheme = sharedPref.getBoolean("darkTheme", true)
+        var dark:Boolean = true
+        if(Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES) {
+            dark = false
+            }
+        val systemTheme = sharedPref.getBoolean("darkTheme", dark)
 
         setContent {
             MainActivity_Travel_AppTheme(systemTheme = systemTheme) {

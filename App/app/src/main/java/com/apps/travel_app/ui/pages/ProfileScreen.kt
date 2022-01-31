@@ -27,6 +27,8 @@ import androidx.compose.ui.unit.dp
 import androidx.preference.PreferenceManager
 import com.apps.travel_app.MainActivity
 import com.apps.travel_app.R
+import com.apps.travel_app.models.updateNightMode
+import com.apps.travel_app.models.updateNotifications
 import com.apps.travel_app.models.updateUserInfo
 import com.apps.travel_app.models.updateUserRealcredentials
 import com.apps.travel_app.ui.components.Button
@@ -76,8 +78,9 @@ fun ProfileScreen(activity: MainActivity) {
                 putBoolean("darkTheme", it)
                 apply()
             }
-            Log.i("Theme 1 - ", it.toString())
-            Log.i("Theme 2 - ", sharedPref.getBoolean("darkTheme", false).toString())
+            updateNightMode(activity.db, user.id,it)
+            //Log.i("Theme 1 - ", it.toString())
+            //Log.i("Theme 2 - ", sharedPref.getBoolean("darkTheme", false).toString())
         }, states = NiceSwitchStates(T = FaIcons.MoonRegular, F = FaIcons.SunRegular), label = stringResource(
             R.string.theme))
 
@@ -95,6 +98,7 @@ fun ProfileScreen(activity: MainActivity) {
                 putBoolean("receiveNotification", it)
                 apply()
             }
+            updateNotifications(activity.db, user.id,it)
         }, states =  NiceSwitchStates(FaIcons.BellRegular, FaIcons.BellSlashRegular), label = stringResource(
             R.string.receive_notifications))
 
@@ -166,7 +170,7 @@ fun detailsChange(oneTwo:Boolean, activity:MainActivity){
             updateUserRealcredentials(activity.db, user.id,name = newName.value.text, surname = newSurname.value.text)
             user.realName = newName.value.text
             user.realSurname = newSurname.value.text
-            val sharedPref = activity.getSharedPreferences("CURRENT_USER", Context.MODE_PRIVATE)
+            val sharedPref = PreferenceManager.getDefaultSharedPreferences(activity)
             val editor = sharedPref.edit()
             editor.putString("realName", user.realName)
             editor.putString("realSurname", user.realSurname)
@@ -176,7 +180,7 @@ fun detailsChange(oneTwo:Boolean, activity:MainActivity){
         {
             updateUserInfo(activity.db, user.id,newName.value.text)
             user.displayName = newName.value.text
-            val sharedPref = activity.getSharedPreferences("CURRENT_USER", Context.MODE_PRIVATE)
+            val sharedPref = PreferenceManager.getDefaultSharedPreferences(activity)
             val editor = sharedPref.edit()
             editor.putString("displayName", user.displayName)
             editor.apply()

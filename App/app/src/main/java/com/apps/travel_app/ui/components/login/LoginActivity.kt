@@ -51,6 +51,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.preference.PreferenceManager
 import com.apps.travel_app.MainActivity
+import com.apps.travel_app.models.UserPreferences
 import com.apps.travel_app.models.addUser
 import com.apps.travel_app.models.addUserPeferences
 import com.apps.travel_app.ui.components.Button
@@ -72,6 +73,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.google.firebase.auth.*
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.functions.FirebaseFunctions
 import com.google.firebase.functions.ktx.functions
@@ -89,9 +91,10 @@ class LoginActivity : ComponentActivity() {
 
     private lateinit var auth: FirebaseAuth
     private lateinit var googleSignInClient: GoogleSignInClient
-
+    val db: FirebaseFirestore = Firebase.firestore
     private lateinit var functions: FirebaseFunctions
     private lateinit var secondCredential: AuthCredential
+    var isNewUser: Boolean? = null
 
     var googleLog = true
     var logScreen = true
@@ -702,8 +705,24 @@ class LoginActivity : ComponentActivity() {
     }
 
     fun sharedPrefUserEdit(user:FirebaseUser?){
-        val sharedPref = getSharedPreferences("CURRENT_USER", Context.MODE_PRIVATE)
+        val sharedPref = PreferenceManager.getDefaultSharedPreferences(this)
+        Log.d("NEWW ", isNewUser.toString())
         var editor = sharedPref.edit()
+        if(isNewUser == false) {
+            Log.d("NEWW ", user?.uid.toString())
+            val userPref =
+                user?.uid?.let {
+                    db.collection("users").document(it).collection("user_preferences").document(user.uid).get().addOnSuccessListener{
+                        Log.d("NEWW ", it.get("colourMode").toString())
+                        editor.putBoolean("darkTheme", it.get("colourMode").toString().toBoolean())
+                        editor.putBoolean("receiveNotification", it.get("notifications").toString().toBoolean())
+                        editor.putString("realName", it.get("realName").toString())
+                        editor.putString("realSurname",  it.get("realSurname").toString())
+                        editor.commit()
+                    }.addOnFailureListener(){ e-> Log.w("Add tag ", "Error.", e)
+                    }
+                }
+        }
         editor.putString("userId", user?.uid)
         editor.putString("email", user?.email)
         editor.putString("displayName", user?.displayName)
@@ -712,11 +731,21 @@ class LoginActivity : ComponentActivity() {
 
     private fun loginSuccess(user: FirebaseUser?,context: Context){
         // Update user preferences!!!
+
             sharedPrefUserEdit(user)
         //
         val intent = Intent(context, MainActivity::class.java)
         startActivity(intent)
     }
+
+   /* private fun updateLocalUserPref(){
+
+        val sharedPref = PreferenceManager.getDefaultSharedPreferences(this)
+        with(sharedPref.edit()) {
+            putBoolean("receiveNotification", )
+            apply()
+        }
+    }*/
 
     private fun firebaseAuthWithGoogle(idToken: String) {
         val credential = GoogleAuthProvider.getCredential(idToken, null)
@@ -727,7 +756,8 @@ class LoginActivity : ComponentActivity() {
                     val user = auth.currentUser
                     Log.d("CURRENT USER 1", auth.currentUser.toString())
                     // Log.i("UserTT toString ", task.getResult().additionalUserInfo?.isNewUser().toString())
-                    if(task.getResult().additionalUserInfo?.isNewUser() == true) addUserCheck(auth.currentUser, auth.currentUser?.displayName)
+                    isNewUser = task.getResult().additionalUserInfo?.isNewUser()
+                    if(isNewUser == true) addUserCheck(auth.currentUser, auth.currentUser?.displayName)
                     if(googleLog) loginSuccess(user, this)
                     else linkAccount(secondCredential)
                 } else {
@@ -747,7 +777,9 @@ class LoginActivity : ComponentActivity() {
                     Log.d("Facebook Login - Token", "signInWithCredential:success")
                     val user = auth.currentUser
                     //Log.i("UserTT toString ", task.getResult().additionalUserInfo?.isNewUser().toString())
-                    if(task.getResult().additionalUserInfo?.isNewUser() == true) addUserCheck(auth.currentUser, auth.currentUser?.displayName)
+                    isNewUser = task.getResult().additionalUserInfo?.isNewUser()
+                    if(isNewUser == true) addUserCheck(auth.currentUser, auth.currentUser?.displayName)
+                    else
                     loginSuccess(user,this)
                 } else {
                     Log.w("Facebook Login - Token", "signInWithCredential:failure", task.exception)

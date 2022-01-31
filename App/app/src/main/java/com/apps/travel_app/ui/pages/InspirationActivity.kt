@@ -13,9 +13,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.material.MaterialTheme.colors
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.BottomCenter
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
@@ -23,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.preference.PreferenceManager
 import com.apps.travel_app.models.Destination
 import com.apps.travel_app.ui.components.DestinationCard
+import com.apps.travel_app.ui.components.Loader
 import com.apps.travel_app.ui.theme.Travel_AppTheme
 import com.apps.travel_app.ui.theme.cardRadius
 import com.apps.travel_app.ui.theme.darkBackground
@@ -85,11 +88,16 @@ class InspirationActivity : ComponentActivity() {
                     if (loaded) {
                         Grid(this@InspirationActivity)
                     }
+                    else  {
+                        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxSize().padding(100.dp)) {
+                            Loader()
+                        }
+                    }
+                }
                 }
             }
         }
 
-    }
 
 
     @Composable
