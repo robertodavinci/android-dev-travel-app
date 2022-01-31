@@ -3,16 +3,21 @@ package com.apps.travel_app.ui.pages.viewmodels
 import android.app.Activity
 import android.util.Log
 import androidx.compose.runtime.*
+import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.ViewModel
 import androidx.room.Room
+import com.apps.travel_app.R
 import com.apps.travel_app.data.room.db.AppDatabase
 import com.apps.travel_app.models.Rating
 import com.apps.travel_app.models.Trip
+import com.apps.travel_app.ui.theme.success
+import com.apps.travel_app.ui.theme.yellow
 import com.apps.travel_app.ui.utils.errorMessage
 import com.apps.travel_app.ui.utils.isOnline
 import com.apps.travel_app.ui.utils.sendPostRequest
 import com.apps.travel_app.user
 import com.google.android.libraries.maps.GoogleMap
+import com.google.android.material.snackbar.Snackbar
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 
@@ -26,6 +31,7 @@ class TripViewModel(val trip: Trip, val db: AppDatabase, val activity: Activity,
     var selectedDay by mutableStateOf(0)
     var isSaved by mutableStateOf(false)
     var isReviewed by mutableStateOf(false)
+    var copied by mutableStateOf(false)
 
 
     var steps by mutableStateOf(if (selectedDay < trip.destinationsPerDay.size) trip.destinationsPerDay[selectedDay] else ArrayList())
@@ -110,6 +116,40 @@ class TripViewModel(val trip: Trip, val db: AppDatabase, val activity: Activity,
             }
         }.start()
     }
+
+    fun copy() {
+        try {
+            val newTrip = trip.clone()
+            newTrip.name += " copy"
+            newTrip.creator = user.displayName
+            newTrip.creatorId = user.id
+            newTrip.id = "_" + System.currentTimeMillis()
+            newTrip.incomplete = true
+            Thread {
+
+                db.locationDao()
+                    .insertAll(newTrip.mainDestination.toLocation())
+                db.tripDao()
+                    .insertAll(newTrip.toTripDb(newTrip.mainDestination.id))[0]
+
+                val tripDao = db.tripStepDao()
+                trip.getTripStep(newTrip.id).forEach {
+                    tripDao.insertAll(it)
+                }
+            }.start()
+
+            val sb = Snackbar.make(
+                activity.window.decorView.rootView, activity.resources.getString(R.string.saved),
+                Snackbar.LENGTH_LONG
+            )
+            sb.view.setBackgroundColor(success.toArgb())
+            sb.show()
+            copied = true
+        } catch (e: Exception) {
+            errorMessage(activity.window.decorView.rootView)
+        }
+
+    }
 }
 
 class TripActivityViewModel(activity: Activity, tripId: String) : ViewModel() {
@@ -148,4 +188,6 @@ class TripActivityViewModel(activity: Activity, tripId: String) : ViewModel() {
             }
         }.start()
     }
+
+
 }

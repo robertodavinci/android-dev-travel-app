@@ -343,9 +343,11 @@ class TripActivity : ComponentActivity() {
                     ) {
                         item {
                             Column {
-                                if (trip.creatorId != user.id) {
+                                if (trip.creatorId != user.id && !viewModel.copied) {
                                     Button(
-                                        onClick = {}, background = primaryColor, modifier = Modifier
+                                        onClick = {
+                                            viewModel.copy()
+                                        }, background = primaryColor, modifier = Modifier
                                             .align(
                                                 CenterHorizontally
                                             )
@@ -368,7 +370,7 @@ class TripActivity : ComponentActivity() {
                                         color = colors.surface,
                                         modifier = Modifier.fillMaxWidth()
                                     )
-                                } else {
+                                } else if(!viewModel.copied) {
                                     Button(
                                         onClick = {
                                             val intent = Intent(

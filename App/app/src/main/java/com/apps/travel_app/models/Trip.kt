@@ -4,6 +4,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import com.apps.travel_app.data.room.entity.Trip
 import com.apps.travel_app.data.room.entity.TripAndDays
 import com.apps.travel_app.data.room.entity.TripStep
+import com.google.gson.Gson
 
 
 class Trip() {
@@ -96,5 +97,11 @@ class Trip() {
         }
         destinationsPerDay = steps
         incomplete = trip.trip.incomplete
+    }
+
+    fun clone(): com.apps.travel_app.models.Trip
+    {
+        val stringAnimal = Gson().toJson(this, com.apps.travel_app.models.Trip::class.java)
+        return Gson().fromJson(stringAnimal, com.apps.travel_app.models.Trip::class.java)
     }
 }

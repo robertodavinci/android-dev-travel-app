@@ -34,6 +34,7 @@ fun MessageField(message: Message? = null, tripId: String, onAdd: (Message) -> U
         shape = RoundedCornerShape(cardRadius / 2),
         modifier = Modifier
             .fillMaxWidth()
+            .height(150.dp)
             .padding(cardPadding / 2),
         colors = TextFieldDefaults.textFieldColors(
             focusedIndicatorColor = Color.Transparent,
@@ -73,7 +74,7 @@ fun MessageField(message: Message? = null, tripId: String, onAdd: (Message) -> U
             fontWeight = FontWeight.Bold
         ),
         keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
-        singleLine = false
+        maxLines = 20
     )
 }
 
@@ -203,12 +204,12 @@ fun MessageCard(message: Message, level: Int = 0, tripId: String) {
                     write = false
                 },
             ) {
-                Column(Modifier.padding(cardPadding)) {
+
                     MessageField(message = message, tripId = tripId) {
                         messages.add(0, it)
                         write = false
                     }
-                }
+
 
             }
         }

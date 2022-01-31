@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement.SpaceBetween
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
@@ -67,22 +68,25 @@ class TripCreationActivity : ComponentActivity() {
     override fun onBackPressed(){
         if (viewModel.locationSelection) viewModel.locationSelection = false
         else {
-            val dialogClickListener =
-                DialogInterface.OnClickListener { dialog, which ->
-                    when (which) {
-                        DialogInterface.BUTTON_POSITIVE -> {
-                            viewModel.exit()
-                        }
-                        DialogInterface.BUTTON_NEGATIVE -> {
-                        }
+            exit()
+        }
+    }
+
+    private fun exit() {
+        val dialogClickListener =
+            DialogInterface.OnClickListener { dialog, which ->
+                when (which) {
+                    DialogInterface.BUTTON_POSITIVE -> {
+                        viewModel.exit()
+                    }
+                    DialogInterface.BUTTON_NEGATIVE -> {
                     }
                 }
+            }
 
-            val builder = AlertDialog.Builder(this)
-            builder.setMessage(resources.getString(R.string.wanna_leave)).setPositiveButton("\uD83D\uDC4D", dialogClickListener)
-                .setNegativeButton("\uD83D\uDC4E", dialogClickListener).show()
-
-        }
+        val builder = AlertDialog.Builder(this)
+        builder.setMessage(resources.getString(R.string.wanna_leave)).setPositiveButton("\uD83D\uDC4D", dialogClickListener)
+            .setNegativeButton("\uD83D\uDC4E", dialogClickListener).show()
     }
 
     @OptIn(ExperimentalMaterialApi::class)
@@ -105,8 +109,7 @@ class TripCreationActivity : ComponentActivity() {
         val systemTheme = sharedPref.getBoolean("darkTheme", true)
 
         val tripId = intent.getStringExtra("tripId")
-        viewModel =
-            TripCreationViewModel(this, tripId ?: Trip.NOTSAVEDATALL)
+
 
 
 
@@ -114,7 +117,8 @@ class TripCreationActivity : ComponentActivity() {
             ActivityResultContracts.StartActivityForResult()
         ) { result ->
             if (result.resultCode == RESULT_OK && result.data != null) {
-                viewModel.galleryImageSelected(result)            }
+                viewModel.galleryImageSelected(result)
+            }
         }
 
         super.onCreate(savedInstanceState)
@@ -123,15 +127,27 @@ class TripCreationActivity : ComponentActivity() {
 
         setContent {
 
-            Travel_AppTheme(systemTheme = systemTheme) {
 
+            Travel_AppTheme(systemTheme = systemTheme) {
+                val steps = remember { mutableStateListOf<TripDestination>() }
+                viewModel = remember {
+                    TripCreationViewModel(this, tripId ?: Trip.NOTSAVEDATALL, onLoad = {
+                        //steps.clear()
+                        if (viewModel.destinations.size > 0)
+                            steps.addAll(viewModel.destinations[0])
+                    })
+                }
                 if (viewModel.locationSelection) {
                     LocationSelection(this, this, onBack = {
                         viewModel.locationSelection = false
                     },
                         onAddStep = {
                             if (it != null) {
-                                viewModel.addStep(it)
+                                if (viewModel.destinations[viewModel.selectedDay].size == 0) {
+                                    steps.clear()
+                                }
+                                val newDestination = viewModel.addStep(it)
+                                steps.add(newDestination)
                             }
                         },
                         onMainDestinationSelected = {
@@ -140,9 +156,11 @@ class TripCreationActivity : ComponentActivity() {
                             }
                         })
                 } else {
-                    Box(modifier = Modifier
-                        .fillMaxSize()
-                        .background(colors.background)) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(colors.background)
+                    ) {
 
                         Column {
                             Row(
@@ -156,9 +174,10 @@ class TripCreationActivity : ComponentActivity() {
                                         clip = true
                                     }
                                     .background(primaryColor)
-                                    .padding(top = cardPadding * 2),verticalAlignment = CenterVertically) {
+                                    .padding(top = cardPadding * 2),
+                                verticalAlignment = CenterVertically) {
                                 Button(background = Transparent, onClick = {
-                                    finish()
+                                    exit()
                                 }) {
                                     FaIcon(
                                         FaIcons.ArrowLeft,
@@ -229,7 +248,8 @@ class TripCreationActivity : ComponentActivity() {
                                             }
                                         ) {
                                             GlideImage(
-                                                imageModel = viewModel.thumbnail ?: viewModel.thumbnailUrl,
+                                                imageModel = viewModel.thumbnail
+                                                    ?: viewModel.thumbnailUrl,
                                                 contentDescription = "",
                                                 contentScale = ContentScale.Crop,
                                                 modifier = Modifier
@@ -303,25 +323,27 @@ class TripCreationActivity : ComponentActivity() {
                                     Heading(stringResource(R.string.visibility))
 
                                     Row {
-                                        Button (
+                                        Button(
                                             Modifier.padding(5.dp),
-                                            background = if(viewModel.sharedWith.size == 0) primaryColor else colors.onBackground,
-                                            onClick = {viewModel.sharedWith = arrayListOf()}
+                                            background = if (viewModel.sharedWith.size == 0) primaryColor else colors.onBackground,
+                                            onClick = { viewModel.sharedWith = arrayListOf() }
                                         ) {
                                             FaIcon(
                                                 FaIcons.Globe,
-                                                tint = if(viewModel.sharedWith.size == 0) White else colors.surface
+                                                tint = if (viewModel.sharedWith.size == 0) White else colors.surface
                                             )
                                         }
                                         Spacer(modifier = Modifier.width(5.dp))
-                                        Button (
+                                        Button(
                                             Modifier.padding(5.dp),
-                                            background = if(viewModel.sharedWith.size > 0) primaryColor else colors.onBackground,
-                                            onClick = {viewModel.sharedWith = arrayListOf(user.email)}
+                                            background = if (viewModel.sharedWith.size > 0) primaryColor else colors.onBackground,
+                                            onClick = {
+                                                viewModel.sharedWith = arrayListOf(user.email)
+                                            }
                                         ) {
                                             FaIcon(
                                                 FaIcons.Lock,
-                                                tint = if(viewModel.sharedWith.size > 0) White else colors.surface
+                                                tint = if (viewModel.sharedWith.size > 0) White else colors.surface
                                             )
                                         }
                                     }
@@ -342,10 +364,14 @@ class TripCreationActivity : ComponentActivity() {
                                             modifier = Modifier.padding(10.dp)
                                         ) {
                                             Row {
-                                                FaIcon(
-                                                    FaIcons.MapMarkerAlt,
-                                                    tint = colors.surface
-                                                )
+                                                if (viewModel.locationSelection) {
+                                                    CircularProgressIndicator(color = colors.surface)
+                                                } else {
+                                                    FaIcon(
+                                                        FaIcons.MapMarkerAlt,
+                                                        tint = colors.surface
+                                                    )
+                                                }
                                                 Spacer(modifier = Modifier.width(5.dp))
                                                 Text(
                                                     stringResource(R.string.main_destination),
@@ -355,7 +381,10 @@ class TripCreationActivity : ComponentActivity() {
                                             }
                                         }
                                     } else {
-                                        Button(onClick = { viewModel.locationSelection = true },modifier = Modifier.fillMaxWidth()) {
+                                        Button(
+                                            onClick = { viewModel.locationSelection = true },
+                                            modifier = Modifier.fillMaxWidth()
+                                        ) {
 
                                             GlideImage(
                                                 imageModel = viewModel.mainDestination?.thumbnailUrl,
@@ -387,8 +416,14 @@ class TripCreationActivity : ComponentActivity() {
                                             )
                                         }
                                     }
+                                }
 
-                                    Heading(stringResource(R.string.days), modifier = Modifier.padding(cardPadding))
+                                item {
+
+                                    Heading(
+                                        stringResource(R.string.days),
+                                        modifier = Modifier.padding(cardPadding)
+                                    )
 
                                     LazyRow(
                                         horizontalArrangement = Arrangement.SpaceAround,
@@ -399,7 +434,13 @@ class TripCreationActivity : ComponentActivity() {
                                             val foreground =
                                                 if (i == viewModel.selectedDay) White else colors.surface
                                             Button(
-                                                onClick = { viewModel.selectedDay = i; viewModel.stepCursor = 0 },
+                                                onClick = {
+                                                    viewModel.selectedDay =
+                                                        i;
+                                                    viewModel.stepCursor = 0
+                                                    steps.clear()
+                                                    steps.addAll(viewModel.destinations[i])
+                                                },
                                                 modifier = Modifier.padding(5.dp),
                                                 background = background
                                             ) {
@@ -446,17 +487,32 @@ class TripCreationActivity : ComponentActivity() {
                                             }
                                         }
                                     }
+                                }
 
-                                    Heading(stringResource(R.string.steps), modifier = Modifier.padding(cardPadding))
-                                    if (viewModel.destinations.isEmpty() || viewModel.destinations[viewModel.selectedDay].size <= 0) {
+
+                                item {
+                                    Heading(
+                                        stringResource(R.string.steps),
+                                        modifier = Modifier.padding(cardPadding)
+                                    )
+                                }
+                                if (viewModel.destinations.isEmpty() || viewModel.destinations[viewModel.selectedDay].size <= 0) {
+                                    item {
+
                                         Button(
-                                            onClick = { viewModel.locationSelection = true },
+                                            onClick = {
+                                                viewModel.locationSelection = true
+                                            },
                                         ) {
                                             Row {
-                                                FaIcon(
-                                                    FaIcons.MapMarkerAlt,
-                                                    tint = colors.surface
-                                                )
+                                                if (viewModel.locationSelection) {
+                                                    CircularProgressIndicator(color = colors.surface)
+                                                } else {
+                                                    FaIcon(
+                                                        FaIcons.MapMarkerAlt,
+                                                        tint = colors.surface
+                                                    )
+                                                }
                                                 Spacer(modifier = Modifier.width(5.dp))
                                                 Text(
                                                     stringResource(R.string.first_step),
@@ -465,96 +521,120 @@ class TripCreationActivity : ComponentActivity() {
                                                 )
                                             }
                                         }
-                                    } else {
-                                        viewModel.destinations[viewModel.selectedDay].forEachIndexed { index, place ->
-                                            Column(horizontalAlignment = Start) {
-                                                if (index > 0) {
-                                                    Box(
-                                                        modifier = Modifier
-                                                            .padding(start = 25.dp)
-                                                            .width(2.dp)
-                                                            .height(25.dp)
-                                                            .background(
-                                                                colors.surface
-                                                            )
-                                                    )
-                                                }
-                                                TripStepCard(place, index, changeable = true, context = this@TripCreationActivity)
-                                                if (index < viewModel.destinations[viewModel.selectedDay].size - 1) {
-                                                    Box(
-                                                        modifier = Modifier
-                                                            .padding(start = 25.dp)
-                                                            .width(2.dp)
-                                                            .height(25.dp)
-                                                            .background(
-                                                                colors.surface
-                                                            )
-                                                    )
-                                                    if (place.mediumToNextDestination != null) {
-                                                        Row(
-                                                            modifier = Modifier
-                                                                .padding(
-                                                                    start = 20.dp,
-                                                                    end = 5.dp,
-                                                                    top = 5.dp,
-                                                                    bottom = 10.dp
-                                                                )
-                                                                .fillMaxWidth(),
-                                                            horizontalArrangement = SpaceBetween
-                                                        ) {
-                                                            Row(
-                                                                modifier = Modifier.align(
-                                                                    CenterVertically
-                                                                )
-                                                            ) {
-                                                                FaIcon(
-                                                                    MediumType.mediumTypeToIcon(
-                                                                        place.mediumToNextDestination!!
-                                                                    ),
-                                                                    tint = colors.surface
-                                                                )
-                                                                Text(
-                                                                    "${place.minutesToNextDestination.toInt()} ${stringResource(R.string.minutes)} (${place.kmToNextDestination} km)",
-                                                                    color = colors.surface,
-                                                                    fontSize = textSmall,
-                                                                    modifier = Modifier
-                                                                        .padding(start = 20.dp)
-                                                                        .align(CenterVertically)
-                                                                )
-                                                            }
-                                                            IconButton(
-                                                                onClick = {
-                                                                    viewModel.stepCursor = index + 1
-                                                                    viewModel.locationSelection = true
-                                                                },
-                                                                modifier = Modifier
-                                                                    .size(22.dp, 22.dp)
-                                                                    .align(CenterVertically)
-                                                            ) {
-                                                                FaIcon(
-                                                                    FaIcons.Plus,
-                                                                    size = 18.dp,
-                                                                    tint = colors.surface,
-                                                                )
-                                                            }
-                                                        }
+                                    }
+                                } else {
 
+                                    itemsIndexed(steps) { index, place ->
+                                        Column(horizontalAlignment = Start) {
+                                            if (index > 0) {
+                                                Box(
+                                                    modifier = Modifier
+                                                        .padding(start = 25.dp)
+                                                        .width(2.dp)
+                                                        .height(25.dp)
+                                                        .background(
+                                                            colors.surface
+                                                        )
+                                                )
+                                            }
+                                            TripStepCard(
+                                                place,
+                                                index,
+                                                changeable = true,
+                                                context = this@TripCreationActivity,
+                                                onRemove = {
+                                                    steps.removeAt(index)
+                                                    viewModel.destinations[viewModel.selectedDay].removeAt(
+                                                        index
+                                                    )
+                                                })
+                                            if (index < viewModel.destinations[viewModel.selectedDay].size - 1) {
+                                                Box(
+                                                    modifier = Modifier
+                                                        .padding(start = 25.dp)
+                                                        .width(2.dp)
+                                                        .height(25.dp)
+                                                        .background(
+                                                            colors.surface
+                                                        )
+                                                )
+                                                if (place.mediumToNextDestination != null) {
+                                                    Row(
+                                                        modifier = Modifier
+                                                            .padding(
+                                                                start = 20.dp,
+                                                                end = 5.dp,
+                                                                top = 5.dp,
+                                                                bottom = 10.dp
+                                                            )
+                                                            .fillMaxWidth(),
+                                                        horizontalArrangement = SpaceBetween
+                                                    ) {
+                                                        Row(
+                                                            modifier = Modifier.align(
+                                                                CenterVertically
+                                                            )
+                                                        ) {
+                                                            FaIcon(
+                                                                MediumType.mediumTypeToIcon(
+                                                                    place.mediumToNextDestination!!
+                                                                ),
+                                                                tint = colors.surface
+                                                            )
+                                                            Text(
+                                                                "${place.minutesToNextDestination.toInt()} ${
+                                                                    stringResource(
+                                                                        R.string.minutes
+                                                                    )
+                                                                } (${place.kmToNextDestination} km)",
+                                                                color = colors.surface,
+                                                                fontSize = textSmall,
+                                                                modifier = Modifier
+                                                                    .padding(start = 20.dp)
+                                                                    .align(CenterVertically)
+                                                            )
+                                                        }
+                                                        IconButton(
+                                                            onClick = {
+                                                                viewModel.stepCursor =
+                                                                    index + 1
+                                                                viewModel.locationSelection =
+                                                                    true
+                                                            },
+                                                            modifier = Modifier
+                                                                .size(22.dp, 22.dp)
+                                                                .align(CenterVertically)
+                                                        ) {
+                                                            FaIcon(
+                                                                FaIcons.Plus,
+                                                                size = 18.dp,
+                                                                tint = colors.surface,
+                                                            )
+                                                        }
                                                     }
+
                                                 }
                                             }
                                         }
+                                    }
+                                    item {
                                         Spacer(Modifier.height(cardPadding))
                                         Button(
                                             onClick = {
-                                                viewModel.stepCursor = viewModel.destinations[viewModel.selectedDay].size
+                                                viewModel.stepCursor =
+                                                    viewModel.destinations[viewModel.selectedDay].size
                                                 viewModel.locationSelection = true
                                             },
                                         ) {
                                             Row {
-                                                FaIcon(
-                                                    FaIcons.Hiking,
-                                                    tint = colors.surface
-                                                )
+                                                if (viewModel.locationSelection) {
+                                                    CircularProgressIndicator(color = colors.surface)
+                                                } else {
+                                                    FaIcon(
+                                                        FaIcons.Hiking,
+                                                        tint = colors.surface
+                                                    )
+                                                }
                                                 Spacer(modifier = Modifier.width(5.dp))
                                                 Text(
                                                     stringResource(R.string.add_step),
@@ -565,28 +645,30 @@ class TripCreationActivity : ComponentActivity() {
                                         }
                                     }
                                 }
+
+
                             }
+
                         }
+                    }
+                    if (viewModel.loading) {
+                        val color = colors.background.copy(alpha = 0.8f)
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(color),
+                            contentAlignment = Center
 
+                        ) {
+                            Loader()
+                        }
                     }
                 }
-                if (viewModel.loading) {
-                    val color = colors.background.copy(alpha = 0.8f)
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(color),
-                        contentAlignment = Center
 
-                    ) {
-                        Loader()
-                    }
-                }
+
             }
 
-
         }
-
     }
 
 

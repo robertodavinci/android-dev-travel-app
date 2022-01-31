@@ -58,7 +58,8 @@ fun TripStepCard(
     context: Context,
     onComplete: (Boolean) -> Unit = {},
     changeable: Boolean = false,
-    tripId: String = "0"
+    tripId: String = "0",
+    onRemove: (TripDestination) -> Unit = {}
     ){
 
     val openDialog = remember { mutableStateOf(false) }
@@ -179,7 +180,10 @@ fun TripStepCard(
 
         if (openDialog.value) {
             if (changeable) {
-                EditDialog(openDialog, destination, context)
+                EditDialog(openDialog, destination, context) {
+                    onRemove(destination)
+                    openDialog.value = false
+                }
             } else {
                 Dialog(openDialog, destination, tripId)
             }
@@ -374,7 +378,7 @@ fun Dialog(openDialog: MutableState<Boolean>, destination: TripDestination, trip
 }
 
 @Composable
-fun EditDialog(openDialog: MutableState<Boolean>, destination: TripDestination, context: Context) {
+fun EditDialog(openDialog: MutableState<Boolean>, destination: TripDestination, context: Context, onRemove: () -> Unit) {
     var description by remember {
         mutableStateOf(destination.description)
     }
@@ -503,8 +507,7 @@ fun EditDialog(openDialog: MutableState<Boolean>, destination: TripDestination, 
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = CenterVertically
             ) {
-                Button(onClick = { //retVal = true
-                },background = danger) {
+                Button(onClick = onRemove,background = danger) {
                     Text(stringResource(R.string.remove) ,color = Color.White)
                 }
             }

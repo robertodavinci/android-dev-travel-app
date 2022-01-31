@@ -36,7 +36,7 @@ import java.io.ByteArrayOutputStream
 import java.text.SimpleDateFormat
 import java.util.*
 
-class TripCreationViewModel(val mainActivity: Activity, tripId: String) : ViewModel() {
+class TripCreationViewModel(val mainActivity: Activity, tripId: String, val onLoad: () -> Unit) : ViewModel() {
     var loading by mutableStateOf(false)
     var thumbnailUrl: String? by mutableStateOf(null)
     var confirmed by mutableStateOf(false)
@@ -92,6 +92,7 @@ class TripCreationViewModel(val mainActivity: Activity, tripId: String) : ViewMo
                         days = trip.destinationsPerDay.size
                         sharedWith = trip.sharedWith as ArrayList<String>
                         thumbnailUrl = trip.thumbnailUrl
+                        onLoad()
                     }
                 } catch (e: Exception) {
                     errorMessage(mainActivity.window.decorView.rootView).show()
@@ -118,14 +119,16 @@ class TripCreationViewModel(val mainActivity: Activity, tripId: String) : ViewMo
                         sharedWith = ArrayList<String>(trip.sharedWith)
                         sharedWith.forEachIndexed { i, it -> if(it.isEmpty()) sharedWith.removeAt(i) }
                         thumbnailUrl = trip.thumbnailUrl
+                        onLoad()
                     }
                 }
             }
+
         }.start()
     }
     
     fun exit() {
-        if (id == Trip.NOTSAVEDATALL) {
+        if (id == Trip.NOTSAVEDATALL || id.contains("_")) {
             Thread {
                 val db = Room.databaseBuilder(
                     mainActivity,
@@ -261,7 +264,7 @@ class TripCreationViewModel(val mainActivity: Activity, tripId: String) : ViewMo
         }
     }
 
-    fun addStep(destination: Destination) {
+    fun addStep(destination: Destination): TripDestination {
         val destinationsPerDay =
             destinations.clone() as ArrayList<ArrayList<TripDestination>>
         val newDestination = (TripDestination)(destination)
@@ -273,6 +276,7 @@ class TripCreationViewModel(val mainActivity: Activity, tripId: String) : ViewMo
         }
         destinationsPerDay[selectedDay].add(stepCursor++, newDestination)
         destinations = destinationsPerDay
+        return newDestination
     }
 
     fun galleryImageSelected(result: ActivityResult) {

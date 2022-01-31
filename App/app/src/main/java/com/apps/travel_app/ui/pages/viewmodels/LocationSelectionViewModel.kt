@@ -272,8 +272,8 @@ class LocationSelectionViewModel(activity: Activity, val onAddStep: (Destination
                         AppDatabase::class.java, AppDatabase.NAME
                     ).build()
                     db.locationDao().insertAll(newDestination.toLocation())
-                    onAddStep(newDestination)
-                    onMainDestinationSelected(newDestination)
+                    /*onAddStep(newDestination)
+                    onMainDestinationSelected(newDestination)*/
                     newDestination = Destination()
                     stepAdded = true
                     addedMarker = null
