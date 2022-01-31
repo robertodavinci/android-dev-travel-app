@@ -19,6 +19,7 @@ private val DTAG = "Deleting document "
 
 fun addUser(db: FirebaseFirestore, displayName: String, userId: String?){
     var nightMode: Boolean? = null
+    var notifications: Boolean? = null
     if (Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES) nightMode = true
     else if (Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_NO) nightMode = false
     val user = hashMapOf(
@@ -26,7 +27,8 @@ fun addUser(db: FirebaseFirestore, displayName: String, userId: String?){
         "user_id" to userId,
         "real_name" to "",
         "real_surname" to "",
-        "colour_mode" to nightMode
+        "colour_mode" to nightMode,
+        "notifications" to notifications
     )
     if (userId != null) {
         Log.d("User adding", "DocumentSnapshot added with ID: ${userId}")
@@ -51,7 +53,7 @@ fun addUser(db: FirebaseFirestore, displayName: String, userId: String?){
 
 
 fun addUserPeferences(db: FirebaseFirestore, userId: String){
-    val userPreferences = UserPreferences(true, 1, null, null)
+    val userPreferences = UserPreferences(true, true, null, null)
     val userPref = db.collection("users").document(userId).collection("user_preferences").document(userId).set(userPreferences).
     addOnSuccessListener {
         Log.d(ATAG, "User preferences successfully added.")
@@ -124,6 +126,31 @@ fun updateUserRealcredentials(db: FirebaseFirestore, userId: String, name: Strin
     }
 }
 
+fun updateNightMode(db: FirebaseFirestore, userId: String, colour: Boolean){
+    val userPref =
+        db.collection("users").document(userId).collection("user_preferences").document(userId)
+    userPref.let {
+        val docRef = it
+    it.update("colourMode", colour).addOnSuccessListener {
+        Log.d(UTAG, "DocumentSnapshot updated with ID: ${docRef.toString()}")
+    }.addOnFailureListener(){
+        Log.w(UTAG, "Error updating document - $it")
+    }
+    }
+}
+fun updateNotifications(db: FirebaseFirestore, userId: String, notifications: Boolean){
+    val userPref =
+        db.collection("users").document(userId).collection("user_preferences").document(userId)
+    userPref.let {
+        val docRef = it
+        it.update("notifications", notifications).addOnSuccessListener {
+            Log.d(UTAG, "DocumentSnapshot updated with ID: ${docRef.toString()}")
+        }.addOnFailureListener(){
+            Log.w(UTAG, "Error updating document - $it")
+        }
+    }
+}
+
 fun updateUserPreferences(db: FirebaseFirestore, userId: String, colour: Boolean?, economy: Int?, name: String?, surname: String?) {
     val userPref =
         db.collection("users").document(userId).collection("user_preferences").document(userId)
@@ -153,12 +180,5 @@ fun updateUserPreferences(db: FirebaseFirestore, userId: String, colour: Boolean
     }
 }
 
+
 //
-
-
-fun uploadImage(){
-
-}
-
-fun selectImage(){
-}
