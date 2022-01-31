@@ -128,8 +128,8 @@ fun TripsScreen(mainActivity: MainActivity) {
                                         Thread {
                                             Thread.sleep(500)
                                             db.locationDao().delete(destination.toLocation())
-                                            viewModel.saved.removeAt(index)
-                                            saved.removeAt(index)
+                                            viewModel.saved.remove(destination)
+                                            saved.remove(destination)
                                             FirebaseMessaging.getInstance().unsubscribeFromTopic("city" + destination.id)
                                         }.start()
                                     }

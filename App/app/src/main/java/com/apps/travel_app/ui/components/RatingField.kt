@@ -41,7 +41,8 @@ fun RatingField(
             value = ratingText, onValueChange = { ratingText = it },
             shape = RoundedCornerShape(cardRadius),
             modifier = Modifier
-                .fillMaxWidth(),
+                .fillMaxWidth()
+                .height(150.dp),
             colors = TextFieldDefaults.textFieldColors(
                 focusedIndicatorColor = Color.Transparent,
                 disabledIndicatorColor = Color.Transparent,
