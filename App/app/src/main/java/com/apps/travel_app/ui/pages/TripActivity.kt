@@ -1,9 +1,12 @@
 package com.apps.travel_app.ui.pages
 
 import FaIcons
+import android.R.attr
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -11,10 +14,12 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement.SpaceBetween
+import androidx.compose.foundation.layout.Arrangement.aligned
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.MaterialTheme.colors
 import androidx.compose.runtime.*
@@ -28,13 +33,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Transparent
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight.Companion.Bold
 import androidx.compose.ui.text.font.FontWeight.Companion.ExtraBold
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -50,16 +58,26 @@ import com.apps.travel_app.ui.theme.*
 import com.apps.travel_app.ui.utils.markerPopUp
 import com.apps.travel_app.ui.utils.numberedMarker
 import com.apps.travel_app.ui.utils.rememberMapViewWithLifecycle
+import com.apps.travel_app.ui.utils.sendPostRequest
 import com.apps.travel_app.user
 import com.google.android.libraries.maps.CameraUpdateFactory
 import com.google.android.libraries.maps.MapView
 import com.google.android.libraries.maps.model.*
+import com.google.firebase.auth.ktx.oAuthCredential
+import com.google.firebase.messaging.FirebaseMessaging
+import com.google.gson.Gson
 import com.guru.fontawesomecomposelib.FaIcon
 import com.skydoves.landscapist.glide.GlideImage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.*
+import android.R.attr.label
+
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.widget.Toast
+
 
 class TripActivity : ComponentActivity() {
 
@@ -75,7 +93,15 @@ class TripActivity : ComponentActivity() {
         val systemTheme = sharedPref.getBoolean("darkTheme", true)
 
         val tripId = intent.getStringExtra("tripId")
+        val action: String? = intent?.action
+        val data: Uri? = intent?.data
 
+        if(data!=null){
+            Log.i("TRYY ", data.toString())
+        }
+        if(action!=null){
+            Log.i("TRYY ", action.toString())
+        }
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
         setContent {
 
@@ -187,6 +213,7 @@ class TripActivity : ComponentActivity() {
 
         var writeRating by remember { mutableStateOf(false) }
         var writeMessage by remember { mutableStateOf(false) }
+        var shareScreen by remember { mutableStateOf(false) }
 
         fun mapInit() {
             viewModel.map!!.uiSettings.isZoomControlsEnabled = false
@@ -363,6 +390,37 @@ class TripActivity : ComponentActivity() {
                                             )
                                         }
                                     }
+                                        Button(
+                                            onClick = {
+                                                val shareText =
+                                                    "https://polaris.travel.app/find/tripID=" + trip.id
+                                                val clipboard: ClipboardManager = getSystemService(
+                                                    CLIPBOARD_SERVICE
+                                                ) as ClipboardManager
+                                                val clip =
+                                                    ClipData.newPlainText("shareLink", shareText)
+                                                clipboard.setPrimaryClip(clip)
+                                                Toast.makeText(
+                                                    context,
+                                                    R.string.clipboard,
+                                                    Toast.LENGTH_LONG
+                                                ).show()
+                                            }, background = primaryColor, modifier = Modifier
+                                                .align(
+                                                    CenterHorizontally
+                                                )
+                                                .padding(5.dp)
+                                        ) {
+                                            Row {
+                                                FaIcon(FaIcons.Share, tint = White, size = 18.dp)
+                                                Spacer(modifier = Modifier.width(5.dp))
+                                                Text(
+                                                    stringResource(R.string.share),
+                                                    fontSize = textNormal,
+                                                    color = White
+                                                )
+                                            }
+                                    }
                                     Text(
                                         stringResource(R.string.if_customize_copy),
                                         fontSize = textExtraSmall,
@@ -370,7 +428,7 @@ class TripActivity : ComponentActivity() {
                                         color = colors.surface,
                                         modifier = Modifier.fillMaxWidth()
                                     )
-                                } else if(!viewModel.copied) {
+                                } else if (!viewModel.copied) {
                                     Button(
                                         onClick = {
                                             val intent = Intent(
@@ -530,7 +588,12 @@ class TripActivity : ComponentActivity() {
                                                         )
                                                 )
                                             }
-                                            TripStepCard(place, index, tripId = trip.id, context = context)
+                                            TripStepCard(
+                                                place,
+                                                index,
+                                                tripId = trip.id,
+                                                context = context
+                                            )
                                             if (index < viewModel.steps.size - 1) {
                                                 Box(
                                                     modifier = Modifier
@@ -638,6 +701,7 @@ class TripActivity : ComponentActivity() {
                             }
                         }
                         item {
+                            Spacer(Modifier.height(10.dp))
                             Heading(stringResource(R.string.discussion))
                         }
 
@@ -698,11 +762,9 @@ class TripActivity : ComponentActivity() {
 
             }
         }
-
     }
-
-
 }
+
 
 
 

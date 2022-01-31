@@ -75,6 +75,8 @@
     <string name="new_surname">New surname</string>
     <string name="set_new">Set new</string>
     <string name="share_what_you_think">Share what you think</string>
+    <string name="share">Share</string>
+    <string name="clipboard">Share link copied to clipboard!</string>
     <string name="more">More</string>
     <string name="duplicate">Duplicate</string>
     <string name="if_customize_copy">If you want to customize the trip, make a copy</string>

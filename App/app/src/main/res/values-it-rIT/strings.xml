@@ -14,6 +14,8 @@
     <string name="trips">Trip</string>
     <string name="destinations">Destinazioni</string>
     <string name="places">Luoghi</string>
+    <string name="share">Condividi</string>
+    <string name="clipboard">Condividi link copiato negli appunti! </string>
     <string name="something_stupid_1">Prendi un respiro profondo</string>
     <string name="something_stupid_2">e lasciati ispirare</string>
     <string name="something_stupid_3">... da noi</string>

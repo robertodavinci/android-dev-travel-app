@@ -2,6 +2,7 @@ package com.apps.travel_app.ui.pages
 
 import FaIcons
 import android.content.Context
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.*
@@ -43,10 +44,8 @@ class MapScreen {
     fun MapScreen(context: Context, activity: MainActivity) {
 
         val viewModel = remember { MapViewModel() }
-
         fun mapInit(context: Context) {
             viewModel.map!!.uiSettings.isZoomControlsEnabled = false
-
             viewModel.map?.setMapStyle(
                 MapStyleOptions.loadRawResourceStyle(
                     context,
@@ -195,5 +194,6 @@ class MapScreen {
                 }
             }
         }
+
     }
 }

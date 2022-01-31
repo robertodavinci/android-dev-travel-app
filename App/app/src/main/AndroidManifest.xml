@@ -5,22 +5,42 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
+    <queries>
+        <provider android:authorities="com.facebook.katana.provider.PlatformProvider" />
+        <provider android:authorities="com.facebook.orca.provider.PlatformProvider" />
+    </queries>
 
     <application
-        android:requestLegacyExternalStorage="true"
         android:allowBackup="true"
         android:icon="@mipmap/icon"
         android:label="@string/app_name"
+        android:requestLegacyExternalStorage="true"
         android:roundIcon="@mipmap/icon"
-        android:supportsRtl="true"
-        android:theme="@style/Theme.Travel_App"
         android:screenOrientation="portrait"
-        >
+        android:supportsRtl="true"
+        android:theme="@style/Theme.Travel_App">
+        <activity
+            android:name=".ui.components.login.LoadActivity"
+            android:launchMode="singleTask"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
 
+                <category android:name="android.intent.category.BROWSABLE" />
+                <category android:name="android.intent.category.DEFAULT" />
 
-        <meta-data android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyCmF0ljdTcy9NbOuXgLeZ6ozJVZbiM2DGM"/>
+                <data
+                    android:host="polaris.travel.app"
+                    android:pathPrefix="/find/tripID"
+                    android:scheme="https" />
+            </intent-filter>
+        </activity>
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyCmF0ljdTcy9NbOuXgLeZ6ozJVZbiM2DGM" />
 
         <activity
             android:name="com.facebook.FacebookActivity"
@@ -42,57 +62,47 @@
             android:name=".ui.components.login.LoginActivity"
             android:exported="true"
             android:label="@string/app_name"
-            android:theme="@style/Theme.App.Starting"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.App.Starting">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".ui.pages.InspirationActivity"
             android:exported="true"
-            android:theme="@style/Theme.Travel_App.NoActionBar"
-            android:screenOrientation="portrait">
-        </activity>
-
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.Travel_App.NoActionBar"></activity>
         <activity
             android:name=".MainActivity"
             android:exported="true"
             android:label="@string/app_name"
-            android:theme="@style/Theme.Travel_App.NoActionBar"
-            android:screenOrientation="portrait">
-
-        </activity>
-
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.Travel_App.NoActionBar"></activity>
         <activity
             android:name=".ui.pages.TripCreationActivity"
             android:exported="true"
-            android:theme="@style/Theme.Travel_App.NoActionBar"
-            android:screenOrientation="portrait"/>
-
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.Travel_App.NoActionBar" />
         <activity
             android:name=".ui.pages.AroundMeActivity"
             android:exported="true"
-            android:theme="@style/Theme.Travel_App.NoActionBar"
-            android:screenOrientation="portrait"/>
-
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.Travel_App.NoActionBar" />
         <activity
             android:name=".ui.pages.TripActivity"
             android:exported="true"
-            android:windowSoftInputMode="adjustResize"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.Travel_App.NoActionBar"
-            android:screenOrientation="portrait"/>
-
-
+            android:windowSoftInputMode="adjustResize"></activity>
         <activity
             android:name=".ui.pages.ActiveTripActivity"
             android:exported="true"
-            android:windowSoftInputMode="adjustResize"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.Travel_App.NoActionBar"
-            android:screenOrientation="portrait"/>
+            android:windowSoftInputMode="adjustResize" />
 
         <service
             android:name=".ui.notifications.NotificationsService"
@@ -105,20 +115,18 @@
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"
             android:value="NOTIFICATION" />
-
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"
             android:resource="@mipmap/icon" />
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_color"
             android:resource="@color/primary" />
-
-        <meta-data android:name="com.facebook.sdk.ApplicationId"
-            android:value="@string/facebook_app_id"/>
-        <meta-data android:name="com.facebook.sdk.ClientToken" android:value="@string/fb_client_token"/>
+        <meta-data
+            android:name="com.facebook.sdk.ApplicationId"
+            android:value="@string/facebook_app_id" />
+        <meta-data
+            android:name="com.facebook.sdk.ClientToken"
+            android:value="@string/fb_client_token" />
     </application>
-    <queries>
-        <provider android:authorities="com.facebook.katana.provider.PlatformProvider" />
-        <provider android:authorities="com.facebook.orca.provider.PlatformProvider" />
-    </queries>
+
 </manifest>

@@ -2,6 +2,7 @@ package com.apps.travel_app.ui.components
 
 import android.app.Activity
 import android.content.Intent
+import android.util.Log
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -102,14 +103,18 @@ fun DestinationCard(
                 background = primaryColor,
                 modifier = Modifier.padding(5.dp),
                 onClick = {
+                   // Log.i("INFFO ", activity.navigateUpTo())
+
                     if (destination != null) {
                         if (activity is MainActivity) {
+                            activity.cameFromMap = true
                             activity.setDestination(destination,true)
                         } else {
                             val intent = Intent(activity, MainActivity::class.java)
                             intent.action = "destination"
                             val gson = Gson()
                             intent.putExtra("destinationId", gson.toJson(destination))
+                            intent.putExtra("prevMap", "prevMap")
                             ContextCompat.startActivity(activity, intent, null)
                         }
                     }

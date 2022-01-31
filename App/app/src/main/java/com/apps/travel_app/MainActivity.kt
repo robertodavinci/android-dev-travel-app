@@ -5,6 +5,7 @@ import FaIcons
 import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import androidx.preference.PreferenceManager
@@ -12,8 +13,10 @@ import android.util.Log
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -65,6 +68,7 @@ class MainActivity : ComponentActivity() {
     lateinit var db: FirebaseFirestore
     lateinit var auth: FirebaseAuth
     private var destinationText: String? = String()
+    var cameFromMap: Boolean = false
 
 
     @OptIn(ExperimentalFoundationApi::class,
@@ -79,7 +83,9 @@ class MainActivity : ComponentActivity() {
         auth.signOut()
         PreferenceManager.getDefaultSharedPreferences(this).edit().clear().commit()
         val intent = Intent(this, LoginActivity::class.java)
+        //finish()
         startActivity(intent)
+
     }
 
     fun goHome() {
@@ -95,8 +101,15 @@ class MainActivity : ComponentActivity() {
     }
 
     override fun onBackPressed() {
+        Log.i("INFFO ", navController.currentDestination?.route.toString())
+        Log.i("INFFO ", navController.previousBackStackEntry.toString())
         if(navController.currentDestination?.route.toString() == SubPages.GooglePlace.route)
             oldDestination?.let { it1 -> setDestination(it1,true) }
+        else if(cameFromMap){
+            cameFromMap = false
+            this.navController.popBackStack()
+            navController.navigate(BottomBarItem.Map.route)
+        }
         else super.onBackPressed()
     }
 
@@ -152,6 +165,9 @@ class MainActivity : ComponentActivity() {
         this.oldDestination = destinationTwo
     }
 
+    @ExperimentalMaterialApi
+    @ExperimentalAnimationApi
+    @ExperimentalFoundationApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val sharedPref = PreferenceManager.getDefaultSharedPreferences(this)
@@ -165,6 +181,9 @@ class MainActivity : ComponentActivity() {
         requireFullscreenMode(window, this)
 
 
+        var inputTrip: String? = null
+
+
         // Firebase database auth
         db = Firebase.firestore
         FirebaseMessaging.getInstance().subscribeToTopic("all").addOnCompleteListener {
@@ -175,7 +194,15 @@ class MainActivity : ComponentActivity() {
             dark = false
             }
         val systemTheme = sharedPref.getBoolean("darkTheme", dark)
-
+        if(intent.getStringExtra("findTripID") != null) {
+            inputTrip = intent.getStringExtra("findTripID")
+            if (inputTrip.toString().contains("https://polaris.travel.app/find/tripID=")) {
+                var loadID = inputTrip.toString().substring(inputTrip.toString().indexOf("=") + 1)
+                val intent = Intent(this, TripActivity::class.java)
+                intent.putExtra("tripId", loadID)
+                startActivity(intent)
+            }
+        }
         setContent {
             MainActivity_Travel_AppTheme(systemTheme = systemTheme) {
                 MainScreen(this,this)

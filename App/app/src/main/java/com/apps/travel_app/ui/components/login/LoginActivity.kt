@@ -3,6 +3,7 @@ package com.apps.travel_app.ui.components.login
 import FaIcons
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -131,9 +132,7 @@ class LoginActivity : ComponentActivity() {
 
         googleSignInClient = GoogleSignIn.getClient(this, gso)
         if (currentUser != null) {
-            val intent = Intent(this, MainActivity::class.java)
-            startActivity(intent)
-            finish()
+            finalLoginPart()
         } else {
             loginEntry = true
             setContent {
@@ -147,6 +146,20 @@ class LoginActivity : ComponentActivity() {
     }
 
 
+    fun finalLoginPart(){
+
+        //var inte: Uri? = null
+        var inte: String? = null
+        if(intent.getStringExtra("findTripID") != null) {
+            inte = intent.getStringExtra("findTripID")
+            //Log.i("AAA ", inte.toString())
+        }
+        val intent = Intent(this, MainActivity::class.java)
+        if(inte != null) intent.putExtra("findTripID", inte)
+        startActivity(intent)
+        //intent.removeExtra("findTripID")
+        //finish()
+    }
 
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -255,8 +268,7 @@ class LoginActivity : ComponentActivity() {
                                     ).show()
                                     addUserCheck(auth.currentUser, displayName)
                                     loginSuccess(auth.currentUser, this,)
-                                    val intent = Intent(this, MainActivity::class.java)
-                                    startActivity(intent)
+                                    finalLoginPart()
                                 }
                                 else Log.d("Error ", "- Something doesn't work")
                                 }
@@ -734,8 +746,7 @@ class LoginActivity : ComponentActivity() {
 
             sharedPrefUserEdit(user)
         //
-        val intent = Intent(context, MainActivity::class.java)
-        startActivity(intent)
+        finalLoginPart()
     }
 
    /* private fun updateLocalUserPref(){
