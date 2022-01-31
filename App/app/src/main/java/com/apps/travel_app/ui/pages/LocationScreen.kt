@@ -271,7 +271,7 @@ fun LocationScreen(
                                 .background(
                                     brush = Brush.verticalGradient(
                                         colors = listOf(
-                                            MaterialTheme.colors.background,
+                                            colors.background,
                                             Color.Transparent
                                         )
                                     )
