@@ -93,20 +93,22 @@ These functions are mentioned in several places in the document, but their most 
 Each point of interest is featured as a specific "destination", although even places that are not regarded as specific destinations can be inserted into a trip. Destination fetching is done through the Google Maps API, with the users also having the ability to add and edit their own destinations.
 The function features the following:
 \begin{itemize}
-\item Selecting a starting point, that is then connected to the nearest city on the map
+\item Selecting a central point of the trip
 \item Adding other destinations to the trip
 \item Writing a trip description
-\item Adding preferred way of travel between destinations
-\item Identifying trip price level
+\item Adding preferred ways of travel between destinations
 \item Adding comments to trip destinations
-\item .............
+\item Adding images to destinations and trips
+\item Adding multiple days to trip
+\item Determining optimal arrival time and visit time for every specific destination
+\item Choosing whether the trip is public or not
 \end{itemize}
 \subsubsection{Editing a trip}
 \hspace{\parindent}Editing a trip can be done on two different types of trips - public or private. If the trip is public, either published by the user editing it or someone else, by starting to editing an exact copy of that trip is created, which can then be published again under different name and different trip ID.\\
 If the trip is private and has not yet been published, then a new trip is not created, but rather the trip ID stays the same. If the trip is then published and edited again, the new edited version of the trip has a new trip ID and is a whole new entity.\\
-Editing a trip features all of the same functions that adding a trip does, which means that everything from a small comment to the whole trip can be changed. 
+Editing a trip features all of the same functions that adding a trip does, which means that everything from a small comment to the whole trip can be modified. 
 \subsubsection{Finding a trip}
-\hspace{\parindent}Finding a trip can be done in several different ways. The first way features a search bar which then searches a trip by the starting point name or by the city which is the closest to that destination. The second way is a search by the trip ID or a hyperlink, which can be directly received from other users. The third way is by accessing a specific user's account page and scrolling through their published trips. Finally, trips can also be found by looking at the interactive map, selecting the area of the desired starting point of the trip, and finding the trip through the distinct trip name and photo.  
+\hspace{\parindent}Finding a trip can be done in several different ways. The first way features a search bar which then searches a trip by the central point name or by the city that is the trip based on. The second way is a search by the trip ID/name, which can be directly received from other users. Trips can also be found by looking at the interactive map, selecting the area of the desired starting point of the trip, and finding the trip through the distinct trip name and photo. Trips can also be scrolled through on the main page of the app, which offers different suggestions. There is also an option of searching through the specific destinations used by other users in their trips in a certain area close to the current user, which can be a good starting point for new trip ideas.
 \subsubsection{Following a trip}
 \hspace{\parindent}This function mainly uses a specific trip and sets it as an active trip of the user. This makes it easily accessible by the user at all times by using the bottom navigation bar, and allows him to follow certain steps of the trip without losing progress. This function also allows the user to change the current active trip and still keep the progress of an old trip, so that the progress can be easily restored when that trip is again set as an active trip.
 \subsubsection{Updating account settings}
@@ -115,7 +117,7 @@ Editing a trip features all of the same functions that adding a trip does, which
 \item Changing a username
 \item Changing a profile picture
 \item Switching between dark and light colour scheme
-\item Setting preferred price level
+\item Turning notifications on or off
 \item Switching between offline mode and online mode
 \end{itemize}
 \subsubsection{Offline function}

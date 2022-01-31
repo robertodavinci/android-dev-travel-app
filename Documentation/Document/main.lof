@@ -5,18 +5,25 @@
 \contentsline {figure}{\numberline {5}{\ignorespaces \textbf {Sequence diagram 1 - Create a Trip}\relax }}{23}{figure.caption.10}%
 \contentsline {figure}{\numberline {6}{\ignorespaces \textbf {Sequence diagram 2 - Edit a Trip}\relax }}{24}{figure.caption.11}%
 \contentsline {figure}{\numberline {7}{\ignorespaces \textbf {Sequence diagram 3 - Add a destination}\relax }}{25}{figure.caption.12}%
-\contentsline {figure}{\numberline {8}{\ignorespaces \textbf {'Polaris' icon featuring an astronaut on a blue background}\relax }}{28}{figure.caption.13}%
-\contentsline {figure}{\numberline {9}{\ignorespaces \textbf {Primary color \#0083FF}\relax }}{28}{figure.caption.14}%
-\contentsline {figure}{\numberline {10}{\ignorespaces \textbf {Secondary color \#0460D9}\relax }}{28}{figure.caption.14}%
-\contentsline {figure}{\numberline {11}{\ignorespaces \textbf {Background colours for light theme}\relax }}{29}{figure.caption.15}%
-\contentsline {figure}{\numberline {12}{\ignorespaces \textbf {Background colours for dark theme}\relax }}{29}{figure.caption.16}%
-\contentsline {figure}{\numberline {13}{\ignorespaces \textbf {Main screen in light style}\relax }}{30}{figure.caption.17}%
-\contentsline {figure}{\numberline {14}{\ignorespaces \textbf {Main screen in dark style}\relax }}{30}{figure.caption.17}%
-\contentsline {figure}{\numberline {15}{\ignorespaces \textbf {Map screen in light style}\relax }}{31}{figure.caption.18}%
-\contentsline {figure}{\numberline {16}{\ignorespaces \textbf {Map screen in dark style}\relax }}{31}{figure.caption.18}%
-\contentsline {figure}{\numberline {17}{\ignorespaces \textbf {Saved trips screen in light style}\relax }}{32}{figure.caption.19}%
-\contentsline {figure}{\numberline {18}{\ignorespaces \textbf {Saved trips screen in dark style}\relax }}{32}{figure.caption.19}%
-\contentsline {figure}{\numberline {19}{\ignorespaces \textbf {Explore screen in light style}\relax }}{33}{figure.caption.20}%
-\contentsline {figure}{\numberline {20}{\ignorespaces \textbf {Explore screen in dark style}\relax }}{33}{figure.caption.20}%
-\contentsline {figure}{\numberline {21}{\ignorespaces \textbf {Settings screen in light style}\relax }}{34}{figure.caption.21}%
-\contentsline {figure}{\numberline {22}{\ignorespaces \textbf {Settings screen in dark style}\relax }}{34}{figure.caption.21}%
+\contentsline {figure}{\numberline {8}{\ignorespaces \textbf {Search by name and ID}\relax }}{26}{figure.caption.13}%
+\contentsline {figure}{\numberline {9}{\ignorespaces \textbf {Search by map drawing}\relax }}{27}{figure.caption.14}%
+\contentsline {figure}{\numberline {10}{\ignorespaces \textbf {Search by location}\relax }}{28}{figure.caption.15}%
+\contentsline {figure}{\numberline {11}{\ignorespaces \textbf {Search by destination}\relax }}{29}{figure.caption.16}%
+\contentsline {figure}{\numberline {12}{\ignorespaces \textbf {Destination details}\relax }}{29}{figure.caption.16}%
+\contentsline {figure}{\numberline {13}{\ignorespaces \textbf {'Polaris' icon featuring an astronaut on a blue background}\relax }}{31}{figure.caption.17}%
+\contentsline {figure}{\numberline {14}{\ignorespaces \textbf {Primary color \#0083FF}\relax }}{31}{figure.caption.18}%
+\contentsline {figure}{\numberline {15}{\ignorespaces \textbf {Secondary color \#0460D9}\relax }}{31}{figure.caption.18}%
+\contentsline {figure}{\numberline {16}{\ignorespaces \textbf {Background colours for light theme}\relax }}{32}{figure.caption.19}%
+\contentsline {figure}{\numberline {17}{\ignorespaces \textbf {Background colours for dark theme}\relax }}{32}{figure.caption.20}%
+\contentsline {figure}{\numberline {18}{\ignorespaces \textbf {Main screen in light style}\relax }}{33}{figure.caption.21}%
+\contentsline {figure}{\numberline {19}{\ignorespaces \textbf {Main screen in dark style}\relax }}{33}{figure.caption.21}%
+\contentsline {figure}{\numberline {20}{\ignorespaces \textbf {Map screen in light style}\relax }}{34}{figure.caption.22}%
+\contentsline {figure}{\numberline {21}{\ignorespaces \textbf {Map screen in dark style}\relax }}{34}{figure.caption.22}%
+\contentsline {figure}{\numberline {22}{\ignorespaces \textbf {Saved trips screen in light style}\relax }}{35}{figure.caption.23}%
+\contentsline {figure}{\numberline {23}{\ignorespaces \textbf {Saved trips screen in dark style}\relax }}{35}{figure.caption.23}%
+\contentsline {figure}{\numberline {24}{\ignorespaces \textbf {Explore screen in light style}\relax }}{36}{figure.caption.24}%
+\contentsline {figure}{\numberline {25}{\ignorespaces \textbf {Explore screen in dark style}\relax }}{36}{figure.caption.24}%
+\contentsline {figure}{\numberline {26}{\ignorespaces \textbf {Settings screen in light style}\relax }}{37}{figure.caption.25}%
+\contentsline {figure}{\numberline {27}{\ignorespaces \textbf {Settings screen in dark style}\relax }}{37}{figure.caption.25}%
+\contentsline {figure}{\numberline {28}{\ignorespaces \textbf {Trip creation screen in light style}\relax }}{38}{figure.caption.26}%
+\contentsline {figure}{\numberline {29}{\ignorespaces \textbf {Trip creation screen in dark style}\relax }}{38}{figure.caption.26}%

@@ -19,7 +19,7 @@
 \contentsline {subsubsection}{\numberline {2.2.3}Finding a trip}{14}{subsubsection.2.2.3}%
 \contentsline {subsubsection}{\numberline {2.2.4}Following a trip}{14}{subsubsection.2.2.4}%
 \contentsline {subsubsection}{\numberline {2.2.5}Updating account settings}{14}{subsubsection.2.2.5}%
-\contentsline {subsubsection}{\numberline {2.2.6}Offline function}{14}{subsubsection.2.2.6}%
+\contentsline {subsubsection}{\numberline {2.2.6}Offline function}{15}{subsubsection.2.2.6}%
 \contentsline {subsection}{\numberline {2.3}Additional features}{15}{subsection.2.3}%
 \contentsline {subsubsection}{\numberline {2.3.1}Translation}{15}{subsubsection.2.3.1}%
 \contentsline {subsubsection}{\numberline {2.3.2}Multiple language support}{15}{subsubsection.2.3.2}%
@@ -37,15 +37,16 @@
 \contentsline {subsubsection}{\numberline {3.5.2}Edit a trip}{24}{subsubsection.3.5.2}%
 \contentsline {subsubsection}{\numberline {3.5.3}Add a destination}{25}{subsubsection.3.5.3}%
 \contentsline {subsubsection}{\numberline {3.5.4}Search for a trip/explore}{26}{subsubsection.3.5.4}%
-\contentsline {subsection}{\numberline {3.6}Design constraints}{27}{subsection.3.6}%
-\contentsline {subsubsection}{\numberline {3.6.1}Hardware limitations}{27}{subsubsection.3.6.1}%
-\contentsline {subsubsection}{\numberline {3.6.2}Privacy limitations}{27}{subsubsection.3.6.2}%
-\contentsline {section}{\numberline {4}User Interface Design}{28}{section.4}%
-\contentsline {subsection}{\numberline {4.1}Identity and colours}{28}{subsection.4.1}%
-\contentsline {subsection}{\numberline {4.2}User interface design}{29}{subsection.4.2}%
-\contentsline {subsubsection}{\numberline {4.2.1}Main screen}{30}{subsubsection.4.2.1}%
-\contentsline {subsubsection}{\numberline {4.2.2}Map screen}{31}{subsubsection.4.2.2}%
-\contentsline {subsection}{\numberline {4.3}Saved trips screen}{32}{subsection.4.3}%
-\contentsline {subsubsection}{\numberline {4.3.1}Explore screen}{33}{subsubsection.4.3.1}%
-\contentsline {subsubsection}{\numberline {4.3.2}Settings screen}{34}{subsubsection.4.3.2}%
-\contentsline {section}{\numberline {5}Testing}{35}{section.5}%
+\contentsline {subsection}{\numberline {3.6}Design constraints}{30}{subsection.3.6}%
+\contentsline {subsubsection}{\numberline {3.6.1}Hardware limitations}{30}{subsubsection.3.6.1}%
+\contentsline {subsubsection}{\numberline {3.6.2}Privacy limitations}{30}{subsubsection.3.6.2}%
+\contentsline {section}{\numberline {4}User Interface Design}{31}{section.4}%
+\contentsline {subsection}{\numberline {4.1}Identity and colours}{31}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.2}User interface design}{32}{subsection.4.2}%
+\contentsline {subsubsection}{\numberline {4.2.1}Main screen}{33}{subsubsection.4.2.1}%
+\contentsline {subsubsection}{\numberline {4.2.2}Map screen}{34}{subsubsection.4.2.2}%
+\contentsline {subsubsection}{\numberline {4.2.3}Saved trips screen}{35}{subsubsection.4.2.3}%
+\contentsline {subsubsection}{\numberline {4.2.4}Explore screen}{36}{subsubsection.4.2.4}%
+\contentsline {subsubsection}{\numberline {4.2.5}Settings screen}{37}{subsubsection.4.2.5}%
+\contentsline {subsubsection}{\numberline {4.2.6}Trip creation screen}{38}{subsubsection.4.2.6}%
+\contentsline {section}{\numberline {5}Testing}{39}{section.5}%

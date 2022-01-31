@@ -121,6 +121,56 @@ This way whenever the users return to the library of created/saved trips, they w
 \end{figure}
 \newpage
 \subsubsection{Search for a trip/explore}
+\hspace{\parindent}There are several ways of searching for a trip which are going to be explained rather than shown in graphs, due to the complexity and confusion they would cause.\\ \\
+
+\textbf{Search by name and ID}
+
+The app features a search bar right above the navigation bar, which allows users to search through the database of saved trips and destinations by name. Both destinations created by the users and Google Places destinations are featured, just like trips created by both the current user and all other users. Trips can also be searched by the unique ID that has been assigned to every public trip.\\ \\
+\begin{figure}[!htb]
+\centering
+\includegraphics[width=.45\textwidth]{../Images/UI/SearchName.jpg}
+\caption{\label{fig:dbapiuser}\textbf{Search by name and ID}}
+\end{figure}
+\newpage
+
+\textbf{Search by map drawing}
+
+Map searching is the most interesting and interactive function of the app. It allows the user to focus on the specific area of the world on the app, circle the desired part of it with finger input, on which the map will generate interesting locations on the map in the form of bubbles. This can help users search through specific areas, which can be extremely useful when visiting unknown places or having a vacation in a new place.\\ \\
+\begin{figure}[!htb]
+\centering
+\includegraphics[width=.45\textwidth]{../Images/UI/MapSearchRealDark.jpg}
+\caption{\label{fig:dbapiuser}\textbf{Search by map drawing}}
+\end{figure}
+\newpage
+
+\textbf{Search by location}
+
+Similar function to the previous one is used when searching based on the current location. When the user allows the app to access the location of the device, it provides it with interesting destinations in the radius around the device, which can range all the way from zero to several thousand kilometers.\\ \\
+\begin{figure}[!htb]
+\centering
+\includegraphics[width=.45\textwidth]{../Images/UI/LocationDark.jpg}
+\caption{\label{fig:dbapiuser}\textbf{Search by location}}
+\end{figure}
+\newpage
+
+\textbf{Search on the wall}
+
+App also features a "wall" of top destinations and trips, based on an algorithm, that features the newest and the highest rated trips and destinations. Users can easily scroll through and pick whatever they find interesting. When searching through locations and cities, the app will fetch other points of interest in the vicinity and provide user with both trips and locations (which are downloaded from Google Places) in and around the area.\\ \\
+
+\begin{figure}[!htb]
+\centering
+\begin{minipage}{.45\textwidth}
+\centering
+\includegraphics[width=.95\textwidth]{../Images/UI/DestinationsMain.jpg}
+\caption{\label{fig:dbapiuser}\textbf{Search by destination}}
+\end{minipage} 
+\begin{minipage}{.45\textwidth}
+\centering
+\includegraphics[width=.95\textwidth]{../Images/UI/LocationSearch.jpg}
+\caption{\label{fig:dbapiuser}\textbf{Destination details}}
+\end{minipage}
+\end{figure}
+
 \newpage
 \subsection{Design constraints}
 \subsubsection{Hardware limitations}
