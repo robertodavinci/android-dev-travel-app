@@ -36,6 +36,9 @@ import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTag
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -412,7 +415,7 @@ class LoginActivity : ComponentActivity() {
                         ),
                         modifier = Modifier
                             .height(60.dp)
-                            .weight(1f),
+                            .weight(1f).semantics { testTag = "username" },
                         placeholder = {
                             Text(
                                 "Email",
@@ -473,7 +476,7 @@ class LoginActivity : ComponentActivity() {
                             ),
                             modifier = Modifier
                                 .height(60.dp)
-                                .weight(1f),
+                                .weight(1f).semantics { testTag = "username" },
                             placeholder = {
                                 Text(
                                     "Username",
@@ -535,7 +538,7 @@ class LoginActivity : ComponentActivity() {
                         ),
                         modifier = Modifier
                             .height(60.dp)
-                            .weight(1f),
+                            .weight(1f).semantics { testTag = "password" },
                         placeholder = {
                             Text(
                                 "Password",
@@ -599,7 +602,7 @@ class LoginActivity : ComponentActivity() {
                         },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(60.dp),
+                            .height(60.dp).semantics { testTag = "login" },
                         background = White
                     )
                     Spacer(Modifier.padding(cardPadding))

@@ -39,6 +39,7 @@ import androidx.compose.ui.text.style.TextAlign.Companion.Center
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.apps.travel_app.R
+import com.apps.travel_app.data.room.entity.TripStep
 import com.apps.travel_app.models.MediumType
 import com.apps.travel_app.models.Trip
 import com.apps.travel_app.models.TripDestination
@@ -61,7 +62,8 @@ fun TripStepCard(
     onComplete: (Boolean) -> Unit = {},
     changeable: Boolean = false,
     tripId: String = "0",
-    onRemove: (TripDestination) -> Unit = {}
+    onRemove: (TripDestination) -> Unit = {},
+    onInfoChange: (TripDestination) -> Unit = {}
     ){
 
     val openDialog = remember { mutableStateOf(false) }
@@ -182,7 +184,9 @@ fun TripStepCard(
 
         if (openDialog.value) {
             if (changeable) {
-                EditDialog(openDialog, destination, context) {
+                EditDialog(openDialog, destination, context, onInfoChange = {
+                    onInfoChange(destination)
+                }) {
                     onRemove(destination)
                     openDialog.value = false
                 }
@@ -380,7 +384,7 @@ fun Dialog(openDialog: MutableState<Boolean>, destination: TripDestination, trip
 }
 
 @Composable
-fun EditDialog(openDialog: MutableState<Boolean>, destination: TripDestination, context: Context, onRemove: () -> Unit) {
+fun EditDialog(openDialog: MutableState<Boolean>, destination: TripDestination, context: Context, onInfoChange: () -> Unit, onRemove: () -> Unit) {
     var description by remember {
         mutableStateOf(destination.description)
     }
@@ -410,6 +414,7 @@ fun EditDialog(openDialog: MutableState<Boolean>, destination: TripDestination, 
             destination.kmToNextDestination = distanceKm.toFloatOrNull() ?: 0.0f
             destination.minutesToNextDestination = distanceMin.toFloatOrNull() ?: 0.0f
             destination.mediumToNextDestination = mediumToNextDestination
+            onInfoChange()
         },
 
         ) {

@@ -84,7 +84,7 @@ class TripCreationActivity : ComponentActivity() {
                 }
             }
 
-        val builder = AlertDialog.Builder(this)
+        val builder = AlertDialog.Builder(this,R.style.AlertDialogStyle)
         builder.setMessage(resources.getString(R.string.wanna_leave)).setPositiveButton("\uD83D\uDC4D", dialogClickListener)
             .setNegativeButton("\uD83D\uDC4E", dialogClickListener).show()
     }
@@ -127,7 +127,7 @@ class TripCreationActivity : ComponentActivity() {
 
 
             Travel_AppTheme(systemTheme = systemTheme) {
-                val steps = remember { mutableStateListOf<TripDestination>() }
+                var steps = remember { mutableStateListOf<TripDestination>() }
                 viewModel = remember {
                     TripCreationViewModel(this, tripId ?: Trip.NOTSAVEDATALL, onLoad = {
                         //steps.clear()
@@ -545,8 +545,11 @@ class TripCreationActivity : ComponentActivity() {
                                                     viewModel.destinations[viewModel.selectedDay].removeAt(
                                                         index
                                                     )
+                                                },onInfoChange = { element ->
+                                                    steps.removeAt(index)
+                                                    steps.add(index, element)
                                                 })
-                                            if (index < viewModel.destinations[viewModel.selectedDay].size - 1) {
+                                            if (index < steps.size - 1) {
                                                 Box(
                                                     modifier = Modifier
                                                         .padding(start = 25.dp)
