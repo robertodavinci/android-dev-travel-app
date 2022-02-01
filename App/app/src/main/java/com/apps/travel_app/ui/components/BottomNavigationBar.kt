@@ -28,6 +28,8 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTag
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -135,6 +137,8 @@ fun BottomNavigationBar(navController: NavController, mainActivity: MainActivity
                                 if (it.isFocused) {
                                     changeState(States.EXPANDED)
                                 }
+                            }.semantics {
+                                testTag = "searchText"
                             },
                         singleLine = true,
                         textStyle = TextStyle(
@@ -143,7 +147,9 @@ fun BottomNavigationBar(navController: NavController, mainActivity: MainActivity
                         ),
                         cursorBrush = SolidColor(colors.surface)
                     )
-                    IconButton(onClick = {
+                    IconButton(modifier = Modifier.semantics {
+                        testTag = "search"
+                    },onClick = {
                         Search(
                             searchTerm
                         )
@@ -386,7 +392,9 @@ fun BottomNavigationBar(navController: NavController, mainActivity: MainActivity
                     modifier = Modifier.then(
                         Modifier.scale(
                             scale
-                        )
+                        ).semantics {
+                            testTag = "tab$index"
+                        }
                     ),
                     selected = currentRoute == item.route,
                     onClick = {
