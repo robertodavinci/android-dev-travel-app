@@ -39,10 +39,12 @@ import androidx.compose.ui.text.style.TextAlign.Companion.Center
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.apps.travel_app.R
+import com.apps.travel_app.models.MediumType
 import com.apps.travel_app.models.Trip
 import com.apps.travel_app.models.TripDestination
 import com.apps.travel_app.ui.theme.*
 import com.apps.travel_app.ui.utils.sendPostRequest
+import com.apps.travel_app.user
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
@@ -388,12 +390,26 @@ fun EditDialog(openDialog: MutableState<Boolean>, destination: TripDestination, 
     var minutes by remember {
         mutableStateOf(destination.minutes.toString())
     }
+
+    var distanceKm by remember {
+        mutableStateOf(destination.kmToNextDestination.toString())
+    }
+
+    var distanceMin by remember {
+        mutableStateOf(destination.minutesToNextDestination.toString())
+    }
+    var mediumToNextDestination by remember {
+        mutableStateOf(destination.mediumToNextDestination)
+    }
     androidx.compose.ui.window.Dialog(
         onDismissRequest = {
             openDialog.value = false
             destination.description = description
             destination.hour = hour
             destination.minutes = minutes.toIntOrNull() ?: 0
+            destination.kmToNextDestination = distanceKm.toFloatOrNull() ?: 0.0f
+            destination.minutesToNextDestination = distanceMin.toFloatOrNull() ?: 0.0f
+            destination.mediumToNextDestination = mediumToNextDestination
         },
 
         ) {
@@ -501,6 +517,89 @@ fun EditDialog(openDialog: MutableState<Boolean>, destination: TripDestination, 
                     .fillMaxWidth(),
                 cursorBrush = SolidColor(colors.surface)
             )
+            Heading(stringResource(R.string.distance_to_next))
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(cardPadding),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = CenterVertically
+            ) {
+                BasicTextField(
+                    value = distanceKm, onValueChange = { distanceKm = it },
+                    singleLine = true,
+                    textStyle = TextStyle(
+                        color = colors.surface,
+                        fontWeight = FontWeight.Bold,
+                        textAlign = Center
+                    ),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    modifier = Modifier
+                        .padding(cardPadding)
+                        .size(150.dp, 20.dp),
+                    cursorBrush = SolidColor(colors.surface)
+                )
+                BasicTextField(
+                    value = distanceMin, onValueChange = { distanceMin = it },
+                    singleLine = true,
+                    textStyle = TextStyle(
+                        color = colors.surface,
+                        fontWeight = FontWeight.Bold,
+                        textAlign = Center
+                    ),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    modifier = Modifier
+                        .padding(cardPadding)
+                        .size(150.dp, 20.dp),
+                    cursorBrush = SolidColor(colors.surface)
+                )
+            }
+            Heading(stringResource(R.string.way_of_transport))
+            Row (horizontalArrangement = Arrangement.Center){
+                Spacer(modifier = Modifier.width(5.dp))
+
+                Button(
+                    Modifier.padding(5.dp),
+                    background = if (mediumToNextDestination == MediumType.Car) primaryColor else colors.onBackground,
+                    onClick = { mediumToNextDestination = MediumType.Car }
+                ) {
+                    FaIcon(
+                        FaIcons.Car,
+                        tint = if (mediumToNextDestination == MediumType.Car) Color.White else colors.surface
+                    )
+                }
+                Spacer(modifier = Modifier.width(5.dp))
+                Button(
+                    Modifier.padding(5.dp),
+                    background = if (mediumToNextDestination == MediumType.Foot) primaryColor else colors.onBackground,
+                    onClick = { mediumToNextDestination = MediumType.Foot }
+                ) {
+                    FaIcon(
+                        FaIcons.Walking,
+                        tint = if (mediumToNextDestination == MediumType.Foot) Color.White else colors.surface
+                    )
+                }
+                Spacer(modifier = Modifier.width(5.dp))
+                Button(
+                    Modifier.padding(5.dp),
+                    background = if (mediumToNextDestination == MediumType.Bike) primaryColor else colors.onBackground,
+                    onClick = { mediumToNextDestination = MediumType.Bike }
+                ) {
+                    FaIcon(
+                        FaIcons.Biking,
+                        tint = if (mediumToNextDestination == MediumType.Bike) Color.White else colors.surface
+                    )
+                }
+                Spacer(modifier = Modifier.width(5.dp))
+                Button(
+                    Modifier.padding(5.dp),
+                    background = if (mediumToNextDestination == MediumType.Plane) primaryColor else colors.onBackground,
+                    onClick = { mediumToNextDestination = MediumType.Plane }
+                ) {
+                    FaIcon(
+                        FaIcons.Plane,
+                        tint = if (mediumToNextDestination == MediumType.Plane) Color.White else colors.surface
+                    )
+                }
+            }
             Spacer(modifier = Modifier.height(5.dp))
             Row(
                 modifier = Modifier.fillMaxWidth().padding(cardPadding),

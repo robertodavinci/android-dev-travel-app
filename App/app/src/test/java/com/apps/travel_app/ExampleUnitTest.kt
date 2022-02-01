@@ -1,5 +1,6 @@
 package com.apps.travel_app
 
+import com.apps.travel_app.data.room.db.AppDatabase
 import org.junit.Test
 
 import org.junit.Assert.*
@@ -14,4 +15,12 @@ class ExampleUnitTest {
     fun addition_isCorrect() {
         assertEquals(4, 2 + 2)
     }
+   /* object FakeUserRepository : AppDatabase {
+        fun getUsers() = listOf(UserAlice, UserBob)
+    }
+
+    val const UserAlice = User("Alice")
+    val const UserBob = User("Bob")
+*/
+
 }

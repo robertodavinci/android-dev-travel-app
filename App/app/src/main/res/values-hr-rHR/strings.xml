@@ -14,6 +14,8 @@
     <string name="trips">Putovanja</string>
     <string name="destinations">Odredišta</string>
     <string name="share">Podijeli</string>
+    <string name="distance_to_next">Udaljenost do idućeg odredišta (km | min)</string>
+    <string name="way_of_transport">Način putovanja</string>
     <string name="clipboard">Veza za dijeljenje kopirana je u međuspremnik! </string>
     <string name="places">Mjesta</string>
     <string name="something_stupid_1">Duboko udahni...</string>

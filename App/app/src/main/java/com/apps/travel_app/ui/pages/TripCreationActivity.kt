@@ -111,8 +111,6 @@ class TripCreationActivity : ComponentActivity() {
         val tripId = intent.getStringExtra("tripId")
 
 
-
-
         resultLauncher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()
         ) { result ->

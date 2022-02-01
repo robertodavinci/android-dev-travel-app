@@ -77,6 +77,8 @@
     <string name="share_what_you_think">Share what you think</string>
     <string name="share">Share</string>
     <string name="clipboard">Share link copied to clipboard!</string>
+    <string name="distance_to_next">Distance to next (km | min)</string>
+    <string name="way_of_transport">Way of transport</string>
     <string name="more">More</string>
     <string name="duplicate">Duplicate</string>
     <string name="if_customize_copy">If you want to customize the trip, make a copy</string>
