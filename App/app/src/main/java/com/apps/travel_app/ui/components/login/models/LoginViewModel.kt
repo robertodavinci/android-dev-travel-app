@@ -1,5 +1,9 @@
 package com.apps.travel_app.ui.components.login
-
+/**
+ * A view model used for fetching and forwarding the data regarding Login.
+ * Used in combination with LoginActivity. Has functions of updating, resetting,
+ * and tracking the current profile.
+ */
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData

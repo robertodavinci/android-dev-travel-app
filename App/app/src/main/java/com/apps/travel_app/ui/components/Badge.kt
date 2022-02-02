@@ -1,5 +1,7 @@
 package com.apps.travel_app.ui.components
-
+/**
+ * Composable element of a badge.
+ */
 import FaIcons.Box
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*

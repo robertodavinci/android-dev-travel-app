@@ -1,5 +1,9 @@
 package com.apps.travel_app.ui.pages.viewmodels
-
+/**
+ * A view model used for fetching and forwarding the data regarding HomeView.
+ * Used in combination with HomeScreen. Has functions of fetching the trips,
+ * cities, and adventures that are to be presented in the HomeScreen function.
+ */
 import android.app.Activity
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf

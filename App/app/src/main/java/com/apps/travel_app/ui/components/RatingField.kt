@@ -1,5 +1,8 @@
 package com.apps.travel_app.ui.components
-
+/**
+ * Composable function that holds a rating text and value to a specific destination.
+ * Allows for a creation of additional ratings by specific users.
+ */
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height

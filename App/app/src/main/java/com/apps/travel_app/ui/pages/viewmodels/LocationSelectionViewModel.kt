@@ -1,5 +1,12 @@
 package com.apps.travel_app.ui.pages.viewmodels
-
+/**
+ * A view model used for fetching and forwarding the data regarding selecting
+ * and adding a new location to the map. This function can only be accessed when
+ * adding an additional step to the trip, and when Google search doesn't provide
+ * us with a satisfying location.
+ * Handles the map initialization, user inputs, marker adding, location saving, and
+ * location uploading to the server.
+ */
 import android.app.Activity
 import android.content.Context
 import android.content.Intent

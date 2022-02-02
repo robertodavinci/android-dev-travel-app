@@ -1,4 +1,13 @@
 package com.apps.travel_app.ui.pages
+/**
+ * Composable function that is displayed by pressing the fourth
+ * icon in the navigation bar. Generates three different cards that can
+ * be pressed and that lead the user to three different  destinations
+ * - "The Wall" (InspirationActivity), "Around you" (AroundMeActivity), and
+ * "Map drawing" (MapScreen). Function servers mainly as a navigation and
+ * doesn't have any additional functionalities.
+ */
+
 // Vincenzo Manto
 import android.content.Intent
 import androidx.compose.foundation.ExperimentalFoundationApi

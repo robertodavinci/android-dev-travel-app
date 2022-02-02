@@ -1,4 +1,11 @@
 package com.apps.travel_app.ui.pages
+/**
+ * File that acts both as an activity and a composable function.
+ * Accessed by selecting "The wall" in the explore option of the navigation
+ * bar. Displays a large grid set of different destinations in the database,
+ * in a form of destination cards, which when clicked, can take the user
+ * directly to the destination screen.
+ */
 // Vincenzo Manto
 import android.app.Activity
 import android.content.res.Resources

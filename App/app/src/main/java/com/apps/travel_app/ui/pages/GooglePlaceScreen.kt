@@ -1,4 +1,13 @@
 package com.apps.travel_app.ui.pages
+/**
+ * Composable function that displays the details of a Google place fetched
+ * from the Google Places. Displays the image of a place, with additional along with additional
+ * sub images, and other places in the form of DestinationCards that are connected with this specific
+ * place. Displays place details, such as number, map location, and working hours, if available.
+ * Also displays reviews left by other Google users.
+ * Directly communicates with GooglePlaceViewModel which helps
+ * organize the places and their details.
+ */
 // Vincenzo Manto + Robert Medvedec
 import FaIcons
 import androidx.compose.animation.core.LinearOutSlowInEasing

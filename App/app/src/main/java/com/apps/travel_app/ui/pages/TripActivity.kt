@@ -1,4 +1,11 @@
 package com.apps.travel_app.ui.pages
+/**File that incorporates both the activity definition and usage
+ * and composable functions for viewing trips. Has two main screens,
+ * the first one being just the image and the basing info of the trip,
+ * and another one having all of the details, the ability to duplicate the trip,
+ * comment, and rate. Directly connected to the TripViewModel that handles
+ * actions that are occurring in this file.
+ */
 // Vincenzo Manto + Robert Medvedec
 import FaIcons
 import android.R.attr
@@ -95,13 +102,13 @@ class TripActivity : ComponentActivity() {
         val tripId = intent.getStringExtra("tripId")
         val action: String? = intent?.action
         val data: Uri? = intent?.data
-
+        /*
         if(data!=null){
             Log.i("TRYY ", data.toString())
         }
         if(action!=null){
             Log.i("TRYY ", action.toString())
-        }
+        }*/
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
         setContent {
 

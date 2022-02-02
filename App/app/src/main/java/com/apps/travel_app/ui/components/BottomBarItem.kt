@@ -1,5 +1,9 @@
 package com.apps.travel_app.ui.components
 
+/**
+ * Class that defines and attaches specific icons (FaIcon) to specific items in the
+ * bottom navigation bar.
+ */
 import com.guru.fontawesomecomposelib.FaIconType
 
 sealed class BottomBarItem(var route: String, var icon: FaIconType, var title: String) {

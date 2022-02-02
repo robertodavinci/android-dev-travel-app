@@ -1,5 +1,11 @@
 package com.apps.travel_app.ui.pages.viewmodels
-
+/**
+ * A view model used for fetching and forwarding the data regarding Map.
+ * Used in combination with MapScreen. Handles retrieving online data
+ * when selecting certain area of the map, as well as handles middleware
+ * communication with that operates and handles the map. Uses Polygons
+ * to handle user input and make different selection shapes on the map.
+ */
 import android.graphics.Bitmap
 import android.graphics.Color
 import androidx.compose.runtime.*

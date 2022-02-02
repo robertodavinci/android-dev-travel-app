@@ -1,4 +1,13 @@
 package com.apps.travel_app
+
+/**
+ *  Main activity serves as an instigator of all the other activities in the app.
+ *  Navigation controller, database (room), and other app functionalities and initialized here.
+ *  It also connects different screens to navigation in Navigation controller. It handles some additional
+ *  functions such as signOut(), setDestination(), and setGooglePlace().
+ *  After initializing and connecting all the important parts, MainScreen
+ *  is accessed as a compose function.
+ */
 // Vincenzo Manto + Robert Medvedec
 
 import FaIcons

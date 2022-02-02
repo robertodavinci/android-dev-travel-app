@@ -1,5 +1,9 @@
 package com.apps.travel_app.ui.pages.viewmodels
-
+/**
+ * A view model used for fetching and forwarding the data regarding Trips.
+ * Used in combination with TripActivity. Has functions of saving (locally) and
+ * uploading (online) the trip, as well as fetching and saving ratings for a trip.
+ */
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue

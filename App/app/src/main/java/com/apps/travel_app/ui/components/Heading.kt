@@ -1,5 +1,7 @@
 package com.apps.travel_app.ui.components
-
+/**
+ * Determines the style of heading and subheading of a text.
+ */
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.MaterialTheme

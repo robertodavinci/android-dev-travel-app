@@ -1,5 +1,9 @@
 package com.apps.travel_app.ui.utils
-
+/**
+ * Used for fetching and handling different images when inserting in destinations
+ * and trips. Resizes and reshapes images based on their usage in different
+ * locations in the app.
+ */
 import android.app.Activity
 import android.content.res.Resources
 import android.database.Cursor

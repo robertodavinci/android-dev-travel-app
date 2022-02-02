@@ -1,5 +1,12 @@
 package com.apps.travel_app.ui.components
-
+/**
+ * Composable element used for displaying trip steps when creating and displaying a trip.
+ * Features GlideImage element for displaying trip image in a small circle,
+ * as well as several information lines about the trip - duration of visit,
+ * distance to the next destination, and way of transportation to the next destination.
+ * Has additional function 'Dialog' that opens a new pop up screen and allows the user
+ * to edit all of the previously mentioned details.
+ */
 import FaIcons
 import android.app.Activity
 import android.app.TimePickerDialog

@@ -1,4 +1,16 @@
 package com.apps.travel_app.ui.pages
+/**
+ * File that incorporates both the activity definition and usage
+ * and composable functions for creating new trips.
+ * Uses several different composable elements in the trip creation,
+ * such as multiple buttons, connection to the map screen, image adding,
+ * editing destination and trip elements, destination fetching, tag adding.
+ * Saves and publishes a trip (if made and completed correctly) or just
+ * saves trip (if the trip has not been completed and hasn't been discarded).
+ * Trip can also be discarded and therefore deleted. Directly connected
+ * to the TripCreationViewModel that handles actions that are occurring in this
+ * file.
+ */
 // Vincenzo Manto + Robert Medvedec
 import FaIcons
 import android.Manifest

@@ -1,5 +1,9 @@
 package com.apps.travel_app.ui.components
 
+/**
+ * Class that defines and attaches specific icons (FaIcon) to specific items in the
+ * bottom navigation bar.
+ */
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape

@@ -1,5 +1,8 @@
 package com.apps.travel_app.ui.components
-
+/**
+ * Composable element used to hold specific parts of the app
+ * in place and allow row to grow proportionally.
+ */
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier

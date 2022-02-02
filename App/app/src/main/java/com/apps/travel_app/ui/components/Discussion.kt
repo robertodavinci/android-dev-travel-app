@@ -1,5 +1,9 @@
 package com.apps.travel_app.ui.components
-
+/**
+ * Composable function that holds all of the elements of the message field, that allows
+ * users to communicate and comment on trips. Features both message creation and
+ * message display.
+ */
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions

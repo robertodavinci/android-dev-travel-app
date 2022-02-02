@@ -1,5 +1,9 @@
 package com.apps.travel_app.ui.pages.viewmodels
-
+/**
+ * A view model used for fetching and forwarding the data regarding Trips.
+ * Used in combination with TripsScreen. Fetches locally saved trips and
+ * forwards them to the function that then displays it.
+ */
 import android.app.Activity
 import android.util.Log
 import androidx.compose.runtime.*
