@@ -1,5 +1,5 @@
 package com.apps.travel_app.ui.pages
-
+// Vincenzo Manto + Robert Medvedec
 import android.graphics.Bitmap
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*

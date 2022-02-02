@@ -16,6 +16,8 @@ import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTag
 import androidx.compose.ui.unit.dp
 import com.apps.travel_app.ui.theme.cardPadding
 import com.apps.travel_app.ui.theme.primaryColor
@@ -83,7 +85,9 @@ fun NiceSwitch(
                 IconButton(
                     modifier = Modifier
                         .background(Color.Transparent)
-                        .weight(1f),
+                        .weight(1f).semantics {
+                            testTag = "positive"
+                        },
                     onClick = {
                         _checked = true
                         widthController = true
@@ -106,7 +110,9 @@ fun NiceSwitch(
                 IconButton(
                     modifier = Modifier
                         .background(Color.Transparent)
-                        .weight(1f),
+                        .weight(1f).semantics {
+                                              testTag = "negative"
+                        },
                     onClick = {
                         _checked = false
                         onChecked(false)

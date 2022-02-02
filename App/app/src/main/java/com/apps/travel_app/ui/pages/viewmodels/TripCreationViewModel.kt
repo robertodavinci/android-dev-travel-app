@@ -154,6 +154,7 @@ class TripCreationViewModel(val mainActivity: Activity, tripId: String, val onLo
             val sb = Snackbar.make(
                 mainActivity.window.decorView.rootView, mainActivity.resources.getString(R.string.not_enough_info),
                 Snackbar.LENGTH_LONG)
+            sb.view.contentDescription = "Error"
             sb.view.setBackgroundColor(yellow.toArgb())
             sb.show()
             return

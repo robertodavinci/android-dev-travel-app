@@ -1,6 +1,5 @@
 package com.apps.travel_app.ui.utils
 
-import android.R
 import android.app.Activity
 import android.content.res.Resources
 import android.database.Cursor
@@ -136,10 +135,7 @@ fun getTriangularMask(
         path.lineTo(w.toFloat(), 3f * h / 4)
         path.lineTo(w.toFloat(), 0f)
 
-        /*path.moveTo(0f, 0f)
-        path.lineTo(0f, 3f * h / 4)
-        path.lineTo(w.toFloat(), h.toFloat())
-        path.lineTo(w.toFloat(), 0f)*/
+
         canvas.drawPath(path, paint)
         paint.xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_IN)
         canvas.drawBitmap(bitmap, rect, rect, paint)
@@ -154,12 +150,8 @@ fun getTriangularMask(
         paintStroke.strokeWidth = 15f
         paintStroke.color = WHITE
 
-        /*canvas.drawPath(
-            path,
-            paintStroke
-        )*/
 
-        return output
+        return getResizedBitmap(output, 800, 500)
     }
     return null
 }

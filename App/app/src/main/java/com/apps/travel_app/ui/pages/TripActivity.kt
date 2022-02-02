@@ -1,5 +1,5 @@
 package com.apps.travel_app.ui.pages
-
+// Vincenzo Manto + Robert Medvedec
 import FaIcons
 import android.R.attr
 import android.content.Context

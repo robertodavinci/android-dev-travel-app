@@ -1,5 +1,5 @@
 package com.apps.travel_app.ui.pages
-
+// Vincenzo Manto
 import FaIcons
 import android.content.Context
 import android.util.Log
@@ -14,7 +14,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -72,9 +75,10 @@ class MapScreen {
                     modifier = Modifier
                         .fillMaxSize()
                         .background(White)
-                        .wrapContentSize(Alignment.Center)
+                        .wrapContentSize(Alignment.Center).semantics { testTag = "map" }
                 ) {
                     AndroidView({ mapView }) { mapView ->
+                        mapView.tag = "map"
                         CoroutineScope(Dispatchers.Main).launch {
                             if (!viewModel.mapLoaded) {
                                 mapView.getMapAsync { mMap ->
@@ -142,7 +146,10 @@ class MapScreen {
                         background = colors.background,
                         modifier = Modifier
                             .align(Alignment.CenterStart)
-                            .padding(cardPadding),
+                            .padding(cardPadding)
+                            .semantics {
+                                testTag = "draw"
+                            },
                         onClick = {
                             viewModel.toggleDrawing()
                         }) {

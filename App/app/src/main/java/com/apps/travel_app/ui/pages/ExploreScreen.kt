@@ -1,6 +1,5 @@
 package com.apps.travel_app.ui.pages
-
-import FaIcons
+// Vincenzo Manto
 import android.content.Intent
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -18,17 +17,16 @@ import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTag
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat.startActivity
 import androidx.navigation.NavController
 import com.apps.travel_app.MainActivity
 import com.apps.travel_app.R
-import com.apps.travel_app.models.Destination
-import com.apps.travel_app.models.Trip
 import com.apps.travel_app.ui.components.Heading
 import com.apps.travel_app.ui.theme.*
-import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.guru.fontawesomecomposelib.FaIconType
 import com.skydoves.landscapist.glide.GlideImage
 
@@ -121,7 +119,9 @@ fun ExploreScreen(navController: NavController, mainActivity: MainActivity) {
             ) {
                 Box(
                     modifier = Modifier
-                        .fillMaxWidth()
+                        .fillMaxWidth().semantics {
+                            testTag = "wall"
+                        }
                         .pointerInput(Unit) {
                             detectTapGestures (
                                 onTap = {
@@ -158,6 +158,7 @@ fun ExploreScreen(navController: NavController, mainActivity: MainActivity) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
+                        .semantics { testTag = "around" }
                         .pointerInput(Unit) {
                             detectTapGestures (
                                 onTap = {

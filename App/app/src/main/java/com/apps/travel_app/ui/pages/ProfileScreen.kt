@@ -1,5 +1,5 @@
 package com.apps.travel_app.ui.pages
-
+// Vincenzo Manto + Robert Medvedec
 import FaIcons
 import android.content.Context
 import android.util.Log
@@ -54,14 +54,8 @@ private val showRealNameChange = mutableStateOf(false)
 fun ProfileScreen(activity: MainActivity) {
 
 
-    /* val systemUiController = rememberSystemUiController()
-     systemUiController.setSystemBarsColor(
-         color = MaterialTheme.colors.background
-     )*/
+
     val firebaseId = FirebaseAuth.getInstance().currentUser?.uid
-    var currentUsername: String? = user.displayName
-    val currentRealName: String? = user.realName
-    val currentRealSurname: String? = user.realSurname
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -79,8 +73,6 @@ fun ProfileScreen(activity: MainActivity) {
                 apply()
             }
             updateNightMode(activity.db, user.id,it)
-            //Log.i("Theme 1 - ", it.toString())
-            //Log.i("Theme 2 - ", sharedPref.getBoolean("darkTheme", false).toString())
         }, states = NiceSwitchStates(T = FaIcons.MoonRegular, F = FaIcons.SunRegular), label = stringResource(
             R.string.theme))
 

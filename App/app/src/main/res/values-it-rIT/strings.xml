@@ -101,4 +101,5 @@
     <string name="select">Seleziona</string>
     <string name="wanna_leave">Vuoi uscire senza salvare?</string>
     <string name="untitled">Senza nome</string>
+    <string name="no_result">Ops, nessun risultato</string>
 </resources>

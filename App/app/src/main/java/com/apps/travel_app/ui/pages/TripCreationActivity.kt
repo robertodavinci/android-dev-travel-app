@@ -1,5 +1,5 @@
 package com.apps.travel_app.ui.pages
-
+// Vincenzo Manto + Robert Medvedec
 import FaIcons
 import android.Manifest
 import android.app.AlertDialog
@@ -39,6 +39,8 @@ import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTag
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
@@ -189,7 +191,9 @@ class TripCreationActivity : ComponentActivity() {
                                     },
                                     isError = viewModel.confirmed && viewModel.name.isEmpty(),
                                     modifier = Modifier
-                                        .weight(1f),
+                                        .weight(1f).semantics {
+                                                              testTag = "name"
+                                        },
                                     colors = TextFieldDefaults.textFieldColors(
                                         focusedIndicatorColor = Transparent,
                                         disabledIndicatorColor = Transparent,
@@ -216,7 +220,7 @@ class TripCreationActivity : ComponentActivity() {
                                     ),
                                     keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences)
                                 )
-                                Button(background = Transparent, onClick = {
+                                Button(modifier = Modifier.semantics { testTag = "confirm" }, background = Transparent, onClick = {
                                     viewModel.save()
                                 }) {
                                     FaIcon(
@@ -292,7 +296,9 @@ class TripCreationActivity : ComponentActivity() {
                                         isError = viewModel.confirmed && viewModel.description.isEmpty(),
                                         shape = RoundedCornerShape(cardRadius),
                                         modifier = Modifier
-                                            .fillMaxWidth(),
+                                            .fillMaxWidth().semantics {
+                                                testTag = "description"
+                                            },
                                         colors = TextFieldDefaults.textFieldColors(
                                             focusedIndicatorColor = Transparent,
                                             disabledIndicatorColor = Transparent,
@@ -359,7 +365,9 @@ class TripCreationActivity : ComponentActivity() {
                                                 2.dp,
                                                 danger
                                             ) else null,
-                                            modifier = Modifier.padding(10.dp)
+                                            modifier = Modifier.padding(10.dp).semantics {
+                                                testTag = "main"
+                                            }
                                         ) {
                                             Row {
                                                 if (viewModel.locationSelection) {
@@ -733,7 +741,9 @@ class TripCreationActivity : ComponentActivity() {
                         it
                     }
                 },
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().semantics {
+                    testTag = "tag"
+                },
                 colors = TextFieldDefaults.textFieldColors(
                     focusedIndicatorColor = Transparent,
                     disabledIndicatorColor = Transparent,

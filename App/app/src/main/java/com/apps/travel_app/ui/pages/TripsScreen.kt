@@ -1,5 +1,5 @@
 package com.apps.travel_app.ui.pages
-
+// Vincenzo Manto
 import FaIcons
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -45,21 +45,21 @@ import com.guru.fontawesomecomposelib.FaIcon
 fun TripsScreen(mainActivity: MainActivity) {
 
 
-
     val db = Room.databaseBuilder(
         mainActivity,
         AppDatabase::class.java, AppDatabase.NAME
     ).build()
 
 
-
     val saved = remember { mutableStateListOf<Destination>() }
     val savedTrips = remember { mutableStateListOf<Trip>() }
 
-    val viewModel = remember {TripsViewModel(db) { dests, trips ->
-        saved.addAll(dests.toList())
-        savedTrips.addAll(trips.toList())
-    } }
+    val viewModel = remember {
+        TripsViewModel(db) { dests, trips ->
+            saved.addAll(dests.toList())
+            savedTrips.addAll(trips.toList())
+        }
+    }
 
     Column(modifier = Modifier.background(MaterialTheme.colors.background)) {
 
@@ -73,7 +73,7 @@ fun TripsScreen(mainActivity: MainActivity) {
 
         ) {
             Heading(
-                "${user.displayName.ifEmpty { user.email}}'s",
+                "${user.displayName.ifEmpty { user.email }}'s",
                 color = White,
                 modifier = Modifier.padding(top = cardPadding * 3, bottom = cardPadding * 2)
             )
@@ -116,150 +116,154 @@ fun TripsScreen(mainActivity: MainActivity) {
                     Spacer(modifier = Modifier.height(cardPadding))
                 }
 
-                    if (viewModel.saved.size > 0 || viewModel.savedTrips.size > 0) {
-                        item {
-                            Heading(stringResource(R.string.saved))
-                        }
+                if (viewModel.saved.size > 0 || viewModel.savedTrips.size > 0) {
+                    item {
+                        Heading(stringResource(R.string.saved))
+                    }
 
-                        itemsIndexed(saved, key = { _, a -> a.id}) { index, destination ->
-                            val state = rememberDismissState(
-                                confirmStateChange = {
-                                    if (it == DismissValue.DismissedToStart || it == DismissValue.DismissedToEnd) {
-                                        Thread {
-                                            Thread.sleep(500)
-                                            db.locationDao().delete(destination.toLocation())
-                                            viewModel.saved.remove(destination)
-                                            saved.remove(destination)
-                                            FirebaseMessaging.getInstance().unsubscribeFromTopic("city" + destination.id)
-                                        }.start()
-                                    }
-                                    true
+                    itemsIndexed(saved, key = { _, a -> a.id }) { index, destination ->
+                        val state = rememberDismissState(
+                            confirmStateChange = {
+                                if (it == DismissValue.DismissedToStart || it == DismissValue.DismissedToEnd) {
+                                    Thread {
+                                        Thread.sleep(500)
+                                        db.locationDao().delete(destination.toLocation())
+                                        viewModel.saved.remove(destination)
+                                        saved.remove(destination)
+                                        FirebaseMessaging.getInstance()
+                                            .unsubscribeFromTopic("city" + destination.id)
+                                    }.start()
                                 }
-                            )
-                            SwipeToDismiss(state = state, background = {
-                                Row(
-                                    Modifier
-                                        .fillMaxSize()
-                                        .padding(cardPadding)
-                                        .graphicsLayer {
-                                            shape = RoundedCornerShape(cardRadius)
-                                            clip = true
-                                        }
-                                        .background(danger),
-                                    verticalAlignment = CenterVertically,
-                                    horizontalArrangement = SpaceBetween
-                                ) {
-                                    FaIcon(
-                                        FaIcons.Trash,
-                                        tint = White,
-                                        modifier = Modifier.padding(cardPadding)
-                                    )
-                                    FaIcon(
-                                        FaIcons.Trash,
-                                        tint = White,
-                                        modifier = Modifier.padding(cardPadding)
-                                    )
-                                }
-                            }) {
-                                MainCard(
-                                    destination = destination,
-                                    rating = destination.rating,
-                                    mainActivity = mainActivity,
-                                    imageMaxHeight = 100f
-                                )
+                                true
                             }
-                        }
-
-                        itemsIndexed(savedTrips) { index, trip ->
-                            val state = rememberDismissState(
-                                confirmStateChange = {
-                                    if (it == DismissValue.DismissedToStart || it == DismissValue.DismissedToEnd) {
-                                        Thread {
-                                            db.tripDao().delete(trip.toTripDb(trip.mainDestination.id))
-                                            trip.getTripStep(trip.id).forEach { step ->
-                                                db.tripStepDao().delete(step)
-                                            }
-                                        }.start()
-                                        viewModel.savedTrips.removeAt(index)
-                                        savedTrips.removeAt(index)
+                        )
+                        SwipeToDismiss(state = state, background = {
+                            Row(
+                                Modifier
+                                    .fillMaxSize()
+                                    .padding(cardPadding)
+                                    .graphicsLayer {
+                                        shape = RoundedCornerShape(cardRadius)
+                                        clip = true
                                     }
-                                    true
-                                }
-                            )
-                            SwipeToDismiss(state = state, background = {
-                                Row(
-                                    Modifier
-                                        .fillMaxSize()
-                                        .padding(cardPadding)
-                                        .graphicsLayer {
-                                            shape = RoundedCornerShape(cardRadius)
-                                            clip = true
-                                        }
-                                        .background(danger),
-                                    verticalAlignment = CenterVertically,
-                                    horizontalArrangement = SpaceBetween
-                                ) {
-                                    FaIcon(
-                                        FaIcons.Trash,
-                                        tint = White,
-                                        modifier = Modifier.padding(cardPadding)
-                                    )
-                                    FaIcon(
-                                        FaIcons.Trash,
-                                        tint = White,
-                                        modifier = Modifier.padding(cardPadding)
-                                    )
-                                }
-                            }) {
-                                TripCard(
-                                    trip = trip,
-                                    rating = trip.rating,
-                                    mainActivity = mainActivity,
-                                    imageMaxHeight = 100f,
-                                    icon = if (trip.incomplete) FaIcons.StickyNoteRegular else null
-                                )
-                            }
-                        }
-
-
-                    } else {
-                        item {
-                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-
-                                Spacer(Modifier.size(40.dp))
+                                    .background(danger),
+                                verticalAlignment = CenterVertically,
+                                horizontalArrangement = SpaceBetween
+                            ) {
                                 FaIcon(
-                                    FaIcons.Searchengin,
-                                    tint = MaterialTheme.colors.surface,
-                                    size = 50.dp
+                                    FaIcons.Trash,
+                                    tint = White,
+                                    modifier = Modifier.padding(cardPadding)
                                 )
+                                FaIcon(
+                                    FaIcons.Trash,
+                                    tint = White,
+                                    modifier = Modifier.padding(cardPadding)
+                                )
+                            }
+                        }) {
+                            MainCard(
+                                destination = destination,
+                                rating = destination.rating,
+                                mainActivity = mainActivity,
+                                imageMaxHeight = 100f
+                            )
+                        }
+                    }
 
-                                Heading(
-                                    stringResource(R.string.nothing_saved),
-                                    Modifier.padding(
+                    itemsIndexed(savedTrips) { index, trip ->
+                        val state = rememberDismissState(
+                            confirmStateChange = {
+                                if (it == DismissValue.DismissedToStart || it == DismissValue.DismissedToEnd) {
+                                    Thread {
+                                        db.tripDao().delete(trip.toTripDb(trip.mainDestination.id))
+                                        trip.getTripStep(trip.id).forEach { step ->
+                                            db.tripStepDao().delete(step)
+                                        }
+                                    }.start()
+                                    viewModel.savedTrips.removeAt(index)
+                                    savedTrips.removeAt(index)
+                                }
+                                true
+                            }
+                        )
+                        SwipeToDismiss(state = state, background = {
+                            Row(
+                                Modifier
+                                    .fillMaxSize()
+                                    .padding(cardPadding)
+                                    .graphicsLayer {
+                                        shape = RoundedCornerShape(cardRadius)
+                                        clip = true
+                                    }
+                                    .background(danger),
+                                verticalAlignment = CenterVertically,
+                                horizontalArrangement = SpaceBetween
+                            ) {
+                                FaIcon(
+                                    FaIcons.Trash,
+                                    tint = White,
+                                    modifier = Modifier.padding(cardPadding)
+                                )
+                                FaIcon(
+                                    FaIcons.Trash,
+                                    tint = White,
+                                    modifier = Modifier.padding(cardPadding)
+                                )
+                            }
+                        }) {
+                            TripCard(
+                                trip = trip,
+                                rating = trip.rating,
+                                mainActivity = mainActivity,
+                                imageMaxHeight = 100f,
+                                icon = if (trip.incomplete) FaIcons.StickyNoteRegular else null
+                            )
+                        }
+                    }
+
+
+                } else {
+                    item {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+
+                            Spacer(Modifier.size(40.dp))
+                            FaIcon(
+                                FaIcons.Searchengin,
+                                tint = MaterialTheme.colors.surface,
+                                size = 50.dp
+                            )
+
+                            Heading(
+                                stringResource(R.string.nothing_saved),
+                                Modifier.padding(
+                                    cardPadding
+                                )
+                            )
+                            Button(onClick = {
+                                mainActivity.goHome()
+                            }
+
+                            ) {
+                                Text(
+                                    stringResource(R.string.inspired),
+                                    color = MaterialTheme.colors.surface,
+                                    modifier = Modifier.padding(
                                         cardPadding
-                                    )
+                                    ),
+                                    textAlign = TextAlign.Center
                                 )
-                                Button(onClick = {
-                                    mainActivity.goHome()
-                                }
-
-                                ) {
-                                    Text(
-                                        stringResource(R.string.inspired),
-                                        color = MaterialTheme.colors.surface,
-                                        modifier = Modifier.padding(
-                                            cardPadding
-                                        ),
-                                        textAlign = TextAlign.Center
-                                    )
-                                }
                             }
                         }
                     }
                 }
+                item {
+                    Spacer(Modifier.height(50.dp))
+                }
             }
         }
     }
+}
 
 
 

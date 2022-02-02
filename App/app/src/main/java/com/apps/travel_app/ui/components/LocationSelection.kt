@@ -38,6 +38,8 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTag
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -137,7 +139,7 @@ fun LocationSelection(
                 .padding(vertical = cardPadding * 2, horizontal = cardPadding)
         ) {
             Row {
-                IconButton(onClick = { onBack() }) {
+                IconButton(modifier = Modifier.semantics{testTag = "back"},onClick = { onBack() }) {
                     FaIcon(FaIcons.ArrowLeft, tint = colors.surface)
                 }
                 TextField(
@@ -148,7 +150,7 @@ fun LocationSelection(
                     value = viewModel.searchTerm, onValueChange = { viewModel.searchTerm = it },
                     shape = RoundedCornerShape(cardRadius),
                     modifier = Modifier
-                        .weight(1f),
+                        .weight(1f).semantics { testTag = "searchText"},
                     colors = TextFieldDefaults.textFieldColors(
                         focusedIndicatorColor = Transparent,
                         disabledIndicatorColor = Transparent,
@@ -287,6 +289,7 @@ fun LocationSelection(
                                     horizontalArrangement = SpaceBetween
                                 ) {
                                     Button(
+                                        modifier = Modifier.semantics { testTag = "main" },
                                         onClick = {
                                             onMainDestinationSelected(item)
                                             viewModel.mainDestinationSelected = true
@@ -300,6 +303,7 @@ fun LocationSelection(
                                         )
                                     }
                                     Button(
+                                        modifier = Modifier.semantics { testTag = "add" },
                                         onClick = {
                                             onAddStep(item)
                                             viewModel.stepAdded = true

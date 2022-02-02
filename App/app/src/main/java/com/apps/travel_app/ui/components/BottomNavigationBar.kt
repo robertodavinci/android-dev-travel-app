@@ -7,14 +7,12 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.BottomNavigation
-import androidx.compose.material.BottomNavigationItem
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.IconButton
+import androidx.compose.material.*
 import androidx.compose.material.MaterialTheme.colors
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -25,6 +23,7 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
@@ -41,6 +40,7 @@ import com.apps.travel_app.models.Destination
 import com.apps.travel_app.models.Trip
 import com.apps.travel_app.ui.theme.iconLightColor
 import com.apps.travel_app.ui.theme.primaryColor
+import com.apps.travel_app.ui.theme.yellow
 import com.apps.travel_app.ui.utils.Response
 import com.apps.travel_app.ui.utils.errorMessage
 import com.apps.travel_app.ui.utils.isOnline
@@ -49,6 +49,11 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.guru.fontawesomecomposelib.FaIcon
+import com.squareup.okhttp.Dispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.launch
 
 
 @OptIn(ExperimentalMaterialApi::class, androidx.compose.ui.ExperimentalComposeUiApi::class)
@@ -92,6 +97,14 @@ fun BottomNavigationBar(navController: NavController, mainActivity: MainActivity
                     trips.value = response.trips
                     cities.value = response.cities
                     places.value = response.places
+
+                    if (trips.value.size == 0 && cities.value.size == 0 && places.value.size == 0) {
+                        val sb = Snackbar.make(
+                            mainActivity.window.decorView.rootView, mainActivity.resources.getString(R.string.no_result),
+                            Snackbar.LENGTH_LONG)
+                        sb.view.setBackgroundColor(iconLightColor.toArgb())
+                        sb.show()
+                    }
                 } catch (e: Exception) {
                     errorMessage(mainActivity.window.decorView.rootView).show()
                 }
@@ -124,10 +137,10 @@ fun BottomNavigationBar(navController: NavController, mainActivity: MainActivity
                         clip = true
                     }
                     .background(colors.background), verticalAlignment = Alignment.CenterVertically) {
-                    BasicTextField(
+                    TextField(
                         keyboardOptions = KeyboardOptions(imeAction = androidx.compose.ui.text.input.ImeAction.Search),
                         keyboardActions = KeyboardActions(
-                            onDone = {Search(searchTerm);keyboardController?.hide()}),
+                            onSearch = {Search(searchTerm);keyboardController?.hide()}),
                         value = searchTerm, onValueChange = { searchTerm = it },
                         modifier = Modifier
                             .padding(start = 10.dp, end = 10.dp)
@@ -141,11 +154,17 @@ fun BottomNavigationBar(navController: NavController, mainActivity: MainActivity
                                 testTag = "searchText"
                             },
                         singleLine = true,
+                        colors = TextFieldDefaults.textFieldColors(
+                            focusedIndicatorColor = Color.Transparent,
+                            disabledIndicatorColor = Color.Transparent,
+                            unfocusedIndicatorColor = Color.Transparent,
+                            backgroundColor = Color.Transparent,
+                        ),
                         textStyle = TextStyle(
                             color = colors.surface,
                             fontWeight = FontWeight.Bold
                         ),
-                        cursorBrush = SolidColor(colors.surface)
+                        //cursorBrush = SolidColor(colors.surface)
                     )
                     IconButton(modifier = Modifier.semantics {
                         testTag = "search"
@@ -162,7 +181,8 @@ fun BottomNavigationBar(navController: NavController, mainActivity: MainActivity
                 if (!isOnline(mainActivity)) {
                     NetworkError()
                 } else if (status == States.EXPANDED) {
-                    LazyColumn {
+                    val state = rememberLazyListState()
+                    LazyColumn(Modifier.padding(bottom = 60.dp), state = state) {
                         if (places.value.size ==  0 && cities.value.size == 0 && trips.value.size == 0) {
                             item {
                                 Heading(stringResource(R.string.search_your_places) )
@@ -186,7 +206,6 @@ fun BottomNavigationBar(navController: NavController, mainActivity: MainActivity
                                                 .heightIn(0.dp, 120.dp)
                                         ) {
                                             MainCard(
-                                                infoScale = 0.6f,
                                                 destination = place,
                                                 rating = place.rating,
                                                 mainActivity = mainActivity,
@@ -195,6 +214,9 @@ fun BottomNavigationBar(navController: NavController, mainActivity: MainActivity
                                                 imageMinHeight = 120f,
                                                 isGooglePlace = true,
                                                 onClick = {
+                                                    CoroutineScope(Main).launch {
+                                                        state.scrollToItem(0)
+                                                    }
                                                     changeState(States.COLLAPSED)
                                                 }
                                             )
@@ -208,7 +230,6 @@ fun BottomNavigationBar(navController: NavController, mainActivity: MainActivity
                                                     .heightIn(0.dp, 120.dp)
                                             ) {
                                                 MainCard(
-                                                    infoScale = 0.6f,
                                                     destination = place2,
                                                     rating = place2.rating,
                                                     mainActivity = mainActivity,
@@ -217,6 +238,9 @@ fun BottomNavigationBar(navController: NavController, mainActivity: MainActivity
                                                     imageMinHeight = 120f,
                                                     isGooglePlace = true,
                                                     onClick = {
+                                                        CoroutineScope(Main).launch {
+                                                            state.scrollToItem(0)
+                                                        }
                                                         changeState(States.COLLAPSED)
                                                     }
                                                 )
@@ -243,14 +267,10 @@ fun BottomNavigationBar(navController: NavController, mainActivity: MainActivity
                                                 .heightIn(0.dp, 120.dp)
                                         ) {
                                             TripCard(
+                                                mainActivity = mainActivity,
                                                 trip = trip,
                                                 rating = trip.rating,
-                                                imageMaxHeight = 150f,
-                                                infoScale = 0.6f,
-                                                onClick = {
-
-                                                    changeState(States.COLLAPSED)
-                                                }
+                                                imageMaxHeight = 150f
                                             )
                                         }
                                         if (index < trips.value.size - 1) {
@@ -262,14 +282,10 @@ fun BottomNavigationBar(navController: NavController, mainActivity: MainActivity
                                                     .heightIn(0.dp, 120.dp)
                                             ) {
                                                 TripCard(
-                                                    infoScale = 0.6f,
+                                                    mainActivity = mainActivity,
                                                     trip = trip2,
                                                     rating = trip2.rating,
-                                                    imageMaxHeight = 150f,
-                                                    onClick = {
-
-                                                        changeState(States.COLLAPSED)
-                                                    }
+                                                    imageMaxHeight = 150f
                                                 )
                                             }
                                         }
@@ -299,9 +315,10 @@ fun BottomNavigationBar(navController: NavController, mainActivity: MainActivity
                                                 mainActivity = mainActivity,
                                                 icon = FaIcons.Google,
                                                 imageMaxHeight = 150f,
-                                                infoScale = 0.6f,
                                                 onClick = {
-
+                                                    CoroutineScope(Main).launch {
+                                                        state.scrollToItem(0)
+                                                    }
                                                     changeState(States.COLLAPSED)
                                                 }
                                             )
@@ -315,14 +332,15 @@ fun BottomNavigationBar(navController: NavController, mainActivity: MainActivity
                                                     .heightIn(0.dp, 120.dp)
                                             ) {
                                                 MainCard(
-                                                    infoScale = 0.6f,
                                                     destination = place2,
                                                     rating = place2.rating,
                                                     mainActivity = mainActivity,
                                                     icon = FaIcons.Google,
                                                     imageMaxHeight = 150f,
                                                     onClick = {
-
+                                                        CoroutineScope(Main).launch {
+                                                            state.scrollToItem(0)
+                                                        }
                                                         changeState(States.COLLAPSED)
                                                     }
                                                 )

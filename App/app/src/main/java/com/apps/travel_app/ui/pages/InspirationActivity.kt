@@ -1,5 +1,5 @@
 package com.apps.travel_app.ui.pages
-
+// Vincenzo Manto
 import android.app.Activity
 import android.content.res.Resources
 import android.os.Bundle

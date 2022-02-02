@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.apps.travel_app">
 
     <uses-permission android:name="android.permission.INTERNET" />
@@ -21,6 +22,7 @@
         android:screenOrientation="portrait"
         android:supportsRtl="true"
         android:theme="@style/Theme.Travel_App">
+
         <activity
             android:name=".ui.components.login.LoadActivity"
             android:launchMode="singleTask"

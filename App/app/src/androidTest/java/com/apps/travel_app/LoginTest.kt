@@ -1,5 +1,5 @@
 package com.apps.travel_app
-
+// Vincenzo Manto
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
@@ -14,7 +14,9 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-
+/**
+ * Test case referred to Login (with success and failure)
+ */
 @RunWith(AndroidJUnit4::class)
 class LoginTest : TestCase() {
 
