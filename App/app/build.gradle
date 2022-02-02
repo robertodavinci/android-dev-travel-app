@@ -10,10 +10,10 @@ apply plugin: 'kotlin-kapt'
 android {
     signingConfigs {
         release {
-        storeFile file('C:\\Users\\vincm\\Desktop\\Vincenzo\\Universita\\4.1\\DIMA\\APP\\signature\\signature.jks')
-            storePassword 'travel'
-            keyAlias 'dima'
-            keyPassword 'travel'
+        storeFile file('D:\\Docs\\Uni\\Mobile_App_Dev\\my-key.keystore')
+            storePassword '75136969'
+            keyAlias 'robertmedvedec'
+            keyPassword '75136969'
         }
     }
     compileSdk 31

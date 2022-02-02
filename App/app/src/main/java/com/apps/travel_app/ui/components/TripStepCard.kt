@@ -565,7 +565,7 @@ fun EditDialog(openDialog: MutableState<Boolean>, destination: TripDestination, 
                 )
             }
             Heading(stringResource(R.string.way_of_transport))
-            Row (modifier = Modifier.fillMaxWidth().padding(cardPadding),
+            Row (modifier = Modifier.fillMaxWidth().padding(smallPadding),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = CenterVertically){
                 Spacer(modifier = Modifier.width(5.dp))

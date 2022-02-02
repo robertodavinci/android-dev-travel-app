@@ -129,8 +129,8 @@ class MainActivity : ComponentActivity() {
     }
 
     override fun onBackPressed() {
-        Log.i("INFFO ", navController.currentDestination?.route.toString())
-        Log.i("INFFO ", navController.previousBackStackEntry.toString())
+        //Log.i("INFFO ", navController.currentDestination?.route.toString())
+        //Log.i("INFFO ", navController.previousBackStackEntry.toString())
         if(navController.currentDestination?.route.toString() == SubPages.GooglePlace.route)
             oldDestination?.let { it1 -> setDestination(it1,true) }
         else if(cameFromMap){
