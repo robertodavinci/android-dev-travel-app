@@ -19,6 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.apps.travel_app.models.Rating
@@ -99,7 +100,7 @@ fun RatingCard(rating: Rating) {
                         .heightIn(0.dp, maxHeight.dp)
                 )
                 Text(
-                    text = rating.username,
+                    text = rating.username.ifEmpty { stringResource(id = R.string.unnamed) },
                     color = MaterialTheme.colors.surface,
                     fontSize = textNormal,
                     fontWeight = FontWeight.Bold

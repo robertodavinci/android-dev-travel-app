@@ -4,12 +4,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import com.apps.travel_app.MainActivity
 import com.apps.travel_app.data.room.db.AppDatabase
 import com.apps.travel_app.data.room.entity.Location
 import com.apps.travel_app.models.Destination
 import com.apps.travel_app.models.Trip
 
-class TripsViewModel(db: AppDatabase, onLoaded: (ArrayList<Destination>, ArrayList<Trip>) -> Unit): ViewModel() {
+class TripsViewModel(val db: AppDatabase, val onLoaded: (ArrayList<Destination>, ArrayList<Trip>) -> Unit): ViewModel() {
     var saved =
             ArrayList<Destination>()
 
@@ -17,8 +18,7 @@ class TripsViewModel(db: AppDatabase, onLoaded: (ArrayList<Destination>, ArrayLi
     var savedTrips =
             ArrayList<Trip>()
 
-
-    init {
+    fun start() {
         Thread {
             val locations = db.locationDao().getAllSaved() as ArrayList<Location>
             val savedLocations = arrayListOf<Destination>()
@@ -39,6 +39,11 @@ class TripsViewModel(db: AppDatabase, onLoaded: (ArrayList<Destination>, ArrayLi
             savedTrips = finalSavedTrips
             onLoaded(saved,savedTrips)
         }.start()
+    }
+
+
+    init {
+        start()
     }
 
 }

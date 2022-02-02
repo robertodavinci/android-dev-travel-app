@@ -9,6 +9,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
@@ -45,25 +46,26 @@ fun MessageField(message: Message? = null, tripId: String, onAdd: (Message) -> U
         trailingIcon = {
             IconButton(
                 onClick = {
-                    val newMessage = createMessage(newMessageText)
-                    newMessage.parent = message?.id
-                    newMessage.entityId = tripId
-                    Thread {
-                        val gson = Gson()
-                        val request = gson.toJson(newMessage)
-                        val tripText = sendPostRequest(
-                            request,
-                            action = "newMessage"
-                        ) // NON-NLS
-                        if (!tripText.isNullOrEmpty()) {
-                            newMessage.id = tripText
-                            newMessageText = String()
-                            FirebaseMessaging.getInstance().subscribeToTopic("trip$tripId")
-                            onAdd(newMessage)
-                        }
+                    if (newMessageText.trim().isNotEmpty()) {
+                        val newMessage = createMessage(newMessageText)
+                        newMessage.parent = message?.id
+                        newMessage.entityId = tripId
+                        Thread {
+                            val gson = Gson()
+                            val request = gson.toJson(newMessage)
+                            val tripText = sendPostRequest(
+                                request,
+                                action = "newMessage"
+                            ) // NON-NLS
+                            if (!tripText.isNullOrEmpty()) {
+                                newMessage.id = tripText
+                                newMessageText = String()
+                                FirebaseMessaging.getInstance().subscribeToTopic("trip$tripId")
+                                onAdd(newMessage)
+                            }
 
-                    }.start()
-
+                        }.start()
+                    }
 
                 }) {
                 FaIcon(FaIcons.PaperPlaneRegular, tint = MaterialTheme.colors.surface)
@@ -140,7 +142,7 @@ fun MessageCard(message: Message, level: Int = 0, tripId: String) {
                         )
                     }
                     Text(
-                        text = message.username,
+                        text = message.username.ifEmpty { stringResource(id = R.string.unnamed) },
                         color = MaterialTheme.colors.surface,
                         fontSize = textNormal,
                         fontWeight = FontWeight.Bold

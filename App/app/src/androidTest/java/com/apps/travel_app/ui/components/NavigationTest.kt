@@ -5,6 +5,7 @@ import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry
 import androidx.test.runner.lifecycle.Stage
 import com.apps.travel_app.MainActivity
@@ -42,19 +43,17 @@ class NavigationTest : TestCase() {
 
         composeTestRule.onNodeWithTag("around").performClick()
         Thread.sleep(3000)
-        InstrumentationRegistry.getInstrumentation().runOnMainSync {
+        getInstrumentation().runOnMainSync {
 
-            try {
-                val activity =
-                    ActivityLifecycleMonitorRegistry.getInstance().getActivitiesInStage(
-                        Stage.RESUMED
-                    ).first()
 
-                assertTrue(activity is AroundMeActivity)
+            val activity =
+                ActivityLifecycleMonitorRegistry.getInstance().getActivitiesInStage(
+                    Stage.RESUMED
+                ).first()
 
-            } catch (e: Exception) {
-                Log.e("TEST", e.localizedMessage)
-            }
+            assertTrue(activity is AroundMeActivity) // seems to not work in Debug test mode
+            // works in release
+
         }
 
     }

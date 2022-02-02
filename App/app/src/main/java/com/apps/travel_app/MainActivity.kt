@@ -5,6 +5,7 @@ import FaIcons
 import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
+import android.database.Observable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -52,6 +53,12 @@ import com.google.firebase.messaging.FirebaseMessaging
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.guru.fontawesomecomposelib.FaIconType
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.flow
+import java.util.*
+import java.util.concurrent.Flow
 import java.util.prefs.Preferences
 import kotlin.reflect.KProperty
 
@@ -70,6 +77,18 @@ class MainActivity : ComponentActivity() {
     private var destinationText: String? = String()
     var cameFromMap: Boolean = false
 
+
+    private val flowToReturnBase = MutableSharedFlow<Boolean>(
+        replay = 0,
+        extraBufferCapacity = 1, // you can increase
+        BufferOverflow.DROP_OLDEST
+    )
+    val flowToReturn = flowToReturnBase.asSharedFlow()
+
+    override fun onPostResume() {
+        flowToReturnBase.tryEmit(true)
+        super.onPostResume()
+    }
 
     @OptIn(ExperimentalFoundationApi::class,
         androidx.compose.animation.ExperimentalAnimationApi::class,

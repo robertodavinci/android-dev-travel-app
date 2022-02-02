@@ -102,4 +102,5 @@
     <string name="wanna_leave">Do you want to exit without saving?</string>
     <string name="untitled">Untitled</string>
     <string name="no_result">Ops, no result</string>
+    <string name="unnamed">No name</string>
 </resources>

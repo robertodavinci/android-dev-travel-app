@@ -2,6 +2,7 @@ package com.apps.travel_app.ui.pages
 // Vincenzo Manto
 import android.app.Activity
 import android.content.res.Resources
+import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -17,7 +18,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.BottomCenter
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
@@ -30,9 +30,9 @@ import com.apps.travel_app.ui.theme.Travel_AppTheme
 import com.apps.travel_app.ui.theme.cardRadius
 import com.apps.travel_app.ui.theme.darkBackground
 import com.apps.travel_app.ui.theme.requireFullscreenMode
+import com.apps.travel_app.ui.utils.API
 import com.apps.travel_app.ui.utils.errorMessage
 import com.apps.travel_app.ui.utils.sendPostRequest
-import com.google.android.material.snackbar.Snackbar
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.skydoves.landscapist.glide.GlideImage
@@ -89,7 +89,9 @@ class InspirationActivity : ComponentActivity() {
                         Grid(this@InspirationActivity)
                     }
                     else  {
-                        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxSize().padding(100.dp)) {
+                        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier
+                            .fillMaxSize()
+                            .padding(100.dp)) {
                             Loader()
                         }
                     }
@@ -124,7 +126,7 @@ class InspirationActivity : ComponentActivity() {
                 if ((j / 10) > 6)
                     break
 
-                val p = random() > 0.7f && !prevDoubled && j % 10 != 0
+                val p = random() > 0.8f && !prevDoubled && j % 10 != 0
 
                 doubles.add(p)
                 prevDoubled = p
@@ -166,7 +168,9 @@ class InspirationActivity : ComponentActivity() {
         )
 
         Box(
-            modifier = Modifier.fillMaxSize().background(darkBackground)
+            modifier = Modifier
+                .fillMaxSize()
+                .background(darkBackground)
         ) {
             Box(
                 modifier = Modifier
@@ -196,7 +200,10 @@ class InspirationActivity : ComponentActivity() {
 
                     Card(
                         modifier = Modifier
-                            .offset((x + w / 2 - 5).dp, (-height / 2f + element[1] * height / 6f).dp)
+                            .offset(
+                                (x + w / 2 - 5).dp,
+                                (-height / 2f + element[1] * height / 6f).dp
+                            )
                             .width((w - 5).dp)
                             .height((height / 6f - 5).dp),
                         shape = RoundedCornerShape(cardRadius)
@@ -213,7 +220,12 @@ class InspirationActivity : ComponentActivity() {
                                     )
                                 }
                         ) {
-                            val url by remember { mutableStateOf(destinations[index].thumbnailUrl) }
+                            val uri: String = Uri.parse("$API?action=getImage")
+                                .buildUpon()
+                                .appendQueryParameter("url", destinations[index].thumbnailUrl)
+                                .build().toString()
+                            val url by remember { mutableStateOf(
+                                uri) }
                             GlideImage(
                                 imageModel = url,
                                 contentScale = ContentScale.Crop
@@ -232,101 +244,6 @@ class InspirationActivity : ComponentActivity() {
                 open = opened != -1,
                 activity = activity
             )
-
-            /*Box(
-                modifier = Modifier
-                    .fillMaxSize()
-            ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(150.dp)
-                        .align(BottomStart)
-                        .background(
-                            brush = Brush.verticalGradient(
-                                colors = listOf(
-                                    Transparent,
-                                    colors.background
-                                )
-                            )
-                        )
-                )
-
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(150.dp)
-                        .align(TopStart)
-                        .background(
-                            brush = Brush.verticalGradient(
-                                colors = listOf(
-
-                                    colors.background,
-                                    Transparent
-                                )
-                            )
-                        )
-                ) {
-                    Heading("Spin and pick your place")
-                }
-
-                Box(
-                    modifier = Modifier
-                        .fillMaxHeight()
-                        .width(100.dp)
-                        .align(TopEnd)
-                        .background(
-                            brush = Brush.horizontalGradient(
-                                colors = listOf(
-                                    Transparent,
-                                    colors.background
-                                )
-                            )
-                        )
-                )
-
-                Box(
-                    modifier = Modifier
-                        .fillMaxHeight()
-                        .width(100.dp)
-                        .align(TopStart)
-                        .background(
-                            brush = Brush.horizontalGradient(
-                                colors = listOf(
-                                    colors.background,
-                                    Transparent
-                                )
-                            )
-                        )
-                )
-                /*val v: Float by animateFloatAsState(
-                    if (opened > -1) 1f else 0f, animationSpec = tween(
-                        durationMillis = 1000,
-                        easing = LinearOutSlowInEasing
-                    )
-                )
-                Button(
-                    onClick = {
-                        opened = -1
-                    },
-                    modifier = Modifier
-                        .size((v * 40).dp)
-                        .align(Center)
-                        .offset(x = (width / 3 - 40).dp, y = (-height / 6 + 40).dp),
-                    contentPadding = PaddingValues(
-                        start = 2.dp,
-                        top = 2.dp,
-                        end = 2.dp,
-                        bottom = 2.dp
-                    )
-                ) {
-                    FaIcon(
-                        FaIcons.Times,
-                        tint = colors.surface
-                    )
-                }*/
-
-            }*/
 
         }
     }

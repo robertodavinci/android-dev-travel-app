@@ -1,6 +1,7 @@
 package com.apps.travel_app.ui.pages
 // Vincenzo Manto
 import FaIcons
+import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement.SpaceBetween
@@ -39,11 +40,16 @@ import com.apps.travel_app.ui.theme.primaryColor
 import com.apps.travel_app.user
 import com.google.firebase.messaging.FirebaseMessaging
 import com.guru.fontawesomecomposelib.FaIcon
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 
+@SuppressLint("CoroutineCreationDuringComposition")
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun TripsScreen(mainActivity: MainActivity) {
-
 
     val db = Room.databaseBuilder(
         mainActivity,
@@ -56,10 +62,15 @@ fun TripsScreen(mainActivity: MainActivity) {
 
     val viewModel = remember {
         TripsViewModel(db) { dests, trips ->
+            saved.clear()
             saved.addAll(dests.toList())
+            savedTrips.clear()
             savedTrips.addAll(trips.toList())
         }
     }
+
+                viewModel.start()
+
 
     Column(modifier = Modifier.background(MaterialTheme.colors.background)) {
 
@@ -121,20 +132,23 @@ fun TripsScreen(mainActivity: MainActivity) {
                         Heading(stringResource(R.string.saved))
                     }
 
-                    itemsIndexed(saved, key = { _, a -> a.id }) { index, destination ->
+                    itemsIndexed(saved, { _, a -> a.id }) { index, destination ->
                         val state = rememberDismissState(
                             confirmStateChange = {
                                 if (it == DismissValue.DismissedToStart || it == DismissValue.DismissedToEnd) {
                                     Thread {
                                         Thread.sleep(500)
                                         db.locationDao().delete(destination.toLocation())
-                                        viewModel.saved.remove(destination)
+                                        //viewModel.saved.remove(destination)
+
                                         saved.remove(destination)
                                         FirebaseMessaging.getInstance()
                                             .unsubscribeFromTopic("city" + destination.id)
+                                        viewModel.saved.removeAt(index)
+                                        saved.removeAt(index)
                                     }.start()
                                 }
-                                true
+                                false
                             }
                         )
                         SwipeToDismiss(state = state, background = {
@@ -184,7 +198,7 @@ fun TripsScreen(mainActivity: MainActivity) {
                                     viewModel.savedTrips.removeAt(index)
                                     savedTrips.removeAt(index)
                                 }
-                                true
+                                false
                             }
                         )
                         SwipeToDismiss(state = state, background = {

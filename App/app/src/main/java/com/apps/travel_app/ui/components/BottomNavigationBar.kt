@@ -1,6 +1,7 @@
 package com.apps.travel_app.ui.components
 
 import FaIcons
+import android.annotation.SuppressLint
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -56,6 +57,7 @@ import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 
 
+@SuppressLint("CoroutineCreationDuringComposition")
 @OptIn(ExperimentalMaterialApi::class, androidx.compose.ui.ExperimentalComposeUiApi::class)
 @Composable
 fun BottomNavigationBar(navController: NavController, mainActivity: MainActivity) {
@@ -112,7 +114,7 @@ fun BottomNavigationBar(navController: NavController, mainActivity: MainActivity
             }
         }.start()
     }
-
+    val state = rememberLazyListState()
     val keyboardController = LocalSoftwareKeyboardController.current
     Box {
         FullHeightBottomSheet(mH = 160f, background = colors.onBackground, MH = 200) { status ->
@@ -120,7 +122,11 @@ fun BottomNavigationBar(navController: NavController, mainActivity: MainActivity
                 searchTerm = ""
                 DisposableEffect(Unit) {
                     localFocusManager.clearFocus()
+
                     onDispose { }
+                }
+                CoroutineScope(Main).launch {
+                    state.scrollToItem(0)
                 }
             }
             Column(
@@ -137,7 +143,7 @@ fun BottomNavigationBar(navController: NavController, mainActivity: MainActivity
                         clip = true
                     }
                     .background(colors.background), verticalAlignment = Alignment.CenterVertically) {
-                    TextField(
+                    BasicTextField(
                         keyboardOptions = KeyboardOptions(imeAction = androidx.compose.ui.text.input.ImeAction.Search),
                         keyboardActions = KeyboardActions(
                             onSearch = {Search(searchTerm);keyboardController?.hide()}),
@@ -154,17 +160,11 @@ fun BottomNavigationBar(navController: NavController, mainActivity: MainActivity
                                 testTag = "searchText"
                             },
                         singleLine = true,
-                        colors = TextFieldDefaults.textFieldColors(
-                            focusedIndicatorColor = Color.Transparent,
-                            disabledIndicatorColor = Color.Transparent,
-                            unfocusedIndicatorColor = Color.Transparent,
-                            backgroundColor = Color.Transparent,
-                        ),
                         textStyle = TextStyle(
                             color = colors.surface,
                             fontWeight = FontWeight.Bold
                         ),
-                        //cursorBrush = SolidColor(colors.surface)
+                        cursorBrush = SolidColor(colors.surface)
                     )
                     IconButton(modifier = Modifier.semantics {
                         testTag = "search"
@@ -181,8 +181,8 @@ fun BottomNavigationBar(navController: NavController, mainActivity: MainActivity
                 if (!isOnline(mainActivity)) {
                     NetworkError()
                 } else if (status == States.EXPANDED) {
-                    val state = rememberLazyListState()
-                    LazyColumn(Modifier.padding(bottom = 60.dp), state = state) {
+
+                    LazyColumn(state = state) {
                         if (places.value.size ==  0 && cities.value.size == 0 && trips.value.size == 0) {
                             item {
                                 Heading(stringResource(R.string.search_your_places) )
@@ -350,7 +350,9 @@ fun BottomNavigationBar(navController: NavController, mainActivity: MainActivity
                                 }
                             }
                         }
-
+                        item {
+                            Spacer(Modifier.height(100.dp))
+                        }
 
                     }
                 }
