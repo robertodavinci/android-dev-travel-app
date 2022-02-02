@@ -1,18 +1,5 @@
 package com.apps.travel_app.ui.pages
 
-/**
- * File that is both activity and composable function, used for
- * searching the trips and destinations in the surrounding area of the user.
- * Accessed by selecting "The Wall" in the ExploreScreen.
- * Bases its functions on location permission, without which it cannot work,
- * and if it's not allowed, just goes back to the previous screen. Uses hidden
- * map element to help user find destinations in the database that are located
- * in the surrounding radius. The radius is determined by user touch input.
- * Uses small bubbles (GlideImage) to present the destinations, which are clickable
- * and can lead to LocationScreen.
- *
- *
- */
 import FaIcons
 import android.Manifest
 import android.animation.Animator

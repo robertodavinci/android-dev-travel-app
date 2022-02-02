@@ -1,10 +1,5 @@
 package com.apps.travel_app.ui.utils
 
-/**
- * Controller used for communication with the middleware, that then connects to the backend.
- * Used when the app is functioning in the 'Online' mode.
- */
-
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory

@@ -1,9 +1,5 @@
 package com.apps.travel_app.ui.pages.viewmodels
-/**
- * A view model used for fetching and forwarding the data regarding GooglePlace.
- * Used in combination with GooglePlaceScreen. Has functions of fetching the items.
- * todos, eat and stay places, that are directly connected to that Google Place.
- */
+
 import android.app.Activity
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue

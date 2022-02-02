@@ -1,10 +1,5 @@
 package com.apps.travel_app.ui.components.login
-/**
- * Activity used for logging in and registering to the app. Successful login/register
- * leads directly to the main activity. Has both functions for Facebook and Google login, as well
- * as email login. Sets shared preferences after a successful login. Handles logging in with
- * different social media accounts of the same email by merging them.
- */
+
 import FaIcons
 import android.content.Context
 import android.content.Intent

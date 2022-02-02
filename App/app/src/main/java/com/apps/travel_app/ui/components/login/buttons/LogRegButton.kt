@@ -1,7 +1,5 @@
 package com.apps.travel_app.ui.components.login
-/**
- * Not used in the final version of the app.
- */
+
 import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable

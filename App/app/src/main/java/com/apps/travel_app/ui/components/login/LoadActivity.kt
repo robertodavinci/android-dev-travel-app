@@ -1,7 +1,5 @@
 package com.apps.travel_app.ui.components.login
-/**
- * A simple activity used for handling Deep links that are coming from outisde of the app.
- */
+
 import android.content.Intent
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity

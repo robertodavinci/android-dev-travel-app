@@ -1,8 +1,5 @@
 package com.apps.travel_app.ui.components
-/**
- * Composable element that is used as a base for card view of both
- * trips and destinations.
- */
+
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween

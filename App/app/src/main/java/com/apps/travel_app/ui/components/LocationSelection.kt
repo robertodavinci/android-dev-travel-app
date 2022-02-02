@@ -1,7 +1,5 @@
 package com.apps.travel_app.ui.components
-/**
- * Composable function that handles the location selection when adding a destination.
- */
+
 import FaIcons
 import android.Manifest
 import android.app.Activity

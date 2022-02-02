@@ -1,9 +1,5 @@
 package com.apps.travel_app.ui.components
-/**
- * Composable element that holds an image and a name of a specific destination.
- * Form of a card with rounded corners. When pressed, the destination page is
- * accessed.
- */
+
 import android.app.Activity
 import android.content.Intent
 import android.util.Log

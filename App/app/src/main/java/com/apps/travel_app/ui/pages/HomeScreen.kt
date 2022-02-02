@@ -1,14 +1,5 @@
 package com.apps.travel_app.ui.pages
 
-/**
- * Composable function of the home screen, the initial screen after login.
- * It can also be accessed by pressing the first button in the navigation
- * controller. Displays two different sections, Trips and Destinations, in which
- * both of those are located in the form of cards. Uses a small gif as a
- * loading transition before fetching all of the data. Directly communicates
- * with the HomeViewModel for handling fetching and displaying the data.
- *
- */
 import android.graphics.Bitmap
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*

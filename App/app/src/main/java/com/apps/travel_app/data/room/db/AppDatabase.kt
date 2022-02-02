@@ -1,9 +1,5 @@
 package com.apps.travel_app.data.room.db
 
-/**
- * App Room databse for storing local data (offline trips), connected to the DAOs,
- * which are interfaces for query functions that connect to the database.
- */
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import com.apps.travel_app.data.room.dao.*

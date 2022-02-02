@@ -1,11 +1,5 @@
 package com.apps.travel_app.ui.pages.viewmodels
-/**
- * A view model used for fetching and forwarding the data regarding Locations.
- * Used in combination with LocationScreen. Has functions of fetching everything
- * regarding specific location, including Trips that feature that location,
- * facilities that are located there via Google Places, and finally, ratings
- * that are concerned to this location.
- */
+
 import android.app.Activity
 import androidx.compose.runtime.*
 import androidx.lifecycle.ViewModel
