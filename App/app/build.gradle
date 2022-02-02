@@ -64,6 +64,7 @@ android {
 dependencies {
 
     implementation "androidx.room:room-runtime:2.4.0-beta02"
+    implementation 'androidx.test.uiautomator:uiautomator:2.2.0'
     annotationProcessor "androidx.room:room-compiler:2.4.0-beta02"
     kapt "androidx.room:room-compiler:2.4.0-beta02"
     implementation "androidx.core:core-ktx:1.7.0"
