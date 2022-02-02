@@ -8,6 +8,8 @@ The base of the Android app technology is the Android Compose, which uses differ
 This is where the viewmodel architecture comes in. Instead of directly handling the data and communicating with the data layer of the application, which in this case is done through the middleware, the frontend has additional sub layer which handles all the data, communication, and calculations of which parts of the interface should be shown. There are many advantages to this, with the main ones being complete independent handling of the communication and the presentation.\\ \\
 Making big changes or adding additional functions in the middle of the app development can exponentially increase the production time and can quite often lead to rewriting the same parts of the code multiple times. Viewmodel architecture provides a certain kind of stability of the code, as adding additional function will usually mean writing either only the presentational part or the communication part, and then just connecting it with other already existing functions. It dramatically improves clarity and speed of development once everything is set up. Lastly, detecting bugs and unintended behaviour in the app is far easier, as we always know in which layer the problem is located. This makes it not only easier to find, but also easier to fix, as there is a good chance that we are only going to have to change a small part of the code, assuming that the other part is written correctly. In other types of architectures this often leads to rewriting entire parts of the frontend.\\ \\
 One of the main disadvantages of this model is it's complexity, as there is another additional layer of communication in which the data needs to be handled and adapted in order to be passed through. This of course increases the time of development and the possibility of bugs, but if everything is done correctly, it provides a great tradeoff.\\
+Multithreading is also used in a lot of different places in the app, specifically in fetching the data from the database and Google Services and working with it in the background while the user can easily navigate the app. 
+\\
 
 Almost every screen/activity has it's own view model, with the focus being on ones that have the most communication with the backend. The list of all the activities and their respective viewmodels is the following:
 \begin{itemize}
@@ -78,7 +80,8 @@ Besides all of the destinations and the basic info, trip entity also features cr
 
 \subsection{Middleware architecture}
 \hspace{\parindent}In order to connect the data on the server to the screen of the phone and to allow the user to properly see the data, we have implemented a complicated layer of functions and classes in order to create easy-to-use and esthetically pleasing experience for the user. In this section the most important functions of this layer, and everything that does not belong to the frontend and backend will be explained.\\ \\
-In general, it works as a separator or a controller of the three-layer infrastructure that is being used by the app.
+In general, it works as a separator or a controller of the three-layer infrastructure that is being used by the app.\\ \\
+Notifications are also enabled and allow users to see new trips that hold the destinations they have favourited. These can be easily turned on or off in the settings screen.\\
 \subsubsection{Communication with the backend}
 \hspace{\parindent}App comunicates with the backend through the queries. After user's input, they are generated within the app, and the query is sent to the database. Database then collects all the needed data and sends it back to the application in the form of JSON files, which are easily readable and are rather simple to manipulate. 
 
@@ -95,7 +98,7 @@ This way whenever the users return to the library of created/saved trips, they w
 \newpage
 \subsubsection{Create a trip}
 
-\hspace{\parindent}Create a trip use case starts with opening the app and pressing on the "Create a trip" button. A new screen opens up which allows us to change certain attributes about the trip and add different destinations. Every trip needs to have a name, which doesn't have to be unique, since there is an ID that is automatically allocated to the every trip. Every trip needs to have at least two destinations. We can search through destinations via the search bar or by using the interactive map and selecting a destination from the map. After selecting a destination, we add it to the trip. Destinations can be reordered and removed from the trip at any time, which is not shown in the diagram due to simplicity and concision. The price level of the trip should also be defined before saving the trip. Trip can also be discarded. In the end, if the user is satisfied with its trip, they can publish it in which case it will be stored directly in the database. Local database is not used for storing unpublished trips, since this would mean that by losing local data, all of the unpublished trips would be lost. All of the trips are stored in the online database and are can be found by other users only if published.  
+\hspace{\parindent}Create a trip use case starts with opening the app and pressing on the "Create a trip" button. A new screen opens up which allows us to change certain attributes about the trip and add different destinations. Every trip needs to have a name, which doesn't have to be unique, since there is an ID that is automatically allocated to the every trip. Every trip needs to have at least two destinations. We can search through destinations via the search bar or by using the interactive map and selecting a destination from the map. After selecting a destination, we add it to the trip. Destinations can be reordered and removed from the trip at any time, which is not shown in the diagram due to simplicity and concision. Trip can also be discarded. In the end, if the user is satisfied with its trip, they can publish it in which case it will be stored directly in the database. Local database is not used for storing unpublished trips, since this would mean that by losing local data, all of the unpublished trips would be lost. All of the trips are stored in the online database and are can be found by other users only if published.  
 \begin{figure}[!htb]
 \centering
 \includegraphics[width=0.9\textwidth]{../Graphs/Sequence1_Create_A_Trip.png}
@@ -104,7 +107,7 @@ This way whenever the users return to the library of created/saved trips, they w
 \newpage
 \subsubsection{Edit a trip}
 
-\hspace{\parindent}Edit a trip use case starts with opening the app and choosing one of two ways of searching for a trip. One way is searching for a trip name/ID directly through the search bar, and another is by searching for a trip on the interactive map. After the trip is found, it is somewhat "copied" to the instance of the user. User can then edit every single bit of the trip - change the name, change the price level, and add/remove destinations (again, destination removal is not shown in the graph due to simplicity). Finally the user can choose to save the trip without publishing it, or publish it so that everyone else is able to find it. Either way, the trip gets a brand new ID only if it has been changed in any way (changing only the trip name and/or price level is not regarded as a change). Again, due to data safety, in either case it is stored online.\\
+\hspace{\parindent}Edit a trip use case starts with opening the app and choosing one of two ways of searching for a trip. One way is searching for a trip name/ID directly through the search bar, and another is by searching for a trip on the interactive map. After the trip is found, it is somewhat "copied" to the instance of the user. User can then edit every single bit of the trip - change the name, and add/remove destinations (again, destination removal is not shown in the graph due to simplicity). Finally the user can choose to save the trip without publishing it, or publish it so that everyone else is able to find it. Either way, the trip gets a brand new ID only if it has been changed in any way (changing only the trip name is not regarded as a change). Again, due to data safety, in either case it is stored online.\\
 \begin{figure}[!htb]
 \centering
 \includegraphics[width=0.8\textwidth]{../Graphs/Sequence2_Edit_A_Trip.png}
@@ -125,10 +128,10 @@ This way whenever the users return to the library of created/saved trips, they w
 
 \textbf{Search by name and ID}
 
-The app features a search bar right above the navigation bar, which allows users to search through the database of saved trips and destinations by name. Both destinations created by the users and Google Places destinations are featured, just like trips created by both the current user and all other users. Trips can also be searched by the unique ID that has been assigned to every public trip.\\ \\
+The app features a search bar right above the navigation bar, which allows users to search through the database of saved trips and destinations by name. Both destinations created by the users and Google Places destinations are featured, just like trips created by both the current user and all other users. Trips can also be searched by the unique ID that has been assigned to every public trip. The user can also share the link of a trip (via the trip screen) that can then be clicked from outside of the app, and via trip ID, is brought to the trip screen of a specific trip.\\ \\
 \begin{figure}[!htb]
 \centering
-\includegraphics[width=.45\textwidth]{../Images/UI/SearchName.jpg}
+\includegraphics[width=.35\textwidth]{../Images/UI/SearchName.jpg}
 \caption{\label{fig:dbapiuser}\textbf{Search by name and ID}}
 \end{figure}
 \newpage
