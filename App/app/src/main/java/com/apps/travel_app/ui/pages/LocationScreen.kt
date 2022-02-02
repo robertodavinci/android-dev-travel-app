@@ -1,5 +1,14 @@
 package com.apps.travel_app.ui.pages
 
+/**
+ * Composable function that is shown when one of the locations is selected.
+ * It features all of the details about that location, and if it's a Google location,
+ * fetches additional places and destinations connected to it via Google Places.
+ * Fetches and displays all of the trips in which a certain location has been used.
+ * Directly connected to the LocationViewModel.
+ */
+
+
 import FaIcons
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState

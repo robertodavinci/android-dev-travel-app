@@ -1,5 +1,9 @@
 package com.apps.travel_app.ui.components
 
+/**
+ * Composable element that displays weather based on weather symbols.
+ * In the form of FaIcons. Not used in the final version of the app.
+ */
 import FaIcons
 import com.apps.travel_app.ui.utils.sendPostRequest
 import com.guru.fontawesomecomposelib.FaIconType

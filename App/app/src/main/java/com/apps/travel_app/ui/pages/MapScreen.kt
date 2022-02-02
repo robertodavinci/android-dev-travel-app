@@ -1,5 +1,13 @@
 package com.apps.travel_app.ui.pages
 
+/**
+ * Map composable function that uses a Map utility to display
+ * the map of the world which allows the user to search for
+ * different destinations and trips. Displayed when the 2nd
+ * button on the navigation bar is pressed, or a new location is
+ * being selected in the trip creation. Communicates directly with the
+ * MapViewModel, which handles presses and actions done while on this screen.
+ */
 import FaIcons
 import android.content.Context
 import android.util.Log

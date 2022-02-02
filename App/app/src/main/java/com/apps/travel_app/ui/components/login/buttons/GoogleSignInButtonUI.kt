@@ -1,5 +1,8 @@
 package com.apps.travel_app.ui.components.login.buttons
-
+/**
+ * Composable button used for signing in to the app via Google.
+ * Only visual style.
+ */
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.LinearOutSlowInEasing

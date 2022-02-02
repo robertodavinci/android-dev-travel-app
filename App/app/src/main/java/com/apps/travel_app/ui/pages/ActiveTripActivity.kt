@@ -1,5 +1,8 @@
 package com.apps.travel_app.ui.pages
 
+/**
+ * Prototype function, not used in the final version of the app.
+ */
 import FaIcons
 import android.os.Bundle
 import androidx.preference.PreferenceManager

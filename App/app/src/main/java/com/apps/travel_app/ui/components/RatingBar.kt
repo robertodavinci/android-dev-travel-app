@@ -1,5 +1,9 @@
 package com.apps.travel_app.ui.components
-
+/**
+ * Composable element that holds a rating of a certain destination or a trip.
+ * Displayed in a form of up to five stars. Used in combination with destination cards,
+ * trip cards, and trip steps.
+ */
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*

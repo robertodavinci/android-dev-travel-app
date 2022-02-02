@@ -1,5 +1,12 @@
 package com.apps.travel_app.ui.utils
 
+/**
+ * Map view element used for searching places, destinations, and trips.
+ * User in several different screens - when searching for places and when
+ * adding destinations to the trip. Also features additional details like
+ * markers and lining on the map.
+ */
+
 import android.graphics.*
 import android.os.Bundle
 import android.os.Handler

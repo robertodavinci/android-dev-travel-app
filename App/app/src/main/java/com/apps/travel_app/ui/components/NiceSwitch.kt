@@ -1,5 +1,8 @@
 package com.apps.travel_app.ui.components
-
+/**
+ * Composable element of a switch, used in profile screen settings to change
+ * light/night mode and notification settings.
+ */
 import FaIcons
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState

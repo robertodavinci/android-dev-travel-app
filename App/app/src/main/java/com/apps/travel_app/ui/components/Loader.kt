@@ -1,5 +1,8 @@
 package com.apps.travel_app.ui.components
-
+/**
+ * Composable element in a form of a gif Astronout, that imitates
+ * loading screen while some of the parts of the app are being loaded.
+ */
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Text

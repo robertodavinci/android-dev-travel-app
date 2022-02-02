@@ -3,11 +3,12 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Docs/Uni/Mobile_App_Dev/Travel_App/android-dev-travel-app/App/app/src/main/res/layout/activity_load.xml" value="0.36666666666666664" />
         <entry key="..\:/Users/vincm/Desktop/Vincenzo/Universita/4.1/DIMA/APP/android-dev-travel-app/app/App/src/main/res/drawable/ic_launcher_background.xml" value="0.1215" />
       </map>
     </option>
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_15_PREVIEW" project-jdk-name="15" project-jdk-type="JavaSDK">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_15" project-jdk-name="15" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/build/classes" />
   </component>
   <component name="ProjectType">

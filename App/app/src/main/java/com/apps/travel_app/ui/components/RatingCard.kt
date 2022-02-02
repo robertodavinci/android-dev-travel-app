@@ -1,5 +1,7 @@
 package com.apps.travel_app.ui.components
-
+/**
+ * Composable function  in a form of a card that holds a rating text and value to a specific destination.
+ */
 
 import com.apps.travel_app.R
 import androidx.compose.material.MaterialTheme

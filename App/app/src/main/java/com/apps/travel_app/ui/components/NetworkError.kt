@@ -1,5 +1,7 @@
 package com.apps.travel_app.ui.components
-
+/**
+ * Composable function that informs the user of a network error.
+ */
 import FaIcons
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer

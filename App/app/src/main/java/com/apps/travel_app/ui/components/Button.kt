@@ -1,5 +1,7 @@
 package com.apps.travel_app.ui.components
-
+/**
+ * Composable element of a button.
+ */
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape

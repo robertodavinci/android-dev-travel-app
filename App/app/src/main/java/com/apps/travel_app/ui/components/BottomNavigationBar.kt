@@ -240,7 +240,7 @@ fun BottomNavigationBar(navController: NavController, mainActivity: MainActivity
                                         Box(
                                             modifier = Modifier
                                                 .weight(1f)
-                                                .heightIn(0.dp, 120.dp)
+                                                .heightIn(0.dp, 120.dp).semantics { testTag = "boxTrips" }
                                         ) {
                                             TripCard(
                                                 trip = trip,

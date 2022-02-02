@@ -1,5 +1,13 @@
 package com.apps.travel_app.ui.pages
 
+/**
+ * Composable screen showing all of the trips the user has favourited or saved.
+ * Accessed by pressing the middle blue button on the navigation bar of the app.
+ * Trips saved and fetched in this function can be accessed both in online and offline mode
+ * of the app. Directly connected tp the TripsViewModel that handles actions that are occurring in this
+ * file.
+ */
+
 import FaIcons
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*

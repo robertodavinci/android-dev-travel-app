@@ -1,5 +1,9 @@
 package com.apps.travel_app.models
 
+/**
+ * Model used for communication between the app and Google Firestore.
+ * User for fetching and storing user preferences and personal details.
+ */
 import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration

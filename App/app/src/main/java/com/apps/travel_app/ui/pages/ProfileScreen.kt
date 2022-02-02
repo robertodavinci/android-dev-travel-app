@@ -1,5 +1,17 @@
 package com.apps.travel_app.ui.pages
 
+/**
+ * Composable function that is accessed from the Main Activity
+ * by pressing the profile button in the navigation bar or upper
+ * right corner of the screen. Displays user details and preferences.
+ * Handles changes of the user preferences like darkMode, notifications,
+ * displayName, and realCredentials. Calls functions that keep track of
+ * the shared preferences and update them with the online data in the
+ * Firebase Firestore server. Communicates with the function UserQueries
+ * which handles updates and fetches from the Firebase server.
+ */
+
+
 import FaIcons
 import android.content.Context
 import android.util.Log

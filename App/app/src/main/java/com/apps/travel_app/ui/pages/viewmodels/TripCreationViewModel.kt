@@ -1,5 +1,11 @@
 package com.apps.travel_app.ui.pages.viewmodels
-
+/**
+ * A view model used for fetching and forwarding the data regarding Trip creation.
+ * Used in combination with TripCreationActivity. Has functions of creating a new trip,
+ * editing its details, saving a trip that is not completed, uploading a completed trip,
+ * selecting and adding gallery images, and adding a step to the trip. Maintains constant
+ * communication with the database.
+ */
 import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap

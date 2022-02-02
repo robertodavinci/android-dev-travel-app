@@ -1,5 +1,10 @@
 package com.apps.travel_app.ui.components
 
+/**
+ * Composable element that holds an image and a name of a specific trip.
+ * Form of a card with rounded corners. When pressed, the trip page is
+ * accessed.
+ */
 import FaIcons
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
