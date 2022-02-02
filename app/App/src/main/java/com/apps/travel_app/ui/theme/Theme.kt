@@ -1,5 +1,12 @@
 package com.apps.travel_app.ui.theme
 
+/**
+ * Defines two different themes used in different places in the app.
+ * Defines colour palettes for both dark and light mode, as well as
+ * their instantiation in the theme based on a boolean parameter.
+ *
+ */
+
 import android.content.Context
 import android.os.Build
 import android.view.View

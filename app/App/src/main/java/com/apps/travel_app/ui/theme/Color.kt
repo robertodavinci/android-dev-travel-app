@@ -1,5 +1,9 @@
 package com.apps.travel_app.ui.theme
 
+/**
+ * Definition of all colours used throughout the app.
+ */
+
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
